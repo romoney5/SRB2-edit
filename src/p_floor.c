@@ -1020,7 +1020,7 @@ static mobj_t *SearchMarioNode(msecnode_t *node)
 		}
 		// Ignore popped monitors, too.
 		if (node->m_thing->health == 0 // this only really applies for monitors
-		|| (!(node->m_thing->flags & MF_MONITOR) && (mobjinfo[node->m_thing->type].flags & MF_MONITOR))) // gold monitor support
+		|| (!(node->m_thing->flags & MF_MONITOR) && (mobjinfo[node->m_thing->type]->flags & MF_MONITOR))) // gold monitor support
 			continue;
 		// Okay, we found something valid.
 		if (!thing // take either the first thing
@@ -1884,7 +1884,7 @@ void EV_CrumbleChain(sector_t *sec, ffloor_t *rover)
 	}
 
 	sec->soundorg.z = (controlsec->floorheight + controlsec->ceilingheight)/2;
-	S_StartSound(&sec->soundorg, mobjinfo[type].activesound);
+	S_StartSound(&sec->soundorg, mobjinfo[type]->activesound);
 
 #undef controlsec
 

@@ -1017,9 +1017,9 @@ static int lib_getMobjInfo(lua_State *L)
 	lua_remove(L, 1);
 
 	i = luaL_checkinteger(L, 1);
-	if (i >= NUMMOBJTYPES)
-		return luaL_error(L, "mobjinfo[] index %d out of range (0 - %d)", i, NUMMOBJTYPES-1);
-	LUA_PushUserdata(L, &mobjinfo[i], META_MOBJINFO);
+	if (i >= nummobjinfo)
+		return luaL_error(L, "mobjinfo[] index %d out of range (0 - %zu)", i, nummobjinfo-1);
+	LUA_PushUserdata(L, mobjinfo[i], META_MOBJINFO);
 	return 1;
 }
 
@@ -1027,12 +1027,13 @@ static int lib_getMobjInfo(lua_State *L)
 static int lib_setMobjInfo(lua_State *L)
 {
 	mobjinfo_t *info;
+	const char *name;
 	lua_remove(L, 1); // don't care about mobjinfo[] userdata.
 	{
 		UINT32 i = luaL_checkinteger(L, 1);
-		if (i >= NUMMOBJTYPES)
-			return luaL_error(L, "mobjinfo[] index %d out of range (0 - %d)", i, NUMMOBJTYPES-1);
-		info = &mobjinfo[i]; // get the mobjinfo to assign to.
+		if (i >= nummobjinfo)
+			return luaL_error(L, "mobjinfo[] index %d out of range (0 - %zu)", i, nummobjinfo-1);
+		info = mobjinfo[i]; // get the mobjinfo to assign to.
 	}
 	luaL_checktype(L, 2, LUA_TTABLE); // check that we've been passed a table.
 	lua_remove(L, 1); // pop mobjtype num, don't need it any more.
@@ -1044,7 +1045,9 @@ static int lib_setMobjInfo(lua_State *L)
 		return luaL_error(L, "Do not alter mobjinfo in CMD building code!");
 
 	// clear the mobjinfo to start with, in case of missing table elements
+	name = info->name;
 	memset(info,0,sizeof(mobjinfo_t));
+	info->name = name;
 	info->doomednum = -1; // default to no editor value
 	info->spawnhealth = 1; // avoid 'dead' noclip behaviors
 
@@ -1121,10 +1124,10 @@ static int lib_setMobjInfo(lua_State *L)
 	return 0;
 }
 
-// #mobjinfo -> NUMMOBJTYPES
+// #mobjinfo -> nummobjinfo
 static int lib_mobjinfolen(lua_State *L)
 {
-	lua_pushinteger(L, NUMMOBJTYPES);
+	lua_pushinteger(L, nummobjinfo);
 	return 1;
 }
 
@@ -1195,7 +1198,6 @@ static int mobjinfo_get(lua_State *L)
 	enum mobjinfo_e field = Lua_optoption(L, 2, mobjinfo_doomednum, mobjinfo_fields_ref);
 
 	I_Assert(info != NULL);
-	I_Assert(info >= mobjinfo);
 
 	mobjtype_t id = info-mobjinfo;
 
@@ -1318,7 +1320,6 @@ static int mobjinfo_set(lua_State *L)
 		return luaL_error(L, "Do not alter mobjinfo in CMD building code!");
 
 	I_Assert(info != NULL);
-	I_Assert(info >= mobjinfo);
 
 	switch (field)
 	{
@@ -1417,6 +1418,7 @@ static int mobjinfo_set(lua_State *L)
 }
 
 // mobjinfo_t * -> MT_*
+/*
 static int mobjinfo_num(lua_State *L)
 {
 	mobjinfo_t *info = *((mobjinfo_t **)luaL_checkudata(L, 1, META_MOBJINFO));
@@ -1427,6 +1429,7 @@ static int mobjinfo_num(lua_State *L)
 	lua_pushinteger(L, info-mobjinfo);
 	return 1;
 }
+*/
 
 //////////////
 // SFX INFO //
@@ -1919,7 +1922,7 @@ int LUA_InfoLib(lua_State *L)
 	lua_setfield(L, LUA_REGISTRYINDEX, LREG_ACTIONS);
 
 	LUA_RegisterUserdataMetatable(L, META_STATE, state_get, state_set, state_num);
-	LUA_RegisterUserdataMetatable(L, META_MOBJINFO, mobjinfo_get, mobjinfo_set, mobjinfo_num);
+	LUA_RegisterUserdataMetatable(L, META_MOBJINFO, mobjinfo_get, mobjinfo_set, NULL);
 	LUA_RegisterUserdataMetatable(L, META_SKINCOLOR, skincolor_get, skincolor_set, skincolor_num);
 	LUA_RegisterUserdataMetatable(L, META_COLORRAMP, colorramp_get, colorramp_set, colorramp_len);
 	LUA_RegisterUserdataMetatable(L, META_SFXINFO, sfxinfo_get, sfxinfo_set, sfxinfo_num);

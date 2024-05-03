@@ -85,7 +85,7 @@ endif
 #WFLAGS+=-Wunreachable-code
  WFLAGS+=-Winline
 ifdef DEBUGMODE
- WFLAGS+=-Wno-error=inline
+ WFLAGS+=-Wno-inline
 endif
 ifdef GCC43
  WFLAGS+=-funit-at-a-time

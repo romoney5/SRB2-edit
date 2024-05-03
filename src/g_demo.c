@@ -791,13 +791,13 @@ void G_GhostTicker(void)
 					switch (xziptic & EZT_THOKMASK)
 					{
 					case EZT_THOK:
-						type = skin->thokitem < 0 ? (UINT32)mobjinfo[MT_PLAYER].painchance : (UINT32)skin->thokitem;
+						type = skin->thokitem < 0 ? (UINT32)mobjinfo[MT_PLAYER]->painchance : (UINT32)skin->thokitem;
 						break;
 					case EZT_SPIN:
-						type = skin->spinitem < 0 ? (UINT32)mobjinfo[MT_PLAYER].damage : (UINT32)skin->spinitem;
+						type = skin->spinitem < 0 ? (UINT32)mobjinfo[MT_PLAYER]->damage : (UINT32)skin->spinitem;
 						break;
 					case EZT_REV:
-						type = skin->revitem < 0 ? (UINT32)mobjinfo[MT_PLAYER].raisestate : (UINT32)skin->revitem;
+						type = skin->revitem < 0 ? (UINT32)mobjinfo[MT_PLAYER]->raisestate : (UINT32)skin->revitem;
 						break;
 					}
 				}
@@ -814,8 +814,8 @@ void G_GhostTicker(void)
 						mobj = P_SpawnMobjFromMobj(g->mo, 0, 0, -FixedDiv(FixedMul(g->mo->info->height, g->mo->scale) - g->mo->height,3*FRACUNIT), MT_THOK);
 						if (!P_MobjWasRemoved(mobj))
 						{
-							mobj->sprite = states[mobjinfo[type].spawnstate].sprite;
-							mobj->frame = (states[mobjinfo[type].spawnstate].frame & FF_FRAMEMASK) | tr_trans60<<FF_TRANSSHIFT;
+							mobj->sprite = states[mobjinfo[type]->spawnstate].sprite;
+							mobj->frame = (states[mobjinfo[type]->spawnstate].frame & FF_FRAMEMASK) | tr_trans60<<FF_TRANSSHIFT;
 							mobj->color = g->mo->color;
 							mobj->skin = g->mo->skin;
 							P_SetScale(mobj, g->mo->scale, true);
@@ -858,8 +858,8 @@ void G_GhostTicker(void)
 					y = READFIXED(g->p);
 					z = READFIXED(g->p);
 					angle = READANGLE(g->p);
-					if (!(mobjinfo[type].flags & MF_SHOOTABLE)
-					|| !(mobjinfo[type].flags & (MF_ENEMY|MF_MONITOR))
+					if (!(mobjinfo[type]->flags & MF_SHOOTABLE)
+					|| !(mobjinfo[type]->flags & (MF_ENEMY|MF_MONITOR))
 					|| health != 0 || i >= 4) // only spawn for the first 4 hits per frame, to prevent ghosts from splode-spamming too bad.
 						continue;
 					poof = P_SpawnMobj(x, y, z, MT_GHOST);
@@ -1099,13 +1099,13 @@ void G_ReadMetalTic(mobj_t *metal)
 				switch (xziptic & EZT_THOKMASK)
 				{
 				case EZT_THOK:
-					type = skin->thokitem < 0 ? (UINT32)mobjinfo[MT_PLAYER].painchance : (UINT32)skin->thokitem;
+					type = skin->thokitem < 0 ? (UINT32)mobjinfo[MT_PLAYER]->painchance : (UINT32)skin->thokitem;
 					break;
 				case EZT_SPIN:
-					type = skin->spinitem < 0 ? (UINT32)mobjinfo[MT_PLAYER].damage : (UINT32)skin->spinitem;
+					type = skin->spinitem < 0 ? (UINT32)mobjinfo[MT_PLAYER]->damage : (UINT32)skin->spinitem;
 					break;
 				case EZT_REV:
-					type = skin->revitem < 0 ? (UINT32)mobjinfo[MT_PLAYER].raisestate : (UINT32)skin->revitem;
+					type = skin->revitem < 0 ? (UINT32)mobjinfo[MT_PLAYER]->raisestate : (UINT32)skin->revitem;
 					break;
 				}
 			}
@@ -1120,8 +1120,8 @@ void G_ReadMetalTic(mobj_t *metal)
 					mobj = P_SpawnMobjFromMobj(metal, 0, 0, -FixedDiv(FixedMul(metal->info->height, metal->scale) - metal->height,3*FRACUNIT), MT_THOK);
 					if (!P_MobjWasRemoved(mobj))
 					{
-						mobj->sprite = states[mobjinfo[type].spawnstate].sprite;
-						mobj->frame = states[mobjinfo[type].spawnstate].frame;
+						mobj->sprite = states[mobjinfo[type]->spawnstate].sprite;
+						mobj->frame = states[mobjinfo[type]->spawnstate].frame;
 						mobj->angle = metal->angle;
 						mobj->color = metal->color;
 						mobj->skin = metal->skin;
@@ -2590,7 +2590,7 @@ void G_AddGhost(char *defdemoname)
 			return;
 		gh->mo->angle = FixedAngle(mthing->angle << FRACBITS);
 		f = gh->mo->floorz;
-		c = gh->mo->ceilingz - mobjinfo[MT_PLAYER].height;
+		c = gh->mo->ceilingz - mobjinfo[MT_PLAYER]->height;
 		if (!!(mthing->args[0]) ^ !!(mthing->options & MTF_OBJECTFLIP))
 		{
 			z = c - offset;

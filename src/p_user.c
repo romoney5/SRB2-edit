@@ -349,7 +349,7 @@ void P_GiveEmerald(boolean spawnObj)
 			if (!emmo)
 				continue;
 			P_SetTarget(&emmo->target, players[i].mo);
-			P_SetMobjState(emmo, mobjinfo[MT_GOTEMERALD].meleestate + em);
+			P_SetMobjState(emmo, mobjinfo[MT_GOTEMERALD]->meleestate + em);
 
 			// Make sure we're not being carried before our tracer is changed
 			if (players[i].powers[pw_carry] != CR_NIGHTSMODE)
@@ -2148,14 +2148,14 @@ void P_SpawnThokMobj(player_t *player)
 	else
 	{
 		if (player->mo->eflags & MFE_VERTICALFLIP)
-			zheight = player->mo->z + player->mo->height + FixedDiv(P_GetPlayerHeight(player) - player->mo->height, 3*FRACUNIT) - FixedMul(mobjinfo[type].height, player->mo->scale);
+			zheight = player->mo->z + player->mo->height + FixedDiv(P_GetPlayerHeight(player) - player->mo->height, 3*FRACUNIT) - FixedMul(mobjinfo[type]->height, player->mo->scale);
 		else
 			zheight = player->mo->z - FixedDiv(P_GetPlayerHeight(player) - player->mo->height, 3*FRACUNIT);
 
-		if (!(player->mo->eflags & MFE_VERTICALFLIP) && zheight < player->mo->floorz && !(mobjinfo[type].flags & MF_NOCLIPHEIGHT))
+		if (!(player->mo->eflags & MFE_VERTICALFLIP) && zheight < player->mo->floorz && !(mobjinfo[type]->flags & MF_NOCLIPHEIGHT))
 			zheight = player->mo->floorz;
-		else if (player->mo->eflags & MFE_VERTICALFLIP && zheight + FixedMul(mobjinfo[type].height, player->mo->scale) > player->mo->ceilingz && !(mobjinfo[type].flags & MF_NOCLIPHEIGHT))
-			zheight = player->mo->ceilingz - FixedMul(mobjinfo[type].height, player->mo->scale);
+		else if (player->mo->eflags & MFE_VERTICALFLIP && zheight + FixedMul(mobjinfo[type]->height, player->mo->scale) > player->mo->ceilingz && !(mobjinfo[type]->flags & MF_NOCLIPHEIGHT))
+			zheight = player->mo->ceilingz - FixedMul(mobjinfo[type]->height, player->mo->scale);
 
 		mobj = P_SpawnMobj(player->mo->x, player->mo->y, zheight, type);
 		if (P_MobjWasRemoved(mobj))
@@ -2212,14 +2212,14 @@ void P_SpawnSpinMobj(player_t *player, mobjtype_t type)
 	else
 	{
 		if (player->mo->eflags & MFE_VERTICALFLIP)
-			zheight = player->mo->z + player->mo->height + FixedDiv(P_GetPlayerHeight(player) - player->mo->height, 3*FRACUNIT) - FixedMul(mobjinfo[type].height, player->mo->scale);
+			zheight = player->mo->z + player->mo->height + FixedDiv(P_GetPlayerHeight(player) - player->mo->height, 3*FRACUNIT) - FixedMul(mobjinfo[type]->height, player->mo->scale);
 		else
 			zheight = player->mo->z - FixedDiv(P_GetPlayerHeight(player) - player->mo->height, 3*FRACUNIT);
 
-		if (!(player->mo->eflags & MFE_VERTICALFLIP) && zheight < player->mo->floorz && !(mobjinfo[type].flags & MF_NOCLIPHEIGHT))
+		if (!(player->mo->eflags & MFE_VERTICALFLIP) && zheight < player->mo->floorz && !(mobjinfo[type]->flags & MF_NOCLIPHEIGHT))
 			zheight = player->mo->floorz;
-		else if (player->mo->eflags & MFE_VERTICALFLIP && zheight + FixedMul(mobjinfo[type].height, player->mo->scale) > player->mo->ceilingz && !(mobjinfo[type].flags & MF_NOCLIPHEIGHT))
-			zheight = player->mo->ceilingz - FixedMul(mobjinfo[type].height, player->mo->scale);
+		else if (player->mo->eflags & MFE_VERTICALFLIP && zheight + FixedMul(mobjinfo[type]->height, player->mo->scale) > player->mo->ceilingz && !(mobjinfo[type]->flags & MF_NOCLIPHEIGHT))
+			zheight = player->mo->ceilingz - FixedMul(mobjinfo[type]->height, player->mo->scale);
 
 		mobj = P_SpawnMobj(player->mo->x, player->mo->y, zheight, type);
 		if (P_MobjWasRemoved(mobj))
@@ -2493,7 +2493,7 @@ boolean P_PlayerHitFloor(player_t *player, boolean dorollstuff)
 							i++;
 							throwang += ANG30;
 						}
-						if (mobjinfo[type].seesound && missile)
+						if (mobjinfo[type]->seesound && missile)
 							S_StartSound(missile, missile->info->seesound);
 					}
 				}
@@ -3039,7 +3039,7 @@ static void P_CheckUnderwaterAndSpaceTimer(player_t *player)
 	 || (timeleft ==  1*TICRATE) // 0
 	) {
 		fixed_t height = (player->mo->eflags & MFE_VERTICALFLIP)
-		? player->mo->z - FixedMul(8*FRACUNIT + mobjinfo[MT_DROWNNUMBERS].height, FixedMul(player->mo->scale, player->shieldscale))
+		? player->mo->z - FixedMul(8*FRACUNIT + mobjinfo[MT_DROWNNUMBERS]->height, FixedMul(player->mo->scale, player->shieldscale))
 		: player->mo->z + player->mo->height + FixedMul(8*FRACUNIT, FixedMul(player->mo->scale, player->shieldscale));
 
 		mobj_t *numbermobj = P_SpawnMobj(player->mo->x, player->mo->y, height, MT_DROWNNUMBERS);
@@ -3264,8 +3264,8 @@ static void P_DoPlayerHeadSigns(player_t *player)
 				}
 				else
 				{
-					sign->z -= mobjinfo[MT_TAG].height;
-					sign->old_z -= mobjinfo[MT_TAG].height;
+					sign->z -= mobjinfo[MT_TAG]->height;
+					sign->old_z -= mobjinfo[MT_TAG]->height;
 				}
 			}
 		}
@@ -3282,7 +3282,7 @@ static void P_DoPlayerHeadSigns(player_t *player)
 			zofs = player->mo->momz;
 			if (player_is_flipped)
 			{
-				zofs += player->mo->height - P_GetPlayerHeight(player) - mobjinfo[MT_GOTFLAG].height - FixedMul(16 * FRACUNIT, player->mo->scale);
+				zofs += player->mo->height - P_GetPlayerHeight(player) - mobjinfo[MT_GOTFLAG]->height - FixedMul(16 * FRACUNIT, player->mo->scale);
 			}
 			else
 			{
@@ -4848,7 +4848,7 @@ static void P_DoSpinAbility(player_t *player, ticcmd_t *cmd)
 
 							P_SetMobjState(player->mo, S_PLAY_FIRE);
 
-#define zpos(posmo) (posmo->z + (posmo->height - mobjinfo[player->revitem].height)/2)
+#define zpos(posmo) (posmo->z + (posmo->height - mobjinfo[player->revitem]->height)/2)
 							if (lockon)
 							{
 								player->mo->angle = R_PointToAngle2(player->mo->x, player->mo->y, lockon->x, lockon->y);
@@ -6409,10 +6409,10 @@ static void P_ShootLine(mobj_t *source, mobj_t *dest, fixed_t height)
 	temp = dest->z;
 	dest->z = height;
 
-	seesound = mobjinfo[MT_REDRING].seesound;
-	speed = mobjinfo[MT_REDRING].speed;
-	mobjinfo[MT_REDRING].seesound = sfx_None;
-	mobjinfo[MT_REDRING].speed = 20*FRACUNIT;
+	seesound = mobjinfo[MT_REDRING]->seesound;
+	speed = mobjinfo[MT_REDRING]->speed;
+	mobjinfo[MT_REDRING]->seesound = sfx_None;
+	mobjinfo[MT_REDRING]->speed = 20*FRACUNIT;
 
 	mo = P_SpawnXYZMissile(source, dest, MT_REDRING, source->x, source->y, height);
 
@@ -6448,13 +6448,13 @@ static void P_ShootLine(mobj_t *source, mobj_t *dest, fixed_t height)
 		}
 		else
 		{
-			mobjinfo[MT_REDRING].seesound = seesound;
-			mobjinfo[MT_REDRING].speed = speed;
+			mobjinfo[MT_REDRING]->seesound = seesound;
+			mobjinfo[MT_REDRING]->speed = speed;
 			return;
 		}
 	}
-	mobjinfo[MT_REDRING].seesound = seesound;
-	mobjinfo[MT_REDRING].speed = speed;
+	mobjinfo[MT_REDRING]->seesound = seesound;
+	mobjinfo[MT_REDRING]->speed = speed;
 }
 
 #define MAXDRILLSPEED 14000
@@ -7070,7 +7070,7 @@ static void P_DoNiGHTSCapsule(player_t *player)
 
 						emmo = P_SpawnMobj(players[i].mo->x, players[i].mo->y, players[i].mo->z + players[i].mo->info->height, MT_GOTEMERALD);
 						P_SetTarget(&emmo->target, players[i].mo);
-						P_SetMobjState(emmo, mobjinfo[MT_GOTEMERALD].meleestate + em);
+						P_SetMobjState(emmo, mobjinfo[MT_GOTEMERALD]->meleestate + em);
 					}*/
 
 					if (player->powers[pw_carry] == CR_NIGHTSMODE)
@@ -7083,7 +7083,7 @@ static void P_DoNiGHTSCapsule(player_t *player)
 						{
 							emmo->health = em; // for identification
 							P_SetTarget(&emmo->target, player->mo);
-							P_SetMobjState(emmo, mobjinfo[MT_GOTEMERALD].meleestate + em);
+							P_SetMobjState(emmo, mobjinfo[MT_GOTEMERALD]->meleestate + em);
 							P_SetTarget(&player->mo->tracer, emmo);
 						}
 					}
@@ -7113,7 +7113,7 @@ static void P_DoNiGHTSCapsule(player_t *player)
 						idya->extravalue2 = player->mare/5;
 						idya->health = player->mare + 1; // for identification
 						P_SetTarget(&idya->target, player->mo);
-						P_SetMobjState(idya, mobjinfo[MT_GOTEMERALD].missilestate + ((player->mare + 1) % 5));
+						P_SetMobjState(idya, mobjinfo[MT_GOTEMERALD]->missilestate + ((player->mare + 1) % 5));
 
 						if (player->mo->tracer)
 						{
@@ -7445,7 +7445,7 @@ static void P_NiGHTSMovement(player_t *player)
 		fixed_t z = player->mo->z + player->mo->height/2;
 
 		if (player->mo->eflags & MFE_VERTICALFLIP)
-			z -= FixedMul(mobjinfo[MT_NIGHTSPARKLE].height, player->mo->scale);
+			z -= FixedMul(mobjinfo[MT_NIGHTSPARKLE]->height, player->mo->scale);
 
 		firstmobj = P_SpawnMobj(player->mo->x + P_ReturnThrustX(player->mo, player->mo->angle+ANGLE_90, spawndist), player->mo->y + P_ReturnThrustY(player->mo, player->mo->angle+ANGLE_90, spawndist), z, MT_NIGHTSPARKLE);
 		if (!P_MobjWasRemoved(firstmobj))
@@ -7454,7 +7454,7 @@ static void P_NiGHTSMovement(player_t *player)
 			P_SetScale(firstmobj, player->mo->scale, true);
 			// Superloop turns sparkles red
 			if (player->powers[pw_nights_superloop])
-				P_SetMobjState(firstmobj, mobjinfo[MT_NIGHTSPARKLE].seestate);
+				P_SetMobjState(firstmobj, mobjinfo[MT_NIGHTSPARKLE]->seestate);
 		}
 		secondmobj = P_SpawnMobj(player->mo->x + P_ReturnThrustX(player->mo, player->mo->angle-ANGLE_90, spawndist), player->mo->y + P_ReturnThrustY(player->mo, player->mo->angle-ANGLE_90, spawndist), z, MT_NIGHTSPARKLE);
 		if (!P_MobjWasRemoved(secondmobj))
@@ -7463,7 +7463,7 @@ static void P_NiGHTSMovement(player_t *player)
 			P_SetScale(secondmobj, player->mo->scale, true);
 			// Superloop turns sparkles red
 			if (player->powers[pw_nights_superloop])
-				P_SetMobjState(secondmobj, mobjinfo[MT_NIGHTSPARKLE].seestate);
+				P_SetMobjState(secondmobj, mobjinfo[MT_NIGHTSPARKLE]->seestate);
 		}
 	}
 
@@ -7661,7 +7661,7 @@ static void P_NiGHTSMovement(player_t *player)
 	{
 		mobjtype_t splishtype = (player->mo->eflags & MFE_TOUCHLAVA) ? MT_LAVASPLISH : MT_SPLISH;
 		mobj_t *water = P_SpawnMobj(player->mo->x, player->mo->y,
-			((player->mo->eflags & MFE_VERTICALFLIP) ? player->mo->waterbottom - FixedMul(mobjinfo[splishtype].height, player->mo->scale) : player->mo->watertop), splishtype);
+			((player->mo->eflags & MFE_VERTICALFLIP) ? player->mo->waterbottom - FixedMul(mobjinfo[splishtype]->height, player->mo->scale) : player->mo->watertop), splishtype);
 		if (!P_MobjWasRemoved(water))
 		{
 			if (player->mo->eflags & MFE_GOOWATER)
@@ -7899,7 +7899,7 @@ void P_ElementalFire(player_t *player, boolean cropcircle)
 	I_Assert(!P_MobjWasRemoved(player->mo));
 
 	if (player->mo->eflags & MFE_VERTICALFLIP)
-		ground = player->mo->ceilingz - FixedMul(mobjinfo[MT_SPINFIRE].height, player->mo->scale);
+		ground = player->mo->ceilingz - FixedMul(mobjinfo[MT_SPINFIRE]->height, player->mo->scale);
 	else
 		ground = player->mo->floorz;
 
@@ -7946,7 +7946,7 @@ void P_ElementalFire(player_t *player, boolean cropcircle)
 			{
 				ground = P_GetSlopeZAt(player->mo->standingslope, newx, newy);
 				if (player->mo->eflags & MFE_VERTICALFLIP)
-					ground -= FixedMul(mobjinfo[MT_SPINFIRE].height, player->mo->scale);
+					ground -= FixedMul(mobjinfo[MT_SPINFIRE]->height, player->mo->scale);
 			}
 
 			flame = P_SpawnMobj(newx, newy, ground, MT_SPINFIRE);
@@ -8578,7 +8578,7 @@ void P_MovePlayer(player_t *player)
 	{
 		mobjtype_t splishtype = (player->mo->eflags & MFE_TOUCHLAVA) ? MT_LAVASPLISH : MT_SPLISH;
 		mobj_t *water = P_SpawnMobj(player->mo->x - P_ReturnThrustX(NULL, player->mo->angle, player->mo->radius), player->mo->y - P_ReturnThrustY(NULL, player->mo->angle, player->mo->radius),
-			((player->mo->eflags & MFE_VERTICALFLIP) ? player->mo->waterbottom - FixedMul(mobjinfo[splishtype].height, player->mo->scale) : player->mo->watertop), splishtype);
+			((player->mo->eflags & MFE_VERTICALFLIP) ? player->mo->waterbottom - FixedMul(mobjinfo[splishtype]->height, player->mo->scale) : player->mo->watertop), splishtype);
 		if (!P_MobjWasRemoved(water))
 		{
 			if (player->mo->eflags & MFE_GOOWATER)
@@ -10889,7 +10889,7 @@ void P_DoPityCheck(player_t *player)
 		P_SwitchShield(player, SH_PITY);
 
 		if (player->pity > 0)
-			S_StartSound(player->mo, mobjinfo[MT_PITY_ICON].seesound);
+			S_StartSound(player->mo, mobjinfo[MT_PITY_ICON]->seesound);
 
 		player->pity = 0;
 	}

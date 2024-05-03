@@ -21,13 +21,11 @@
 // Free slot names
 // The crazy word-reading stuff uses these.
 extern char *FREE_STATES[NUMSTATEFREESLOTS];
-extern char *FREE_MOBJS[NUMMOBJFREESLOTS];
 extern char *FREE_SKINCOLORS[NUMCOLORFREESLOTS];
 extern bitarray_t used_spr[BIT_ARRAY_SIZE(NUMSPRITEFREESLOTS)]; // Sprite freeslots in use
 
 #define initfreeslots() {\
 	memset(FREE_STATES, 0, sizeof(FREE_STATES));\
-	memset(FREE_MOBJS, 0, sizeof(FREE_MOBJS));\
 	memset(FREE_SKINCOLORS, 0, sizeof(FREE_SKINCOLORS));\
 	memset(used_spr, 0, sizeof(used_spr));\
 	memset(actionsoverridden, LUA_REFNIL, sizeof(actionsoverridden));\

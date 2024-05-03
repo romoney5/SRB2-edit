@@ -5206,14 +5206,11 @@ typedef enum mobj_type
 	MT_RAY, // General purpose mobj
 
 	MT_OLDK,
-
-	MT_FIRSTFREESLOT,
-	MT_LASTFREESLOT = MT_FIRSTFREESLOT + NUMMOBJFREESLOTS - 1,
-	NUMMOBJTYPES
 } mobjtype_t;
 
 typedef struct
 {
+	const char *name;
 	INT32 doomednum;
 	statenum_t spawnstate;
 	INT32 spawnhealth;
@@ -5240,7 +5237,12 @@ typedef struct
 	statenum_t raisestate;
 } mobjinfo_t;
 
-extern mobjinfo_t mobjinfo[NUMMOBJTYPES];
+extern mobjinfo_t **mobjinfo;
+extern size_t nummobjinfo;
+
+UINT32 P_AllocateMobjinfo(const char *name);
+UINT32 P_GetMobjinfoIndex(mobjinfo_t *info);
+void P_InitializeTables(void);
 
 void P_PatchInfoTables(void);
 

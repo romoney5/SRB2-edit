@@ -760,7 +760,7 @@ void P_EmeraldManager(void)
 			if (mo->threshold || mo->target) // Either has the emerald spawned or is spawning
 			{
 				numwithemerald++;
-				emeraldsspawned |= mobjinfo[mo->reactiontime].speed;
+				emeraldsspawned |= mobjinfo[mo->reactiontime]->speed;
 			}
 			else if (numspawnpoints < MAXHUNTEMERALDS)
 				spawnpoints[numspawnpoints++] = mo; // empty spawn points
@@ -3244,7 +3244,7 @@ void P_MobjCheckWater(mobj_t *mobj)
 				mobjtype_t splishtype = (mobj->eflags & MFE_TOUCHLAVA) ? MT_LAVASPLISH : MT_SPLISH;
 				if (mobj->eflags & MFE_VERTICALFLIP)
 				{
-					splish = P_SpawnMobj(mobj->x, mobj->y, mobj->waterbottom-FixedMul(mobjinfo[splishtype].height, mobj->scale), splishtype);
+					splish = P_SpawnMobj(mobj->x, mobj->y, mobj->waterbottom-FixedMul(mobjinfo[splishtype]->height, mobj->scale), splishtype);
 					if (!P_MobjWasRemoved(splish))
 					{
 						splish->flags2 |= MF2_OBJECTFLIP;
@@ -3283,7 +3283,7 @@ void P_MobjCheckWater(mobj_t *mobj)
 				mobjtype_t splishtype = (mobj->eflags & MFE_TOUCHLAVA) ? MT_LAVASPLISH : MT_SPLISH;
 				if (mobj->eflags & MFE_VERTICALFLIP)
 				{
-					splish = P_SpawnMobj(mobj->x, mobj->y, mobj->waterbottom-FixedMul(mobjinfo[splishtype].height, mobj->scale), splishtype);
+					splish = P_SpawnMobj(mobj->x, mobj->y, mobj->waterbottom-FixedMul(mobjinfo[splishtype]->height, mobj->scale), splishtype);
 					if (!P_MobjWasRemoved(splish))
 					{
 						splish->flags2 |= MF2_OBJECTFLIP;
@@ -4189,7 +4189,7 @@ static void P_Boss2Thinker(mobj_t *mobj)
 
 	if (mobj->state == &states[mobj->info->spawnstate] && mobj->health > mobj->info->damage)
 		A_Boss2Chase(mobj);
-	else if (mobj->health > 0 && mobj->state != &states[mobj->info->painstate] && mobj->state != &states[mobjinfo[mobj->info->missilestate].raisestate])
+	else if (mobj->health > 0 && mobj->state != &states[mobj->info->painstate] && mobj->state != &states[mobjinfo[mobj->info->missilestate]->raisestate])
 	{
 		mobj->flags &= ~MF_NOGRAVITY;
 		A_Boss2Pogo(mobj);
@@ -4714,7 +4714,7 @@ static void P_Boss4Thinker(mobj_t *mobj)
 			mobj_t *seg, *base = mobj;
 			// First frame init, spawn all the things.
 			mobj->watertop = mobj->z;
-			z = mobj->z + mobj->height/2 - mobjinfo[MT_EGGMOBILE4_MACE].height/2;
+			z = mobj->z + mobj->height/2 - mobjinfo[MT_EGGMOBILE4_MACE]->height/2;
 			for (arm = 0; arm <3 ; arm++)
 			{
 				seg = P_SpawnMobj(mobj->x, mobj->y, z, MT_EGGMOBILE4_MACE);
@@ -4781,7 +4781,7 @@ static void P_Boss4Thinker(mobj_t *mobj)
 			mobj->movedir++;
 		}
 
-		z = mobj->z - mobj->watertop - mobjinfo[MT_EGGMOBILE4_MACE].height - mobj->height/2;
+		z = mobj->z - mobj->watertop - mobjinfo[MT_EGGMOBILE4_MACE]->height - mobj->height/2;
 		if (z < (8<<FRACBITS)) // We haven't risen high enough to pull the spikeballs along yet
 			P_Boss4MoveSpikeballs(mobj, FixedAngle(mobj->movecount), 0); // So don't pull the spikeballs along yet.
 		else
@@ -4813,7 +4813,7 @@ static void P_Boss4Thinker(mobj_t *mobj)
 		if (P_MobjWasRemoved(mobj))
 			return;
 
-		P_Boss4PinchSpikeballs(mobj, FixedAngle(mobj->movecount), mobj->z - mobj->watertop - mobjinfo[MT_EGGMOBILE4_MACE].height - mobj->height/2);
+		P_Boss4PinchSpikeballs(mobj, FixedAngle(mobj->movecount), mobj->z - mobj->watertop - mobjinfo[MT_EGGMOBILE4_MACE]->height - mobj->height/2);
 
 		if (!mobj->target || !mobj->target->health)
 			P_SupermanLook4Players(mobj);
@@ -6172,7 +6172,7 @@ void P_SpawnHoopOfSomething(fixed_t x, fixed_t y, fixed_t z, fixed_t radius, INT
 	x = xypos.x;
 	y = xypos.y;
 
-	hoopcenter.z = z - mobjinfo[type].height/2;
+	hoopcenter.z = z - mobjinfo[type]->height/2;
 
 	hoopcenter.x = x;
 	hoopcenter.y = y;
@@ -6439,7 +6439,7 @@ void P_MaceRotate(mobj_t *center, INT32 baserot, INT32 baseprevrot)
 
 			FV4_Load(&pos_lengthways, 0, 0, 0, 0);
 
-			dist = ((mobj->info->speed) ? mobj->info->speed : mobjinfo[MT_SMALLMACECHAIN].speed);
+			dist = ((mobj->info->speed) ? mobj->info->speed : mobjinfo[MT_SMALLMACECHAIN]->speed);
 			dist = ((center->scale == FRACUNIT) ? dist : FixedMul(dist, center->scale));
 
 			fa = (FixedAngle(center->movefactor*FRACUNIT) >> ANGLETOFINESHIFT);
@@ -7256,17 +7256,17 @@ static boolean P_ParticleGenSceneryThink(mobj_t *mobj)
 		if (line != -1)
 		{
 			bottomheight = lines[line].frontsector->floorheight;
-			topheight = lines[line].frontsector->ceilingheight - mobjinfo[(mobjtype_t)type].height;
+			topheight = lines[line].frontsector->ceilingheight - mobjinfo[(mobjtype_t)type]->height;
 		}
 		else if (mobj->flags2 & MF2_OBJECTFLIP)
 		{
 			bottomheight = mobj->z - mobj->extravalue1;
-			topheight = mobj->z - mobjinfo[(mobjtype_t)type].height;
+			topheight = mobj->z - mobjinfo[(mobjtype_t)type]->height;
 		}
 		else
 		{
 			bottomheight = mobj->z;
-			topheight = mobj->z + mobj->extravalue1 - mobjinfo[(mobjtype_t)type].height;
+			topheight = mobj->z + mobj->extravalue1 - mobjinfo[(mobjtype_t)type]->height;
 		}
 
 
@@ -8902,9 +8902,9 @@ static void P_NiGHTSDroneThink(mobj_t *mobj)
 			if (!(droneman->flags2 & MF2_DONTDRAW))
 				droneman->flags2 |= MF2_DONTDRAW;
 			if (goalpost->state == &states[S_INVISIBLE])
-				P_SetMobjState(goalpost, mobjinfo[goalpost->type].meleestate);
+				P_SetMobjState(goalpost, mobjinfo[goalpost->type]->meleestate);
 			if (sparkle->state == &states[S_INVISIBLE])
-				P_SetMobjState(sparkle, mobjinfo[sparkle->type].meleestate);
+				P_SetMobjState(sparkle, mobjinfo[sparkle->type]->meleestate);
 		}
 		else if (!G_IsSpecialStage(gamemap))
 		{
@@ -8922,8 +8922,8 @@ static void P_NiGHTSDroneThink(mobj_t *mobj)
 					P_SetMobjState(goalpost, S_INVISIBLE);
 				if (sparkle->state != &states[S_INVISIBLE])
 					P_SetMobjState(sparkle, S_INVISIBLE);
-				if (droneman->state != &states[mobjinfo[droneman->type].meleestate])
-					P_SetMobjState(droneman, mobjinfo[droneman->type].meleestate);
+				if (droneman->state != &states[mobjinfo[droneman->type]->meleestate])
+					P_SetMobjState(droneman, mobjinfo[droneman->type]->meleestate);
 				if (droneman->flags2 & MF2_DONTDRAW)
 					droneman->flags2 &= ~MF2_DONTDRAW;
 			}
@@ -9926,12 +9926,12 @@ static void P_FiringThink(mobj_t *mobj)
 
 		if (mobj->target->player && mobj->target->player->powers[pw_carry] == CR_NIGHTSMODE)
 		{
-			fixed_t oldval = mobjinfo[mobj->extravalue1].speed;
+			fixed_t oldval = mobjinfo[mobj->extravalue1]->speed;
 
 			mobj->angle = R_PointToAngle2(mobj->x, mobj->y, mobj->target->x + mobj->target->momx, mobj->target->y + mobj->target->momy);
-			mobjinfo[mobj->extravalue1].speed = FixedMul(60*FRACUNIT, mobj->scale);
+			mobjinfo[mobj->extravalue1]->speed = FixedMul(60*FRACUNIT, mobj->scale);
 			missile = P_SpawnMissile(mobj, mobj->target, mobj->extravalue1);
-			mobjinfo[mobj->extravalue1].speed = oldval;
+			mobjinfo[mobj->extravalue1]->speed = oldval;
 		}
 		else
 		{
@@ -10010,7 +10010,7 @@ static void P_FlagFuseThink(mobj_t *mobj)
 	z = mobj->spawnpoint->z << FRACBITS;
 	ss = R_PointInSubsector(x, y);
 	if (mobj->spawnpoint->options & MTF_OBJECTFLIP)
-		z = ss->sector->ceilingheight - mobjinfo[mobj->type].height - z;
+		z = ss->sector->ceilingheight - mobjinfo[mobj->type]->height - z;
 	else
 		z = ss->sector->floorheight + z;
 	flagmo = P_SpawnMobj(x, y, z, mobj->type);
@@ -10680,7 +10680,7 @@ static INT32 P_SetupNPC(mobj_t *mobj, const char *name)
 //
 mobj_t *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type, ...)
 {
-	const mobjinfo_t *info = &mobjinfo[type];
+	const mobjinfo_t *info = mobjinfo[type];
 	SINT8 sc = -1;
 	state_t *st;
 	mobj_t *mobj;
@@ -11149,11 +11149,11 @@ static precipmobj_t *P_SpawnPrecipMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype
 
 	mobj->x = x;
 	mobj->y = y;
-	mobj->flags = mobjinfo[type].flags;
+	mobj->flags = mobjinfo[type]->flags;
 
 	// do not set the state with P_SetMobjState,
 	// because action routines can not be called yet
-	st = &states[mobjinfo[type].spawnstate];
+	st = &states[mobjinfo[type]->spawnstate];
 
 	mobj->state = st;
 	mobj->tics = st->tics;
@@ -11171,7 +11171,7 @@ static precipmobj_t *P_SpawnPrecipMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype
 	mobj->ceilingrover = NULL;
 
 	mobj->z = z;
-	mobj->momz = mobjinfo[type].speed;
+	mobj->momz = mobjinfo[type]->speed;
 
 	mobj->thinker.function = (actionf_p1)P_NullPrecipThinker;
 	P_AddThinker(THINK_PRECIP, &mobj->thinker);
@@ -11590,8 +11590,8 @@ void P_PrecipitationEffects(void)
 mobjtype_t P_GetMobjtype(UINT16 mthingtype)
 {
 	mobjtype_t i;
-	for (i = 0; i < NUMMOBJTYPES; i++)
-		if (mthingtype == mobjinfo[i].doomednum)
+	for (i = 0; i < nummobjinfo; i++)
+		if (mthingtype == mobjinfo[i]->doomednum)
 			return i;
 	return MT_UNKNOWN;
 }
@@ -11760,7 +11760,7 @@ void P_SpawnPlayer(INT32 playernum)
 				{
 					idya->health = 0; // for identification
 					P_SetTarget(&idya->target, mobj);
-					P_SetMobjState(idya, mobjinfo[MT_GOTEMERALD].missilestate);
+					P_SetMobjState(idya, mobjinfo[MT_GOTEMERALD]->missilestate);
 					P_SetTarget(&mobj->tracer, idya);
 				}
 			}
@@ -11842,7 +11842,7 @@ void P_MovePlayerToSpawn(INT32 playernum, mapthing_t *mthing)
 
 	floor   = P_GetSectorFloorZAt  (sector, x, y);
 	ceiling = P_GetSectorCeilingZAt(sector, x, y);
-	ceilingspawn = ceiling - mobjinfo[MT_PLAYER].height;
+	ceilingspawn = ceiling - mobjinfo[MT_PLAYER]->height;
 
 	if (mthing)
 	{
@@ -11961,7 +11961,7 @@ fixed_t P_GetMobjSpawnHeight(const mobjtype_t mobjtype, const fixed_t x, const f
 
 	// Establish height.
 	if (flip)
-		return (absolutez ? dz : P_GetSectorCeilingZAt(ss->sector, x, y) - dz) - FixedMul(scale, offset + mobjinfo[mobjtype].height);
+		return (absolutez ? dz : P_GetSectorCeilingZAt(ss->sector, x, y) - dz) - FixedMul(scale, offset + mobjinfo[mobjtype]->height);
 	else
 		return (absolutez ? dz : P_GetSectorFloorZAt(ss->sector, x, y) + dz) + FixedMul(scale, offset);
 }
@@ -11970,7 +11970,7 @@ fixed_t P_GetMapThingSpawnHeight(const mobjtype_t mobjtype, const mapthing_t* mt
 {
 	fixed_t dz = mthing->z << FRACBITS; // Base offset from the floor.
 	fixed_t offset = 0; // Specific scaling object offset.
-	boolean flip = (!!(mobjinfo[mobjtype].flags & MF_SPAWNCEILING) ^ !!(mthing->options & MTF_OBJECTFLIP));
+	boolean flip = (!!(mobjinfo[mobjtype]->flags & MF_SPAWNCEILING) ^ !!(mthing->options & MTF_OBJECTFLIP));
 	boolean absolutez = !!(mthing->options & MTF_ABSOLUTEZ);
 
 	switch (mobjtype)
@@ -12080,7 +12080,7 @@ static boolean P_SpawnNonMobjMapThing(mapthing_t *mthing)
 		}
 		return true;
 	}
-	else if (metalrecording && mthing->type == mobjinfo[MT_METALSONIC_RACE].doomednum)
+	else if (metalrecording && mthing->type == mobjinfo[MT_METALSONIC_RACE]->doomednum)
 	{ // If recording, you ARE Metal Sonic. Do not spawn it, do not save normal spawnpoints.
 		playerstarts[0] = mthing;
 		return true;
@@ -12089,7 +12089,7 @@ static boolean P_SpawnNonMobjMapThing(mapthing_t *mthing)
 		     || (mthing->type >= 600 && mthing->type <= 611) // Special placement patterns
 		     || mthing->type == 1713) // Hoops
 		return true; // These are handled elsewhere.
-	else if (mthing->type == mobjinfo[MT_EMERHUNT].doomednum)
+	else if (mthing->type == mobjinfo[MT_EMERHUNT]->doomednum)
 	{
 		// Emerald Hunt is Coop only. Don't spawn the emerald yet, but save the spawnpoint for later.
 		if ((gametyperules & GTR_EMERALDHUNT) && numhuntemeralds < MAXHUNTEMERALDS)
@@ -12117,7 +12117,7 @@ static boolean P_AllowMobjSpawn(mapthing_t* mthing, mobjtype_t i)
 		if (metalrecording)
 			return false; // Metal Sonic isn't for collecting emeralds.
 
-		if (emeralds & mobjinfo[i].speed) // You already have this emerald!
+		if (emeralds & mobjinfo[i]->speed) // You already have this emerald!
 			return false;
 
 		break;
@@ -12159,13 +12159,13 @@ static boolean P_AllowMobjSpawn(mapthing_t* mthing, mobjtype_t i)
 
 	if (metalrecording) // Metal Sonic can't use these things.
 	{
-		if ((mobjinfo[i].flags & (MF_ENEMY|MF_BOSS)) || i == MT_TOKEN || i == MT_STARPOST
+		if ((mobjinfo[i]->flags & (MF_ENEMY|MF_BOSS)) || i == MT_TOKEN || i == MT_STARPOST
 			|| i == MT_RING || i == MT_BLUETEAMRING || i == MT_REDTEAMRING || i == MT_COIN
 			|| i == MT_BLUESPHERE || i == MT_BOMBSPHERE || i == MT_NIGHTSCHIP || i == MT_NIGHTSSTAR)
 			return false;
 	}
 
-	if (((mobjinfo[i].flags & MF_ENEMY) || (mobjinfo[i].flags & MF_BOSS)) && !(gametyperules & GTR_SPAWNENEMIES))
+	if (((mobjinfo[i]->flags & MF_ENEMY) || (mobjinfo[i]->flags & MF_BOSS)) && !(gametyperules & GTR_SPAWNENEMIES))
 		return false; // No enemies in ringslinger modes
 
 	if (!(gametyperules & GTR_ALLOWEXIT) && (i == MT_SIGN))
@@ -12224,7 +12224,7 @@ static mobjtype_t P_GetMobjtypeSubstitute(mapthing_t *mthing, mobjtype_t i)
 	// If MF_GRENADEBOUNCE is set in the monitor's info,
 	// skip this step. (Used for gold monitors)
 	// Yeah, this is a dirty hack.
-	if ((mobjinfo[i].flags & (MF_MONITOR|MF_GRENADEBOUNCE)) == MF_MONITOR)
+	if ((mobjinfo[i]->flags & (MF_MONITOR|MF_GRENADEBOUNCE)) == MF_MONITOR)
 	{
 		if (gametyperules & GTR_RACE)
 		{
@@ -12697,13 +12697,13 @@ static boolean P_SetupNiGHTSDrone(mapthing_t *mthing, mobj_t *mobj)
 	if (hitboxheight > 0)
 		mobj->height = hitboxheight;
 	else
-		mobj->height = mobjinfo[MT_NIGHTSDRONE].height;
+		mobj->height = mobjinfo[MT_NIGHTSDRONE]->height;
 
 	if (mthing->args[4])
 		mobj->flags2 |= MF2_AMBUSH; //Kill player upon time up
 
-	droneboxmandiff = max(mobj->height - mobjinfo[MT_NIGHTSDRONE_MAN].height, 0);
-	dronemangoaldiff = max(mobjinfo[MT_NIGHTSDRONE_MAN].height - mobjinfo[MT_NIGHTSDRONE_GOAL].height, 0);
+	droneboxmandiff = max(mobj->height - mobjinfo[MT_NIGHTSDRONE_MAN]->height, 0);
+	dronemangoaldiff = max(mobjinfo[MT_NIGHTSDRONE_MAN]->height - mobjinfo[MT_NIGHTSDRONE_GOAL]->height, 0);
 
 	if (flip && mobj->height != oldheight)
 		P_SetOrigin(mobj, mobj->x, mobj->y, mobj->z - (mobj->height - oldheight));
@@ -13758,7 +13758,7 @@ static void P_SpawnItemRow(mapthing_t *mthing, mobjtype_t *itemtypes, UINT8 numi
 	for (r = 0; r < numitemtypes; r++)
 	{
 		dummything = *mthing;
-		dummything.type = mobjinfo[itemtypes[r]].doomednum;
+		dummything.type = mobjinfo[itemtypes[r]]->doomednum;
 		// Skip all returning/substitution code in objectplace.
 		if (!objectplacing)
 		{
@@ -13778,7 +13778,7 @@ static void P_SpawnItemRow(mapthing_t *mthing, mobjtype_t *itemtypes, UINT8 numi
 		mobjtype_t itemtype = itemtypes[r % numitemtypes];
 		if (itemtype == MT_NULL)
 			continue;
-		dummything.type = mobjinfo[itemtype].doomednum;
+		dummything.type = mobjinfo[itemtype]->doomednum;
 
 		x += FixedMul(horizontalspacing, FINECOSINE(fineangle));
 		y += FixedMul(horizontalspacing, FINESINE(fineangle));
@@ -13817,7 +13817,7 @@ static void P_SpawnItemCircle(mapthing_t *mthing, mobjtype_t *itemtypes, UINT8 n
 	for (i = 0; i < numitemtypes; i++)
 	{
 		dummything = *mthing;
-		dummything.type = mobjinfo[itemtypes[i]].doomednum;
+		dummything.type = mobjinfo[itemtypes[i]]->doomednum;
 		// Skip all returning/substitution code in objectplace.
 		if (!objectplacing)
 		{
@@ -13837,7 +13837,7 @@ static void P_SpawnItemCircle(mapthing_t *mthing, mobjtype_t *itemtypes, UINT8 n
 		mobjtype_t itemtype = itemtypes[i % numitemtypes];
 		if (itemtype == MT_NULL)
 			continue;
-		dummything.type = mobjinfo[itemtype].doomednum;
+		dummything.type = mobjinfo[itemtype]->doomednum;
 
 		fa = i*FINEANGLES/numitems;
 		v.x = FixedMul(FINECOSINE(fa), size);
@@ -13991,7 +13991,7 @@ mobj_t *P_SpawnXYZMissile(mobj_t *source, mobj_t *dest, mobjtype_t type,
 	I_Assert(dest != NULL);
 
 	if (source->eflags & MFE_VERTICALFLIP)
-		z -= FixedMul(mobjinfo[type].height, source->scale);
+		z -= FixedMul(mobjinfo[type]->height, source->scale);
 
 	th = P_SpawnMobj(x, y, z, type);
 	if (P_MobjWasRemoved(th))
@@ -14007,7 +14007,7 @@ mobj_t *P_SpawnXYZMissile(mobj_t *source, mobj_t *dest, mobjtype_t type,
 	if (speed == 0)
 	{
 		CONS_Debug(DBG_GAMELOGIC, "P_SpawnXYZMissile - projectile has 0 speed! (mobj type %d)\n", type);
-		speed = mobjinfo[MT_ROCKET].speed;
+		speed = mobjinfo[MT_ROCKET]->speed;
 	}
 
 	if (th->info->seesound)
@@ -14054,7 +14054,7 @@ mobj_t *P_SpawnAlteredDirectionMissile(mobj_t *source, mobjtype_t type, fixed_t 
 		return NULL;
 
 	if (source->eflags & MFE_VERTICALFLIP)
-		z -= FixedMul(mobjinfo[type].height, source->scale);
+		z -= FixedMul(mobjinfo[type]->height, source->scale);
 
 	th = P_SpawnMobj(x, y, z, type);
 	if (P_MobjWasRemoved(th))
@@ -14070,7 +14070,7 @@ mobj_t *P_SpawnAlteredDirectionMissile(mobj_t *source, mobjtype_t type, fixed_t 
 	if (speed == 0) // Backwards compatibility with 1.09.2
 	{
 		CONS_Printf("P_SpawnAlteredDirectionMissile - projectile has 0 speed! (mobj type %d)\nPlease update this SOC.", type);
-		speed = mobjinfo[MT_ROCKET].speed;
+		speed = mobjinfo[MT_ROCKET]->speed;
 	}
 
 	if (th->info->seesound)
@@ -14120,7 +14120,7 @@ mobj_t *P_SpawnPointMissile(mobj_t *source, fixed_t xa, fixed_t ya, fixed_t za, 
 	I_Assert(source != NULL);
 
 	if (source->eflags & MFE_VERTICALFLIP)
-		z -= FixedMul(mobjinfo[type].height, source->scale);
+		z -= FixedMul(mobjinfo[type]->height, source->scale);
 
 	th = P_SpawnMobj(x, y, z, type);
 	if (P_MobjWasRemoved(th))
@@ -14136,7 +14136,7 @@ mobj_t *P_SpawnPointMissile(mobj_t *source, fixed_t xa, fixed_t ya, fixed_t za, 
 	if (speed == 0) // Backwards compatibility with 1.09.2
 	{
 		CONS_Printf("P_SpawnPointMissile - projectile has 0 speed! (mobj type %d)\nPlease update this SOC.", type);
-		speed = mobjinfo[MT_ROCKET].speed;
+		speed = mobjinfo[MT_ROCKET]->speed;
 	}
 
 	if (th->info->seesound)
@@ -14191,7 +14191,7 @@ mobj_t *P_SpawnMissile(mobj_t *source, mobj_t *dest, mobjtype_t type)
 		z = source->z + source->height/2;
 
 	if (source->eflags & MFE_VERTICALFLIP)
-		z -= FixedMul(mobjinfo[type].height, source->scale);
+		z -= FixedMul(mobjinfo[type]->height, source->scale);
 
 	th = P_SpawnMobj(source->x, source->y, z, type);
 	if (P_MobjWasRemoved(th))
@@ -14210,7 +14210,7 @@ mobj_t *P_SpawnMissile(mobj_t *source, mobj_t *dest, mobjtype_t type)
 	if (speed == 0)
 	{
 		CONS_Debug(DBG_GAMELOGIC, "P_SpawnMissile - projectile has 0 speed! (mobj type %d)\n", type);
-		speed = FixedMul(mobjinfo[MT_TURRETLASER].speed, th->scale);
+		speed = FixedMul(mobjinfo[MT_TURRETLASER]->speed, th->scale);
 	}
 
 	if (th->info->seesound)
@@ -14291,7 +14291,7 @@ mobj_t *P_SPMAngle(mobj_t *source, mobjtype_t type, angle_t angle, UINT8 allowai
 	y = source->y;
 
 	if (source->eflags & MFE_VERTICALFLIP)
-		z = source->z + 2*source->height/3 - FixedMul(mobjinfo[type].height, source->scale);
+		z = source->z + 2*source->height/3 - FixedMul(mobjinfo[type]->height, source->scale);
 	else
 		z = source->z + source->height/3;
 

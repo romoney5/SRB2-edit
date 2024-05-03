@@ -229,8 +229,8 @@ static void Sk_SetDefaultValue(skin_t *skin)
 	skin->mindash = 15<<FRACBITS;
 	skin->maxdash = 70<<FRACBITS;
 
-	skin->radius = mobjinfo[MT_PLAYER].radius;
-	skin->height = mobjinfo[MT_PLAYER].height;
+	skin->radius = mobjinfo[MT_PLAYER]->radius;
+	skin->height = mobjinfo[MT_PLAYER]->height;
 	skin->spinheight = FixedMul(skin->height, 2*FRACUNIT/3);
 
 	skin->shieldscale = FRACUNIT;
@@ -425,9 +425,9 @@ static void SetSkin(player_t *player, INT32 skinnum)
 
 	player->charflags = (UINT32)skin->flags;
 
-	player->thokitem = skin->thokitem < 0 ? (UINT32)mobjinfo[MT_PLAYER].painchance : (UINT32)skin->thokitem;
-	player->spinitem = skin->spinitem < 0 ? (UINT32)mobjinfo[MT_PLAYER].damage : (UINT32)skin->spinitem;
-	player->revitem = skin->revitem < 0 ? (mobjtype_t)mobjinfo[MT_PLAYER].raisestate : (UINT32)skin->revitem;
+	player->thokitem = skin->thokitem < 0 ? (UINT32)mobjinfo[MT_PLAYER]->painchance : (UINT32)skin->thokitem;
+	player->spinitem = skin->spinitem < 0 ? (UINT32)mobjinfo[MT_PLAYER]->damage : (UINT32)skin->spinitem;
+	player->revitem = skin->revitem < 0 ? (mobjtype_t)mobjinfo[MT_PLAYER]->raisestate : (UINT32)skin->revitem;
 	player->followitem = skin->followitem;
 
 	if (((player->powers[pw_shield] & SH_NOSTACK) == SH_PINK) && (player->revitem == MT_LHRT || player->spinitem == MT_LHRT || player->thokitem == MT_LHRT)) // Healers can't keep their buff.

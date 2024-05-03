@@ -1190,7 +1190,7 @@ void A_StatueBurst(void *data)
 
 	{
 		fixed_t a, b;
-		fixed_t c = (actor->height>>2) - FixedMul(actor->scale, mobjinfo[chunktype].height>>1);
+		fixed_t c = (actor->height>>2) - FixedMul(actor->scale, mobjinfo[chunktype]->height>>1);
 		fixed_t v = 4<<FRACBITS;
 		const fixed_t r = (actor->radius>>1);
 		mobj_t *spawned;
@@ -2513,9 +2513,9 @@ void A_LobShot(void *data)
 	{
 		z = actor->z + actor->height - FixedMul(locvar2*FRACUNIT, actor->scale);
 		if (actor->type == MT_BLACKEGGMAN)
-			z -= FixedMul(mobjinfo[locvar1].height, actor->scale/2);
+			z -= FixedMul(mobjinfo[locvar1]->height, actor->scale/2);
 		else
-			z -= FixedMul(mobjinfo[locvar1].height, actor->scale);
+			z -= FixedMul(mobjinfo[locvar1]->height, actor->scale);
 	}
 	else
 		z = actor->z + FixedMul(locvar2*FRACUNIT, actor->scale);
@@ -2871,7 +2871,7 @@ void A_Boss1Laser(void *data)
 			x = actor->x + P_ReturnThrustX(actor, actor->angle+ANGLE_90, FixedMul(44*FRACUNIT, actor->scale));
 			y = actor->y + P_ReturnThrustY(actor, actor->angle+ANGLE_90, FixedMul(44*FRACUNIT, actor->scale));
 			if (actor->eflags & MFE_VERTICALFLIP)
-				z = actor->z + actor->height - FixedMul(56*FRACUNIT, actor->scale) - mobjinfo[locvar1].height;
+				z = actor->z + actor->height - FixedMul(56*FRACUNIT, actor->scale) - mobjinfo[locvar1]->height;
 			else
 				z = actor->z + FixedMul(56*FRACUNIT, actor->scale);
 			break;
@@ -2879,7 +2879,7 @@ void A_Boss1Laser(void *data)
 			x = actor->x + P_ReturnThrustX(actor, actor->angle-ANGLE_90, FixedMul(44*FRACUNIT, actor->scale));
 			y = actor->y + P_ReturnThrustY(actor, actor->angle-ANGLE_90, FixedMul(44*FRACUNIT, actor->scale));
 			if (actor->eflags & MFE_VERTICALFLIP)
-				z = actor->z + actor->height - FixedMul(56*FRACUNIT, actor->scale) - mobjinfo[locvar1].height;
+				z = actor->z + actor->height - FixedMul(56*FRACUNIT, actor->scale) - mobjinfo[locvar1]->height;
 			else
 				z = actor->z + FixedMul(56*FRACUNIT, actor->scale);
 			break;
@@ -2907,8 +2907,8 @@ void A_Boss1Laser(void *data)
 	if (!(actor->flags2 & MF2_FIRING) && dur > 1)
 	{
 		actor->angle = R_PointToAngle2(x, y, actor->target->x, actor->target->y);
-		if (mobjinfo[locvar1].seesound)
-			S_StartSound(actor, mobjinfo[locvar1].seesound);
+		if (mobjinfo[locvar1]->seesound)
+			S_StartSound(actor, mobjinfo[locvar1]->seesound);
 
 		point = P_SpawnMobj(x + P_ReturnThrustX(actor, actor->angle, actor->radius), y + P_ReturnThrustY(actor, actor->angle, actor->radius), actor->z - actor->height / 2, MT_EGGMOBILE_TARGET);
 		if (!P_MobjWasRemoved(point))
@@ -2920,7 +2920,7 @@ void A_Boss1Laser(void *data)
 		}
 	}
 
-	angle = R_PointToAngle2(z + (mobjinfo[locvar1].height>>1), 0, actor->target->z, R_PointToDist2(x, y, actor->target->x, actor->target->y));
+	angle = R_PointToAngle2(z + (mobjinfo[locvar1]->height>>1), 0, actor->target->z, R_PointToDist2(x, y, actor->target->x, actor->target->y));
 
 	point = P_SpawnMobj(x, y, z, locvar1);
 	if (P_MobjWasRemoved(point))
@@ -2970,8 +2970,8 @@ void A_Boss1Laser(void *data)
 
 	x += point->momx;
 	y += point->momy;
-	floorz = P_FloorzAtPos(x, y, z, mobjinfo[MT_EGGMOBILE_FIRE].height);
-	if (z - floorz < mobjinfo[MT_EGGMOBILE_FIRE].height>>1 && dur & 1)
+	floorz = P_FloorzAtPos(x, y, z, mobjinfo[MT_EGGMOBILE_FIRE]->height);
+	if (z - floorz < mobjinfo[MT_EGGMOBILE_FIRE]->height>>1 && dur & 1)
 	{
 		point = P_SpawnMobj(x, y, floorz, MT_EGGMOBILE_FIRE);
 		if (!P_MobjWasRemoved(point))
@@ -2985,7 +2985,7 @@ void A_Boss1Laser(void *data)
 				for (i = 0; i < 2; i++)
 				{
 					UINT8 size = 3;
-					mobj_t *steam = P_SpawnMobj(x, y, point->watertop - size*mobjinfo[MT_DUST].height, MT_DUST);
+					mobj_t *steam = P_SpawnMobj(x, y, point->watertop - size*mobjinfo[MT_DUST]->height, MT_DUST);
 					if (P_MobjWasRemoved(steam))
 						continue;
 					P_SetScale(steam, size*actor->scale, false);
@@ -3201,18 +3201,18 @@ void A_SkullAttack(void *data)
 		actor->angle += (P_RandomChance(FRACUNIT/2)) ? ANGLE_90 : -ANGLE_90;
 	else if (locvar1 == 3)
 	{
-		statenum_t oldspawnstate = mobjinfo[MT_RAY].spawnstate;
-		UINT32 oldflags = mobjinfo[MT_RAY].flags;
-		fixed_t oldradius = mobjinfo[MT_RAY].radius;
-		fixed_t oldheight = mobjinfo[MT_RAY].height;
+		statenum_t oldspawnstate = mobjinfo[MT_RAY]->spawnstate;
+		UINT32 oldflags = mobjinfo[MT_RAY]->flags;
+		fixed_t oldradius = mobjinfo[MT_RAY]->radius;
+		fixed_t oldheight = mobjinfo[MT_RAY]->height;
 		INT32 i, j;
 		static INT32 k;/* static for (at least) GCC 9.1 weirdness */
 		angle_t testang = 0;
 
-		mobjinfo[MT_RAY].spawnstate = S_INVISIBLE;
-		mobjinfo[MT_RAY].flags = MF_NOGRAVITY|MF_NOTHINK|MF_NOCLIPTHING|MF_NOBLOCKMAP;
-		mobjinfo[MT_RAY].radius = mobjinfo[actor->type].radius;
-		mobjinfo[MT_RAY].height = mobjinfo[actor->type].height;
+		mobjinfo[MT_RAY]->spawnstate = S_INVISIBLE;
+		mobjinfo[MT_RAY]->flags = MF_NOGRAVITY|MF_NOTHINK|MF_NOCLIPTHING|MF_NOBLOCKMAP;
+		mobjinfo[MT_RAY]->radius = mobjinfo[actor->type]->radius;
+		mobjinfo[MT_RAY]->height = mobjinfo[actor->type]->height;
 
 		if (P_RandomChance(FRACUNIT/2)) // port priority 1?
 		{
@@ -3256,10 +3256,10 @@ void A_SkullAttack(void *data)
 
 #undef dostuff
 
-		mobjinfo[MT_RAY].spawnstate = oldspawnstate;
-		mobjinfo[MT_RAY].flags = oldflags;
-		mobjinfo[MT_RAY].radius = oldradius;
-		mobjinfo[MT_RAY].height = oldheight;
+		mobjinfo[MT_RAY]->spawnstate = oldspawnstate;
+		mobjinfo[MT_RAY]->flags = oldflags;
+		mobjinfo[MT_RAY]->radius = oldradius;
+		mobjinfo[MT_RAY]->height = oldheight;
 	}
 
 	an = actor->angle >> ANGLETOFINESHIFT;
@@ -3352,15 +3352,15 @@ void A_BossScream(void *data)
 	y = actor->y + FixedMul(FINESINE(fa),actor->radius);
 
 	// Determine what mobj to spawn. If undefined or invalid, use MT_BOSSEXPLODE as default.
-	if (locvar2 <= 0 || locvar2 >= NUMMOBJTYPES)
+	if (locvar2 <= 0 || (size_t)locvar2 >= nummobjinfo)
 		explodetype = MT_SONIC3KBOSSEXPLODE; //MT_BOSSEXPLODE; -- piss to you, sonic 2
 	else
 		explodetype = (mobjtype_t)locvar2;
 
 	if (locvar1 & 2)
-		z = actor->z + (P_RandomKey((actor->height - mobjinfo[explodetype].height)>>FRACBITS)<<FRACBITS);
+		z = actor->z + (P_RandomKey((actor->height - mobjinfo[explodetype]->height)>>FRACBITS)<<FRACBITS);
 	else if (actor->eflags & MFE_VERTICALFLIP)
-		z = actor->z + actor->height - mobjinfo[explodetype].height - FixedMul((P_RandomByte()<<(FRACBITS-2)) - 8*FRACUNIT, actor->scale);
+		z = actor->z + actor->height - mobjinfo[explodetype]->height - FixedMul((P_RandomByte()<<(FRACBITS-2)) - 8*FRACUNIT, actor->scale);
 	else
 		z = actor->z + FixedMul((P_RandomByte()<<(FRACBITS-2)) - 8*FRACUNIT, actor->scale);
 
@@ -3914,7 +3914,7 @@ static void P_SpawnBoss2Junk(mobj_t *mo)
 	}
 
 	mo2 = P_SpawnMobjFromMobj(mo, 0, 0,
-		mobjinfo[MT_EGGMOBILE2].height + (32<<FRACBITS),
+		mobjinfo[MT_EGGMOBILE2]->height + (32<<FRACBITS),
 		MT_BOSSJUNK);
 	if (!P_MobjWasRemoved(mo2))
 	{
@@ -4754,7 +4754,7 @@ void A_DropMine(void *data)
 	}
 
 	if (actor->eflags & MFE_VERTICALFLIP)
-		z = actor->z + actor->height - mobjinfo[actor->info->raisestate].height - FixedMul((locvar1*FRACUNIT) - 12*FRACUNIT, actor->scale);
+		z = actor->z + actor->height - mobjinfo[actor->info->raisestate]->height - FixedMul((locvar1*FRACUNIT) - 12*FRACUNIT, actor->scale);
 	else
 		z = actor->z + FixedMul((locvar1*FRACUNIT) - 12*FRACUNIT, actor->scale);
 
@@ -5304,7 +5304,7 @@ void A_OverlayThink(void *data)
 	actor->y = desty;
 	P_SetThingPosition(actor);
 	if (actor->eflags & MFE_VERTICALFLIP)
-		actor->z = actor->target->z + actor->target->height - mobjinfo[actor->type].height  - ((var2>>16) ? -1 : 1)*(var2&0xFFFF)*FRACUNIT;
+		actor->z = actor->target->z + actor->target->height - mobjinfo[actor->type]->height  - ((var2>>16) ? -1 : 1)*(var2&0xFFFF)*FRACUNIT;
 	else
 		actor->z = actor->target->z + ((var2>>16) ? -1 : 1)*(var2&0xFFFF)*FRACUNIT;
 	actor->angle = (actor->target->player ? actor->target->player->drawangle : actor->target->angle) + actor->movedir;
@@ -6256,7 +6256,7 @@ void A_RockSpawn(void *data)
 
 	type = actor->spawnpoint->stringargs[0] ? get_number(actor->spawnpoint->stringargs[0]) : MT_ROCKCRUMBLE1;
 
-	if (type < MT_NULL || type >= NUMMOBJTYPES)
+	if (type < MT_NULL || type >= nummobjinfo)
 	{
 		CONS_Debug(DBG_GAMELOGIC, "A_RockSpawn: Invalid mobj type %s!\n", actor->spawnpoint->stringargs[0]);
 		return;
@@ -6269,7 +6269,7 @@ void A_RockSpawn(void *data)
 	mo = P_SpawnMobj(actor->x, actor->y, actor->z, MT_FALLINGROCK);
 	if (P_MobjWasRemoved(mo))
 		return;
-	P_SetMobjState(mo, mobjinfo[type].spawnstate);
+	P_SetMobjState(mo, mobjinfo[type]->spawnstate);
 	mo->angle = FixedAngle(actor->spawnpoint->angle << FRACBITS);
 
 	P_InstaThrust(mo, mo->angle, dist);
@@ -7687,7 +7687,7 @@ void A_Boss2PogoTarget(void *data)
 
 	if (actor->info->missilestate) // spawn the pogo stick collision box
 	{
-		mobj_t *pogo = P_SpawnMobj(actor->x, actor->y, actor->z - mobjinfo[actor->info->missilestate].height, (mobjtype_t)actor->info->missilestate);
+		mobj_t *pogo = P_SpawnMobj(actor->x, actor->y, actor->z - mobjinfo[actor->info->missilestate]->height, (mobjtype_t)actor->info->missilestate);
 		if (!P_MobjWasRemoved(pogo))
 			P_SetTarget(&pogo->target, actor);
 	}
@@ -8600,7 +8600,7 @@ void A_SmokeTrailer(void *data)
 	// add the smoke behind the rocket
 	if (actor->eflags & MFE_VERTICALFLIP)
 	{
-		th = P_SpawnMobj(actor->x-actor->momx, actor->y-actor->momy, actor->z + actor->height - FixedMul(mobjinfo[locvar1].height, actor->scale), locvar1);
+		th = P_SpawnMobj(actor->x-actor->momx, actor->y-actor->momy, actor->z + actor->height - FixedMul(mobjinfo[locvar1]->height, actor->scale), locvar1);
 		if (!P_MobjWasRemoved(th))
 			th->flags2 |= MF2_OBJECTFLIP;
 	}
@@ -8688,7 +8688,7 @@ void A_SpawnObjectRelative(void *data)
 	// NOTE: Doing actor->z + actor->height is the bottom of the object while the object has reverse gravity. - Flame
 	mo = P_SpawnMobj(actor->x + FixedMul(x<<FRACBITS, actor->scale),
 		actor->y + FixedMul(y<<FRACBITS, actor->scale),
-		(actor->eflags & MFE_VERTICALFLIP) ? ((actor->z + actor->height - mobjinfo[type].height) - FixedMul(z<<FRACBITS, actor->scale)) : (actor->z + FixedMul(z<<FRACBITS, actor->scale)), type);
+		(actor->eflags & MFE_VERTICALFLIP) ? ((actor->z + actor->height - mobjinfo[type]->height) - FixedMul(z<<FRACBITS, actor->scale)) : (actor->z + FixedMul(z<<FRACBITS, actor->scale)), type);
 	if (P_MobjWasRemoved(mo))
 		return;
 
@@ -9390,7 +9390,7 @@ void A_BossJetFume(void *data)
 		jetx = actor->x + P_ReturnThrustX(actor, actor->angle, -FixedMul(64*FRACUNIT, actor->scale));
 		jety = actor->y + P_ReturnThrustY(actor, actor->angle, -FixedMul(64*FRACUNIT, actor->scale));
 		if (actor->eflags & MFE_VERTICALFLIP)
-			jetz = actor->z + actor->height - FixedMul(38*FRACUNIT + mobjinfo[MT_JETFUME1].height, actor->scale);
+			jetz = actor->z + actor->height - FixedMul(38*FRACUNIT + mobjinfo[MT_JETFUME1]->height, actor->scale);
 		else
 			jetz = actor->z + FixedMul(38*FRACUNIT, actor->scale);
 
@@ -9405,7 +9405,7 @@ void A_BossJetFume(void *data)
 		}
 
 		if (actor->eflags & MFE_VERTICALFLIP)
-			jetz = actor->z + actor->height - FixedMul(12*FRACUNIT + mobjinfo[MT_JETFUME1].height, actor->scale);
+			jetz = actor->z + actor->height - FixedMul(12*FRACUNIT + mobjinfo[MT_JETFUME1]->height, actor->scale);
 		else
 			jetz = actor->z + FixedMul(12*FRACUNIT, actor->scale);
 
@@ -9443,7 +9443,7 @@ void A_BossJetFume(void *data)
 		jetx = actor->x + P_ReturnThrustX(actor, actor->angle, -60*actor->scale);
 		jety = actor->y + P_ReturnThrustY(actor, actor->angle, -60*actor->scale);
 		if (actor->eflags & MFE_VERTICALFLIP)
-			jetz = actor->z + actor->height - FixedMul(17*FRACUNIT + mobjinfo[MT_PROPELLER].height, actor->scale);
+			jetz = actor->z + actor->height - FixedMul(17*FRACUNIT + mobjinfo[MT_PROPELLER]->height, actor->scale);
 		else
 			jetz = actor->z + FixedMul(17*FRACUNIT, actor->scale);
 
@@ -9475,7 +9475,7 @@ void A_BossJetFume(void *data)
 	{
 		fixed_t jetz;
 		if (actor->eflags & MFE_VERTICALFLIP)
-			jetz = actor->z + actor->height + FixedMul(50*FRACUNIT - mobjinfo[MT_JETFLAME].height, actor->scale);
+			jetz = actor->z + actor->height + FixedMul(50*FRACUNIT - mobjinfo[MT_JETFLAME]->height, actor->scale);
 		else
 			jetz = actor->z - 50*actor->scale;
 		filler = P_SpawnMobj(actor->x, actor->y, jetz, MT_JETFLAME);
@@ -9494,7 +9494,7 @@ void A_BossJetFume(void *data)
 
 		jetz = actor->z;
 		if (actor->eflags & MFE_VERTICALFLIP)
-			jetz += (actor->height - FixedMul(mobjinfo[MT_EGGROBO1JET].height, actor->scale));
+			jetz += (actor->height - FixedMul(mobjinfo[MT_EGGROBO1JET]->height, actor->scale));
 
 		while (true)
 		{
@@ -11257,7 +11257,7 @@ void A_TrapShot(void *data)
 	y = actor->y + P_ReturnThrustY(actor, actor->angle, FixedMul(frontoff*FRACUNIT, actor->scale));
 
 	if (actor->eflags & MFE_VERTICALFLIP)
-		z = actor->z + actor->height - FixedMul(vertoff*FRACUNIT, actor->scale) - FixedMul(mobjinfo[type].height, actor->scale);
+		z = actor->z + actor->height - FixedMul(vertoff*FRACUNIT, actor->scale) - FixedMul(mobjinfo[type]->height, actor->scale);
 	else
 		z = actor->z + FixedMul(vertoff*FRACUNIT, actor->scale);
 
@@ -11328,7 +11328,7 @@ void A_VileTarget(void *data)
 		return;
 
 	// Determine object to spawn
-	if (locvar1 <= 0 || locvar1 >= NUMMOBJTYPES)
+	if (locvar1 <= 0 || (size_t)locvar1 >= nummobjinfo)
 		fogtype = MT_CYBRAKDEMON_TARGET_RETICULE;
 	else
 		fogtype = (mobjtype_t)locvar1;
@@ -11337,7 +11337,7 @@ void A_VileTarget(void *data)
 	{
 		fog = P_SpawnMobj(actor->target->x,
 							actor->target->y,
-							actor->target->z + ((actor->target->eflags & MFE_VERTICALFLIP) ? actor->target->height - mobjinfo[fogtype].height : 0),
+							actor->target->z + ((actor->target->eflags & MFE_VERTICALFLIP) ? actor->target->height - mobjinfo[fogtype]->height : 0),
 							fogtype);
 		if (!P_MobjWasRemoved(fog))
 		{
@@ -11370,7 +11370,7 @@ void A_VileTarget(void *data)
 
 			fog = P_SpawnMobj(players[i].mo->x,
 							players[i].mo->y,
-							players[i].mo->z + ((players[i].mo->eflags & MFE_VERTICALFLIP) ? players[i].mo->height - mobjinfo[fogtype].height : 0),
+							players[i].mo->z + ((players[i].mo->eflags & MFE_VERTICALFLIP) ? players[i].mo->height - mobjinfo[fogtype]->height : 0),
 							fogtype);
 			if (!P_MobjWasRemoved(fog))
 			{
@@ -11426,7 +11426,7 @@ void A_VileAttack(void *data)
 	else
 		soundtoplay = (sfxenum_t)locvar1;
 
-	if ((locvar2 & 0xFFFF) > 0 && (locvar2 & 0xFFFF) <= NUMMOBJTYPES)
+	if ((locvar2 & 0xFFFF) > 0 && (locvar2 & 0xFFFF) <= nummobjinfo)
 	{
 		explosionType = (mobjtype_t)(locvar2 & 0xFFFF);
 	}
@@ -11872,7 +11872,7 @@ void A_BrakLobShot(void *data)
 	if (P_MobjWasRemoved(actor))
 		return;
 
-	if (locvar1 <= 0 || locvar1 >= NUMMOBJTYPES)
+	if (locvar1 <= 0 || locvar1 >= (INT32)nummobjinfo)
 		typeOfShot = MT_CANNONBALL;
 	else typeOfShot = (mobjtype_t)locvar1;
 	shot = P_SpawnMobj(actor->x, actor->y, actor->z + FixedMul(locvar2*FRACUNIT, actor->scale), typeOfShot);
@@ -11921,7 +11921,7 @@ void A_NapalmScatter(void *data)
 		return;
 
 	// Some quick sanity-checking
-	if (typeOfShot >= NUMMOBJTYPES) // I'd add a <0 check, too, but 0x0000FFFF isn't negative in this case
+	if (typeOfShot >= nummobjinfo) // I'd add a <0 check, too, but 0x0000FFFF isn't negative in this case
 		typeOfShot = MT_NULL;
 	if (numToShoot <= 0) // Presumably you forgot to set var1 up; else, why are you calling this to shoot nothing?
 		numToShoot = 8;
@@ -12004,7 +12004,7 @@ mobj_t *P_InternalFlickySpawn(mobj_t *actor, mobjtype_t flickytype, fixed_t momz
 
 	if (moveforward)
 	{
-		fixed_t scal = mobjinfo[flickytype].radius*((fixed_t)moveforward);
+		fixed_t scal = mobjinfo[flickytype]->radius*((fixed_t)moveforward);
 		offsx = P_ReturnThrustX(actor, actor->angle, scal);
 		offsy = P_ReturnThrustY(actor, actor->angle, scal);
 	}
@@ -12218,13 +12218,13 @@ void P_InternalFlickyBubble(mobj_t *actor)
 	{
 		mobj_t *overlay;
 
-		if (!((actor->z + 3*actor->height/2) < actor->watertop) || !mobjinfo[actor->type].raisestate || actor->tracer)
+		if (!((actor->z + 3*actor->height/2) < actor->watertop) || !mobjinfo[actor->type]->raisestate || actor->tracer)
 			return;
 
 		overlay = P_SpawnMobj(actor->x, actor->y, actor->z, MT_OVERLAY);
 		if (P_MobjWasRemoved(overlay))
 			return;
-		P_SetMobjStateNF(overlay, mobjinfo[actor->type].raisestate);
+		P_SetMobjStateNF(overlay, mobjinfo[actor->type]->raisestate);
 		P_SetTarget(&actor->tracer, overlay);
 		P_SetTarget(&overlay->target, actor);
 		return;
@@ -12414,7 +12414,7 @@ void A_FlickyCoast(void *data)
 	}
 
 	actor->flags &= ~MF_NOGRAVITY;
-	P_SetMobjState(actor, mobjinfo[actor->type].spawnstate);
+	P_SetMobjState(actor, mobjinfo[actor->type]->spawnstate);
 }
 
 // Internal Flicky hopping function.
@@ -12502,15 +12502,15 @@ void A_FlickyCheck(void *data)
 			actor->flags |= MF_NOGRAVITY;
 		}
 		actor->flags |= MF_NOCLIP | MF_NOBLOCKMAP | MF_SCENERY;
-		P_SetMobjState(actor, mobjinfo[actor->type].seestate);
+		P_SetMobjState(actor, mobjinfo[actor->type]->seestate);
 	}
 	else if (locvar2 && P_MobjFlip(actor)*actor->momz < 1)
 		P_SetMobjState(actor, locvar2);
 	else if (locvar1 && ((!(actor->eflags & MFE_VERTICALFLIP) && actor->z <= actor->floorz)
 	|| ((actor->eflags & MFE_VERTICALFLIP) && actor->z + actor->height >= actor->ceilingz)))
 		P_SetMobjState(actor, locvar1);
-	else if (mobjinfo[actor->type].meleestate && (actor->eflags & MFE_UNDERWATER))
-		P_SetMobjState(actor, mobjinfo[actor->type].meleestate);
+	else if (mobjinfo[actor->type]->meleestate && (actor->eflags & MFE_UNDERWATER))
+		P_SetMobjState(actor, mobjinfo[actor->type]->meleestate);
 	P_InternalFlickyBubble(actor);
 }
 
@@ -12540,7 +12540,7 @@ void A_FlickyHeightCheck(void *data)
 			actor->flags |= MF_NOGRAVITY;
 		}
 		actor->flags |= MF_NOCLIP | MF_NOBLOCKMAP | MF_SCENERY;
-		P_SetMobjState(actor, mobjinfo[actor->type].seestate);
+		P_SetMobjState(actor, mobjinfo[actor->type]->seestate);
 	}
 	else if (locvar1 && actor->target && P_MobjFlip(actor)*actor->momz < 1
 	&& ((P_MobjFlip(actor)*((actor->z + actor->height/2) - (actor->target->z + actor->target->height/2)) < locvar2)
@@ -12591,7 +12591,7 @@ void A_FlickyFlutter(void *data)
 void A_FlameParticle(void *data)
 {
 	mobj_t *actor = data;
-	mobjtype_t type = (mobjtype_t)(mobjinfo[actor->type].painchance);
+	mobjtype_t type = (mobjtype_t)(mobjinfo[actor->type]->painchance);
 	fixed_t rad, hei;
 	mobj_t *particle;
 
@@ -12875,10 +12875,10 @@ void A_ConnectToGround(void *data)
 		if (work)
 			work->old_z = work->z; // Don't copy old_z from the actor
 
-		actor->z += P_MobjFlip(actor) * FixedMul(mobjinfo[locvar2].height, actor->scale);
+		actor->z += P_MobjFlip(actor) * FixedMul(mobjinfo[locvar2]->height, actor->scale);
 	}
 
-	if (!locvar1 || !mobjinfo[locvar1].height) // Can't tile the middle object?
+	if (!locvar1 || !mobjinfo[locvar1]->height) // Can't tile the middle object?
 	{
 		actor->z = endz;
 		return;
@@ -12895,7 +12895,7 @@ void A_ConnectToGround(void *data)
 		}
 
 		ang += ANGLE_90;
-		actor->z += P_MobjFlip(actor) * FixedMul(mobjinfo[locvar1].height, actor->scale);
+		actor->z += P_MobjFlip(actor) * FixedMul(mobjinfo[locvar1]->height, actor->scale);
 	}
 
 	actor->old_z = actor->z; // Reset Z interpolation - the spawned objects intentionally don't have any Z interpolation either, after all
@@ -12936,7 +12936,7 @@ void A_SpawnParticleRelative(void *data)
 	// NOTE: Doing actor->z + actor->height is the bottom of the object while the object has reverse gravity. - Flame
 	mo = P_SpawnMobj(actor->x + FixedMul(x<<FRACBITS, actor->scale),
 		actor->y + FixedMul(y<<FRACBITS, actor->scale),
-		(actor->eflags & MFE_VERTICALFLIP) ? ((actor->z + actor->height - mobjinfo[MT_PARTICLE].height) - FixedMul(z<<FRACBITS, actor->scale)) : (actor->z + FixedMul(z<<FRACBITS, actor->scale)), MT_PARTICLE);
+		(actor->eflags & MFE_VERTICALFLIP) ? ((actor->z + actor->height - mobjinfo[MT_PARTICLE]->height) - FixedMul(z<<FRACBITS, actor->scale)) : (actor->z + FixedMul(z<<FRACBITS, actor->scale)), MT_PARTICLE);
 	if (P_MobjWasRemoved(mo))
 		return;
 

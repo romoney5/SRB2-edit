@@ -12418,7 +12418,7 @@ static void M_SetPlayerSetupFollowItem(void)
 			multi_followitem_duration = state->var2 * FRACUNIT;
 			multi_followitem_tics = multi_tics % multi_followitem_duration;
 			multi_followitem_scale = 2 * FRACUNIT / 3;
-			multi_followitem_yoffset = (skins[setupm_fakeskin]->height - FixedMul(mobjinfo[followitem].height, multi_followitem_scale)) >> 1;
+			multi_followitem_yoffset = (skins[setupm_fakeskin]->height - FixedMul(mobjinfo[followitem]->height, multi_followitem_scale)) >> 1;
 			break;
 		}
 		default:

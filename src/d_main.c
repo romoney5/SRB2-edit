@@ -1444,7 +1444,8 @@ void D_SRB2Main(void)
 	I_InitializeTime();
 
 	// Make backups of some SOCcable tables.
-	P_BackupTables();
+	P_InitializeTables();
+	//P_BackupTables();
 
 	mainwads = 3; // doesn't include music.pk3
 #ifdef USE_PATCH_DTA

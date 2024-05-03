@@ -1001,36 +1001,36 @@ static void OP_CycleThings(INT32 amt)
 		{
 			op_currentthing += add;
 			if (op_currentthing <= 0)
-				op_currentthing = NUMMOBJTYPES-1;
-			if (op_currentthing >= NUMMOBJTYPES)
+				op_currentthing = nummobjinfo-1;
+			if (op_currentthing >= nummobjinfo)
 				op_currentthing = 0;
 		} while
-		(mobjinfo[op_currentthing].doomednum == -1
+		(mobjinfo[op_currentthing]->doomednum == -1
 			|| op_currentthing == MT_NIGHTSDRONE
-			|| mobjinfo[op_currentthing].flags & (MF_AMBIENT|MF_NOSECTOR)
-			|| (states[mobjinfo[op_currentthing].spawnstate].sprite == SPR_NULL
-			 && states[mobjinfo[op_currentthing].seestate].sprite == SPR_NULL)
+			|| mobjinfo[op_currentthing]->flags & (MF_AMBIENT|MF_NOSECTOR)
+			|| (states[mobjinfo[op_currentthing]->spawnstate].sprite == SPR_NULL
+			 && states[mobjinfo[op_currentthing]->seestate].sprite == SPR_NULL)
 		);
 		amt -= add;
 	}
 
 	// HACK, minus has SPR_NULL sprite
-	if (states[mobjinfo[op_currentthing].spawnstate].sprite == SPR_NULL)
+	if (states[mobjinfo[op_currentthing]->spawnstate].sprite == SPR_NULL)
 	{
-		states[S_OBJPLACE_DUMMY].sprite = states[mobjinfo[op_currentthing].seestate].sprite;
-		states[S_OBJPLACE_DUMMY].frame = states[mobjinfo[op_currentthing].seestate].frame;
+		states[S_OBJPLACE_DUMMY].sprite = states[mobjinfo[op_currentthing]->seestate].sprite;
+		states[S_OBJPLACE_DUMMY].frame = states[mobjinfo[op_currentthing]->seestate].frame;
 	}
 	else
 	{
-		states[S_OBJPLACE_DUMMY].sprite = states[mobjinfo[op_currentthing].spawnstate].sprite;
-		states[S_OBJPLACE_DUMMY].frame = states[mobjinfo[op_currentthing].spawnstate].frame;
+		states[S_OBJPLACE_DUMMY].sprite = states[mobjinfo[op_currentthing]->spawnstate].sprite;
+		states[S_OBJPLACE_DUMMY].frame = states[mobjinfo[op_currentthing]->spawnstate].frame;
 	}
 	if (players[0].mo->eflags & MFE_VERTICALFLIP) // correct z when flipped
-		players[0].mo->z += players[0].mo->height - FixedMul(mobjinfo[op_currentthing].height, players[0].mo->scale);
-	players[0].mo->height = FixedMul(mobjinfo[op_currentthing].height, players[0].mo->scale);
+		players[0].mo->z += players[0].mo->height - FixedMul(mobjinfo[op_currentthing]->height, players[0].mo->scale);
+	players[0].mo->height = FixedMul(mobjinfo[op_currentthing]->height, players[0].mo->scale);
 	P_SetMobjState(players[0].mo, S_OBJPLACE_DUMMY);
 
-	op_currentdoomednum = mobjinfo[op_currentthing].doomednum;
+	op_currentdoomednum = mobjinfo[op_currentthing]->doomednum;
 }
 
 static boolean OP_HeightOkay(player_t *player, UINT8 ceiling)
@@ -1203,8 +1203,8 @@ void OP_ResetObjectplace(void)
 		if (!OP_HeightOkay(player, false))
 			return;
 
-		mt = OP_CreateNewMapThing(player, (UINT16)mobjinfo[MT_NIGHTSBUMPER].doomednum, false);
-		mt->z = min(mt->z - (mobjinfo[MT_NIGHTSBUMPER].height/4), 0);
+		mt = OP_CreateNewMapThing(player, (UINT16)mobjinfo[MT_NIGHTSBUMPER]->doomednum, false);
+		mt->z = min(mt->z - (mobjinfo[MT_NIGHTSBUMPER]->height/4), 0);
 			// height offset: from P_TouchSpecialThing case MT_NIGHTSBUMPER
 
 		// clockwise
@@ -1252,7 +1252,7 @@ void OP_ResetObjectplace(void)
 		if (!OP_HeightOkay(player, false))
 			return;
 
-		mt = OP_CreateNewMapThing(player, (UINT16)mobjinfo[MT_BLUESPHERE].doomednum, false);
+		mt = OP_CreateNewMapThing(player, (UINT16)mobjinfo[MT_BLUESPHERE]->doomednum, false);
 		P_SpawnMapThing(mt);
 	}
 
@@ -1263,7 +1263,7 @@ void OP_ResetObjectplace(void)
 		if (!OP_HeightOkay(player, false))
 			return;
 
-		mt = OP_CreateNewMapThing(player, (UINT16)mobjinfo[MT_RING].doomednum, false);
+		mt = OP_CreateNewMapThing(player, (UINT16)mobjinfo[MT_RING]->doomednum, false);
 		P_SpawnMapThing(mt);
 	}
 
@@ -1361,10 +1361,10 @@ void OP_ObjectplaceMovement(player_t *player)
 	{
 		sector_t *sec = player->mo->subsector->sector;
 
-		if (!!(mobjinfo[op_currentthing].flags & MF_SPAWNCEILING) ^ !!(cv_opflags.value & MTF_OBJECTFLIP))
+		if (!!(mobjinfo[op_currentthing]->flags & MF_SPAWNCEILING) ^ !!(cv_opflags.value & MTF_OBJECTFLIP))
 		{
 			fixed_t cheight = P_GetSectorCeilingZAt(sec, player->mo->x & 0xFFFF0000, player->mo->y & 0xFFFF0000);
-			op_displayflags = (UINT16)((cheight - player->mo->z - mobjinfo[op_currentthing].height)>>FRACBITS);
+			op_displayflags = (UINT16)((cheight - player->mo->z - mobjinfo[op_currentthing]->height)>>FRACBITS);
 		}
 		else
 		{
@@ -1410,19 +1410,19 @@ void OP_ObjectplaceMovement(player_t *player)
 		if (cv_mapthingnum.value > 0 && cv_mapthingnum.value < 4096)
 		{
 			// find which type to spawn
-			for (spawnmid = 0; spawnmid < NUMMOBJTYPES; ++spawnmid)
-				if (cv_mapthingnum.value == mobjinfo[spawnmid].doomednum)
+			for (spawnmid = 0; spawnmid < nummobjinfo; ++spawnmid)
+				if (cv_mapthingnum.value == mobjinfo[spawnmid]->doomednum)
 					break;
 
-			if (spawnmid == NUMMOBJTYPES)
+			if (spawnmid == nummobjinfo)
 			{
 				CONS_Alert(CONS_ERROR, M_GetText("Can't place an object with mapthingnum %d.\n"), cv_mapthingnum.value);
 				return;
 			}
-			spawnthing = mobjinfo[spawnmid].doomednum;
+			spawnthing = mobjinfo[spawnmid]->doomednum;
 		}
 
-		ceiling = !!(mobjinfo[spawnmid].flags & MF_SPAWNCEILING) ^ !!(cv_opflags.value & MTF_OBJECTFLIP);
+		ceiling = !!(mobjinfo[spawnmid]->flags & MF_SPAWNCEILING) ^ !!(cv_opflags.value & MTF_OBJECTFLIP);
 		if (!OP_HeightOkay(player, ceiling))
 			return;
 
@@ -1562,7 +1562,7 @@ void Command_ObjectPlace_f(void)
 			{
 				players[0].mo->health = 1;
 				players[0].deadtimer = 0;
-				op_oldflags1 = mobjinfo[MT_PLAYER].flags;
+				op_oldflags1 = mobjinfo[MT_PLAYER]->flags;
 				++players[0].lives;
 				players[0].playerstate = PST_LIVE;
 				P_RestoreMusic(&players[0]);

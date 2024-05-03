@@ -152,9 +152,9 @@ void Command_CountMobjs_f(void)
 		for (j = 1; j < COM_Argc(); j++)
 		{
 			i = atoi(COM_Argv(j));
-			if (i >= NUMMOBJTYPES)
+			if (i >= nummobjinfo)
 			{
-				CONS_Printf(M_GetText("Object number %d out of range (max %d).\n"), i, NUMMOBJTYPES-1);
+				CONS_Printf(M_GetText("Object number %d out of range (max %zu).\n"), i, nummobjinfo-1);
 				continue;
 			}
 
@@ -176,7 +176,7 @@ void Command_CountMobjs_f(void)
 
 	CONS_Printf(M_GetText("Count of active objects in level:\n"));
 
-	for (i = 0; i < NUMMOBJTYPES; i++)
+	for (i = 0; i < nummobjinfo; i++)
 	{
 		count = 0;
 
@@ -237,12 +237,10 @@ static const char *MobjTypeName(const mobj_t *mobj)
 	else
 		return "<Not a mobj>";
 
-	if (type < 0 || type >= NUMMOBJTYPES || (type >= MT_FIRSTFREESLOT && !FREE_MOBJS[type - MT_FIRSTFREESLOT]))
+	if (type < 0 || type >= nummobjinfo)
 		return "<Invalid mobj type>";
-	else if (type >= MT_FIRSTFREESLOT)
-		return FREE_MOBJS[type - MT_FIRSTFREESLOT]; // This doesn't include "MT_"...
 	else
-		return MOBJTYPE_LIST[type];
+		return mobjinfo[type]->name;
 }
 
 static const char *MobjThinkerName(const mobj_t *mobj)

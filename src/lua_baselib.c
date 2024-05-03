@@ -45,8 +45,8 @@ return luaL_error(L, "HUD rendering code should not call this function!");\
 else if (hook_cmd_running)\
 return luaL_error(L, "CMD building code should not call this function!");
 
-#define NOSPAWNNULL if (type >= NUMMOBJTYPES)\
-return luaL_error(L, "mobj type %d out of range (0 - %d)", type, NUMMOBJTYPES-1);\
+#define NOSPAWNNULL if (type >= nummobjinfo)\
+return luaL_error(L, "mobj type %d out of range (0 - %zu)", type, nummobjinfo-1);\
 else if (type == MT_NULL)\
 {\
 	if (!nospawnnull_seen) {\
@@ -57,8 +57,8 @@ type = MT_RAY;\
 }
 static boolean nospawnnull_seen = false; // TODO: 2.3: Delete
 // TODO: 2.3: Use the below NOSPAWNNULL define instead. P_SpawnMobj used to say "if MT_NULL, use MT_RAY instead", so the above define maintains Lua script compatibility until v2.3
-/*#define NOSPAWNNULL if (type <= MT_NULL || type >= NUMMOBJTYPES)\
-return luaL_error(L, "mobj type %d out of range (1 - %d)", type, NUMMOBJTYPES-1);*/
+/*#define NOSPAWNNULL if (type <= MT_NULL || type >= nummobjinfo)\
+return luaL_error(L, "mobj type %d out of range (1 - %d)", type, nummobjinfo-1);*/
 
 boolean luaL_checkboolean(lua_State *L, int narg) {
 	luaL_checktype(L, narg, LUA_TBOOLEAN);

@@ -2055,13 +2055,13 @@ void P_SwitchWeather(INT32 weathernum)
 
 			if (weathernum == PRECIP_RAIN || weathernum == PRECIP_STORM || weathernum == PRECIP_STORM_NOSTRIKES) // Snow To Rain
 			{
-				precipmobj->flags = mobjinfo[MT_RAIN].flags;
-				st = &states[mobjinfo[MT_RAIN].spawnstate];
+				precipmobj->flags = mobjinfo[MT_RAIN]->flags;
+				st = &states[mobjinfo[MT_RAIN]->spawnstate];
 				precipmobj->state = st;
 				precipmobj->tics = st->tics;
 				precipmobj->sprite = st->sprite;
 				precipmobj->frame = st->frame;
-				precipmobj->momz = mobjinfo[MT_RAIN].speed;
+				precipmobj->momz = mobjinfo[MT_RAIN]->speed;
 
 				precipmobj->precipflags &= ~PCF_INVISIBLE;
 
@@ -2072,7 +2072,7 @@ void P_SwitchWeather(INT32 weathernum)
 			{
 				INT32 z;
 
-				precipmobj->flags = mobjinfo[MT_SNOWFLAKE].flags;
+				precipmobj->flags = mobjinfo[MT_SNOWFLAKE]->flags;
 				z = M_RandomByte();
 
 				if (z < 64)
@@ -2082,12 +2082,12 @@ void P_SwitchWeather(INT32 weathernum)
 				else
 					z = 0;
 
-				st = &states[mobjinfo[MT_SNOWFLAKE].spawnstate+z];
+				st = &states[mobjinfo[MT_SNOWFLAKE]->spawnstate+z];
 				precipmobj->state = st;
 				precipmobj->tics = st->tics;
 				precipmobj->sprite = st->sprite;
 				precipmobj->frame = st->frame;
-				precipmobj->momz = mobjinfo[MT_SNOWFLAKE].speed;
+				precipmobj->momz = mobjinfo[MT_SNOWFLAKE]->speed;
 
 				precipmobj->precipflags &= ~(PCF_INVISIBLE|PCF_RAIN);
 
@@ -2907,7 +2907,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo, sector_t *callsec)
 			statenum_t state = NUMSTATES;
 			mobj_t *thing;
 
-			if (type < 0 || type >= NUMMOBJTYPES)
+			if (type < 0 || type >= nummobjinfo)
 				break;
 
 			if (!line->args[1])
@@ -4947,10 +4947,10 @@ static void P_EvaluateSpecialFlags(player_t *player, sector_t *sector, sector_t 
 		P_ProcessTeamBase(player, false);
 	if (sector->specialflags & SSF_FAN)
 	{
-		player->mo->momz += mobjinfo[MT_FAN].mass/4;
+		player->mo->momz += mobjinfo[MT_FAN]->mass/4;
 
-		if (player->mo->momz > mobjinfo[MT_FAN].mass)
-			player->mo->momz = mobjinfo[MT_FAN].mass;
+		if (player->mo->momz > mobjinfo[MT_FAN]->mass)
+			player->mo->momz = mobjinfo[MT_FAN]->mass;
 
 		if (!player->powers[pw_carry])
 		{

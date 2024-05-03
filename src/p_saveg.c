@@ -3322,10 +3322,10 @@ static thinker_t* LoadMobjThinker(save_t *save_p, actionf_p1 thinker)
 		mobj->type = P_ReadUINT32(save_p);
 	else
 	{
-		for (i = 0; i < NUMMOBJTYPES; i++)
-			if (mobj->spawnpoint && mobj->spawnpoint->type == mobjinfo[i].doomednum)
+		for (i = 0; (size_t)i < nummobjinfo; i++)
+			if (mobj->spawnpoint && mobj->spawnpoint->type == mobjinfo[i]->doomednum)
 				break;
-		if (i == NUMMOBJTYPES)
+		if ((size_t)i == nummobjinfo)
 		{
 			if (mobj->spawnpoint)
 				CONS_Alert(CONS_ERROR, "Found mobj with unknown map thing type %d\n", mobj->spawnpoint->type);
@@ -3335,7 +3335,7 @@ static thinker_t* LoadMobjThinker(save_t *save_p, actionf_p1 thinker)
 		}
 		mobj->type = i;
 	}
-	mobj->info = &mobjinfo[mobj->type];
+	mobj->info = mobjinfo[mobj->type];
 	if (diff & MD_POS)
 	{
 		mobj->x = P_ReadFixed(save_p);
@@ -4531,7 +4531,7 @@ FUNCINLINE static ATTRINLINE void P_FinishMobjs(void)
 			continue;
 
 		mobj = (mobj_t *)currentthinker;
-		mobj->info = &mobjinfo[mobj->type];
+		mobj->info = mobjinfo[mobj->type];
 	}
 }
 

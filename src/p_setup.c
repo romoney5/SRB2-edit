@@ -723,9 +723,9 @@ void P_ReloadRings(void)
 	for (i = 0; i < nummapthings; i++, mt++)
 	{
 		// Notice an omission? We handle hoops differently.
-		if (mt->type == mobjinfo[MT_RING].doomednum || mt->type == mobjinfo[MT_COIN].doomednum
-			|| mt->type == mobjinfo[MT_REDTEAMRING].doomednum || mt->type == mobjinfo[MT_BLUETEAMRING].doomednum
-			|| mt->type == mobjinfo[MT_BLUESPHERE].doomednum || mt->type == mobjinfo[MT_BOMBSPHERE].doomednum)
+		if (mt->type == mobjinfo[MT_RING]->doomednum || mt->type == mobjinfo[MT_COIN]->doomednum
+			|| mt->type == mobjinfo[MT_REDTEAMRING]->doomednum || mt->type == mobjinfo[MT_BLUETEAMRING]->doomednum
+			|| mt->type == mobjinfo[MT_BLUESPHERE]->doomednum || mt->type == mobjinfo[MT_BOMBSPHERE]->doomednum)
 		{
 			mt->mobj = NULL;
 			P_SetBonusTime(P_SpawnMapThing(mt));
@@ -852,7 +852,7 @@ static void P_SpawnEmeraldHunt(void)
 		y = huntemeralds[emer[i]]->y<<FRACBITS;
 		z = P_GetMapThingSpawnHeight(MT_EMERHUNT, huntemeralds[emer[i]], x, y);
 		P_SetMobjStateNF(P_SpawnMobj(x, y, z, MT_EMERHUNT),
-			mobjinfo[MT_EMERHUNT].spawnstate+i);
+			mobjinfo[MT_EMERHUNT]->spawnstate+i);
 	}
 }
 
@@ -886,7 +886,7 @@ static void P_SpawnMapThings(boolean spawnemblems)
 			|| mt->type == 1702) // MT_AXISTRANSFERLINE
 			continue; // These were already spawned
 
-		if (!spawnemblems && mt->type == mobjinfo[MT_EMBLEM].doomednum)
+		if (!spawnemblems && mt->type == mobjinfo[MT_EMBLEM]->doomednum)
 			continue;
 
 		mt->mobj = NULL;
@@ -6488,12 +6488,12 @@ static void P_ConvertBinaryThingTypes(void)
 	mobjtype_t mobjtypeofthing[4096] = {0};
 	mobjtype_t mobjtype;
 
-	for (i = 0; i < NUMMOBJTYPES; i++)
+	for (i = 0; i < nummobjinfo; i++)
 	{
-		if (mobjinfo[i].doomednum < 0 || mobjinfo[i].doomednum >= 4096)
+		if (mobjinfo[i]->doomednum < 0 || mobjinfo[i]->doomednum >= 4096)
 			continue;
 
-		mobjtypeofthing[mobjinfo[i].doomednum] = (mobjtype_t)i;
+		mobjtypeofthing[mobjinfo[i]->doomednum] = (mobjtype_t)i;
 	}
 
 	for (i = 0; i < nummapthings; i++)
@@ -6501,7 +6501,7 @@ static void P_ConvertBinaryThingTypes(void)
 		mobjtype = mobjtypeofthing[mapthings[i].type];
 		if (mobjtype)
 		{
-			if (mobjinfo[mobjtype].flags & MF_BOSS)
+			if (mobjinfo[mobjtype]->flags & MF_BOSS)
 			{
 				INT32 paramoffset = mapthings[i].extrainfo*LE_PARAMWIDTH;
 				mapthings[i].args[0] = mapthings[i].extrainfo;
@@ -6510,14 +6510,14 @@ static void P_ConvertBinaryThingTypes(void)
 				mapthings[i].args[3] = LE_ALLBOSSESDEAD + paramoffset;
 				mapthings[i].args[4] = LE_PINCHPHASE + paramoffset;
 			}
-			if (mobjinfo[mobjtype].flags & MF_NIGHTSITEM)
+			if (mobjinfo[mobjtype]->flags & MF_NIGHTSITEM)
 			{
 				if (mapthings[i].options & MTF_OBJECTSPECIAL)
 					mapthings[i].args[0] |= TMNI_BONUSONLY;
 				if (mapthings[i].options & MTF_AMBUSH)
 					mapthings[i].args[0] |= TMNI_REVEAL;
 			}
-			if (mobjinfo[mobjtype].flags & MF_PUSHABLE)
+			if (mobjinfo[mobjtype]->flags & MF_PUSHABLE)
 			{
 				if ((mapthings[i].options & (MTF_OBJECTSPECIAL|MTF_AMBUSH)) == (MTF_OBJECTSPECIAL|MTF_AMBUSH))
 					mapthings[i].args[0] = TMP_CLASSIC;
@@ -6528,14 +6528,14 @@ static void P_ConvertBinaryThingTypes(void)
 				else
 					mapthings[i].args[0] = TMP_NORMAL;
 			}
-			if ((mobjinfo[mobjtype].flags & MF_SPRING) && mobjinfo[mobjtype].painchance == 3)
+			if ((mobjinfo[mobjtype]->flags & MF_SPRING) && mobjinfo[mobjtype]->painchance == 3)
 				mapthings[i].args[0] = !!(mapthings[i].options & MTF_AMBUSH);
-			if (mobjinfo[mobjtype].flags & MF_MONITOR)
+			if (mobjinfo[mobjtype]->flags & MF_MONITOR)
 			{
 				if ((mapthings[i].options & MTF_EXTRA) && mapthings[i].angle & 16384)
 					mapthings[i].args[0] = mapthings[i].angle & 16383;
 
-				if (mobjinfo[mobjtype].speed != 0)
+				if (mobjinfo[mobjtype]->speed != 0)
 				{
 					if (mapthings[i].options & MTF_OBJECTSPECIAL)
 						mapthings[i].args[1] = TMMR_STRONG;
@@ -6694,7 +6694,7 @@ static void P_ConvertBinaryThingTypes(void)
 		case 522: //Wall spike
 			if (mapthings[i].options & MTF_OBJECTSPECIAL)
 			{
-				mapthings[i].args[0] = mobjinfo[MT_WALLSPIKE].speed + mapthings[i].angle/360;
+				mapthings[i].args[0] = mobjinfo[MT_WALLSPIKE]->speed + mapthings[i].angle/360;
 				mapthings[i].args[1] = (16 - mapthings[i].extrainfo) * mapthings[i].args[0]/16;
 				if (mapthings[i].options & MTF_EXTRA)
 					mapthings[i].args[2] |= TMSF_RETRACTED;
@@ -6705,7 +6705,7 @@ static void P_ConvertBinaryThingTypes(void)
 		case 523: //Spike
 			if (mapthings[i].options & MTF_OBJECTSPECIAL)
 			{
-				mapthings[i].args[0] = mobjinfo[MT_SPIKE].speed + mapthings[i].angle;
+				mapthings[i].args[0] = mobjinfo[MT_SPIKE]->speed + mapthings[i].angle;
 				mapthings[i].args[1] = (16 - mapthings[i].extrainfo) * mapthings[i].args[0]/16;
 				if (mapthings[i].options & MTF_EXTRA)
 					mapthings[i].args[2] |= TMSF_RETRACTED;

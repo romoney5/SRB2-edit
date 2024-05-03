@@ -1136,7 +1136,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 				if (player->powers[pw_nights_superloop])
 				{
 					gatherradius *= 2;
-					sparklestate = mobjinfo[MT_NIGHTSPARKLE].seestate;
+					sparklestate = mobjinfo[MT_NIGHTSPARKLE]->seestate;
 				}
 
 				if (gatherradius < 30*FRACUNIT) // Player is probably just sitting there.
@@ -2613,7 +2613,7 @@ void P_KillMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source, UINT8 damaget
 				{
 					UINT8 locscoreadd = source->player->scoreadd + target->info->spawnhealth;
 					mobj_t *scoremobj;
-					UINT32 scorestate = mobjinfo[MT_SCORE].spawnstate;
+					UINT32 scorestate = mobjinfo[MT_SCORE]->spawnstate;
 
 					scoremobj = P_SpawnMobj(target->x, target->y, target->z + (target->height / 2), MT_SCORE);
 
@@ -3239,7 +3239,7 @@ static boolean P_TagDamage(mobj_t *target, mobj_t *inflictor, mobj_t *source, IN
 			if (player->revitem != MT_LHRT && player->spinitem != MT_LHRT && player->thokitem != MT_LHRT) // Healers do not get to heal other healers.
 			{
 				P_SwitchShield(player, SH_PINK);
-				S_StartSound(target, mobjinfo[MT_PITY_ICON].seesound);
+				S_StartSound(target, mobjinfo[MT_PITY_ICON]->seesound);
 			}
 		}
 		return false;
@@ -3254,7 +3254,7 @@ static boolean P_TagDamage(mobj_t *target, mobj_t *inflictor, mobj_t *source, IN
 			if (player->revitem != MT_LHRT && player->spinitem != MT_LHRT && player->thokitem != MT_LHRT) // Healers do not get to heal other healers.
 			{
 				P_SwitchShield(player, SH_PINK);
-				S_StartSound(target, mobjinfo[MT_PITY_ICON].seesound);
+				S_StartSound(target, mobjinfo[MT_PITY_ICON]->seesound);
 			}
 		}
 		else if (!(inflictor->flags & MF_FIRE))
@@ -3339,7 +3339,7 @@ static boolean P_PlayerHitsPlayer(mobj_t *target, mobj_t *inflictor, mobj_t *sou
 				if (player->revitem != MT_LHRT && player->spinitem != MT_LHRT && player->thokitem != MT_LHRT) // Healers do not get to heal other healers.
 				{
 					P_SwitchShield(player, SH_PINK);
-					S_StartSound(target, mobjinfo[MT_PITY_ICON].seesound);
+					S_StartSound(target, mobjinfo[MT_PITY_ICON]->seesound);
 				}
 			}
 			return false;
@@ -3362,7 +3362,7 @@ static boolean P_PlayerHitsPlayer(mobj_t *target, mobj_t *inflictor, mobj_t *sou
 				if (player->revitem != MT_LHRT && player->spinitem != MT_LHRT && player->thokitem != MT_LHRT) // Healers do not get to heal other healers.
 				{
 					P_SwitchShield(player, SH_PINK);
-					S_StartSound(target, mobjinfo[MT_PITY_ICON].seesound);
+					S_StartSound(target, mobjinfo[MT_PITY_ICON]->seesound);
 				}
 			}
 			else if (!(inflictor->flags & MF_FIRE))
@@ -3624,7 +3624,7 @@ void P_SpecialStageDamage(player_t *player, mobj_t *inflictor, mobj_t *source)
 			if (player->revitem != MT_LHRT && player->spinitem != MT_LHRT && player->thokitem != MT_LHRT) // Healers do not get to heal other healers.
 			{
 				P_SwitchShield(player, SH_PINK);
-				S_StartSound(player->mo, mobjinfo[MT_PITY_ICON].seesound);
+				S_StartSound(player->mo, mobjinfo[MT_PITY_ICON]->seesound);
 			}
 		}
 
@@ -3994,15 +3994,15 @@ void P_PlayerRingBurst(player_t *player, INT32 num_rings)
 
 	for (i = 0; i < num_rings; i++)
 	{
-		INT32 objType = mobjinfo[MT_RING].reactiontime;
+		INT32 objType = mobjinfo[MT_RING]->reactiontime;
 		if (mariomode)
-			objType = mobjinfo[MT_COIN].reactiontime;
+			objType = mobjinfo[MT_COIN]->reactiontime;
 		else if (player->powers[pw_carry] == CR_NIGHTSFALL)
-			objType = mobjinfo[(nightsreplace ? MT_NIGHTSCHIP : MT_BLUESPHERE)].reactiontime;
+			objType = mobjinfo[(nightsreplace ? MT_NIGHTSCHIP : MT_BLUESPHERE)]->reactiontime;
 
 		z = player->mo->z;
 		if (player->mo->eflags & MFE_VERTICALFLIP)
-			z += player->mo->height - mobjinfo[objType].height;
+			z += player->mo->height - mobjinfo[objType]->height;
 
 		mo = P_SpawnMobj(player->mo->x, player->mo->y, z, objType);
 		if (P_MobjWasRemoved(mo))
@@ -4127,8 +4127,8 @@ void P_PlayerWeaponPanelBurst(player_t *player)
 		if (!weptype) // ???
 			continue;
 
-		if (player->powers[power] >= mobjinfo[weptype].reactiontime)
-			ammoamt = (UINT16)mobjinfo[weptype].reactiontime;
+		if (player->powers[power] >= mobjinfo[weptype]->reactiontime)
+			ammoamt = (UINT16)mobjinfo[weptype]->reactiontime;
 		else
 			ammoamt = player->powers[power];
 
@@ -4136,7 +4136,7 @@ void P_PlayerWeaponPanelBurst(player_t *player)
 
 		z = player->mo->z;
 		if (player->mo->eflags & MFE_VERTICALFLIP)
-			z += player->mo->height - mobjinfo[weptype].height;
+			z += player->mo->height - mobjinfo[weptype]->height;
 
 		mo = P_SpawnMobj(player->mo->x, player->mo->y, z, weptype);
 		if (P_MobjWasRemoved(mo))
@@ -4222,7 +4222,7 @@ void P_PlayerWeaponAmmoBurst(player_t *player)
 
 		z = player->mo->z;
 		if (player->mo->eflags & MFE_VERTICALFLIP)
-			z += player->mo->height - mobjinfo[weptype].height;
+			z += player->mo->height - mobjinfo[weptype]->height;
 
 		mo = P_SpawnMobj(player->mo->x, player->mo->y, z, weptype);
 		if (P_MobjWasRemoved(mo))
@@ -4265,7 +4265,7 @@ void P_PlayerWeaponPanelOrAmmoBurst(player_t *player)
 	#define SETUP_DROP(thingtype) \
 		z = player->mo->z; \
 		if (player->mo->eflags & MFE_VERTICALFLIP) \
-			z += player->mo->height - mobjinfo[thingtype].height; \
+			z += player->mo->height - mobjinfo[thingtype]->height; \
 		fa = ((i*FINEANGLES/16) + (player->mo->angle>>ANGLETOFINESHIFT)) & FINEMASK; \
 		ns = FixedMul(3*FRACUNIT, player->mo->scale); \
 
@@ -4419,7 +4419,7 @@ void P_PlayerEmeraldBurst(player_t *player, boolean toss)
 
 				z = player->mo->z + player->mo->height;
 				if (player->mo->eflags & MFE_VERTICALFLIP)
-					z -= mobjinfo[MT_FLINGEMERALD].height + player->mo->height;
+					z -= mobjinfo[MT_FLINGEMERALD]->height + player->mo->height;
 				ns = FixedMul(8*FRACUNIT, player->mo->scale);
 			}
 			else
@@ -4428,7 +4428,7 @@ void P_PlayerEmeraldBurst(player_t *player, boolean toss)
 
 				z = player->mo->z + (player->mo->height / 2);
 				if (player->mo->eflags & MFE_VERTICALFLIP)
-					z -= mobjinfo[MT_FLINGEMERALD].height;
+					z -= mobjinfo[MT_FLINGEMERALD]->height;
 				ns = FixedMul(4*FRACUNIT, player->mo->scale);
 			}
 

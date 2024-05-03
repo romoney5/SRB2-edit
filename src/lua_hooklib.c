@@ -54,7 +54,8 @@ typedef struct {
 
 static hook_t hookIds[HOOK(MAX)];
 static hook_t hudHookIds[HUD_HOOK(MAX)];
-static hook_t mobjHookIds[NUMMOBJTYPES][MOBJ_HOOK(MAX)];
+static hook_t (*mobjHookIds)[MOBJ_HOOK(MAX)];
+static size_t numMobjHookIds;
 
 // Lua tables are used to lookup string hook ids.
 static stringhook_t stringHooks[STRING_HOOK(MAX)];
@@ -70,10 +71,10 @@ static int errorRef;
 
 static boolean mobj_hook_available(int hook_type, mobjtype_t mobj_type)
 {
-	return
+	return mobj_type < numMobjHookIds &&
 		(
 				mobjHookIds [MT_NULL] [hook_type].numHooks > 0 ||
-				(mobj_type < NUMMOBJTYPES && mobjHookIds[mobj_type][hook_type].numHooks > 0)
+				(mobj_type < nummobjinfo && mobjHookIds[mobj_type][hook_type].numHooks > 0)
 		);
 }
 
@@ -160,8 +161,8 @@ static void add_string_hook(lua_State *L, int type)
 
 static void add_hook(hook_t *map)
 {
-	Z_Realloc(map->ids, (map->numHooks + 1) * sizeof *map->ids,
-			PU_STATIC, &map->ids);
+	map->ids = Z_Realloc(map->ids, (map->numHooks + 1) * sizeof *map->ids,
+			PU_STATIC, NULL);
 	map->ids[map->numHooks++] = nextid;
 }
 
@@ -169,8 +170,14 @@ static void add_mobj_hook(lua_State *L, int hook_type)
 {
 	mobjtype_t   mobj_type = luaL_optnumber(L, 3, MT_NULL);
 
-	luaL_argcheck(L, mobj_type < NUMMOBJTYPES, 3, "invalid mobjtype_t");
+	luaL_argcheck(L, mobj_type < nummobjinfo, 3, "invalid mobjtype_t");
 
+	if (mobj_type >= numMobjHookIds)
+	{
+		mobjHookIds = Z_Realloc(mobjHookIds, (mobj_type+1) * sizeof(*mobjHookIds), PU_STATIC, NULL);
+		memset(&mobjHookIds[numMobjHookIds], 0, (mobj_type+1-numMobjHookIds) * sizeof(*mobjHookIds));
+		numMobjHookIds = mobj_type+1;
+	}
 	add_hook(&mobjHookIds[mobj_type][hook_type]);
 }
 
@@ -347,7 +354,7 @@ static boolean prepare_mobj_hook
 		mobj_t     * primary_mobj
 ){
 	const mobjtype_t mobj_type =
-		primary_mobj ? primary_mobj->type : NUMMOBJTYPES;
+		primary_mobj ? primary_mobj->type : nummobjinfo;
 
 #ifdef PARANOIA
 	if (mobj_type == MT_NULL)
@@ -554,7 +561,7 @@ static int call_hooks
 		/* call generic mobj hooks first */
 		calls += call_mobj_type_hooks(hook, MT_NULL);
 
-		if (hook->mobj_type < NUMMOBJTYPES)
+		if (hook->mobj_type < nummobjinfo)
 			calls += call_mobj_type_hooks(hook, hook->mobj_type);
 
 		ps_lua_mobjhooks.value.i += calls;

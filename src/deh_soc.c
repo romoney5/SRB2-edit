@@ -473,12 +473,8 @@ void readfreeslots(MYFILE *f)
 			}
 			else if (fastcmp(type, "MT"))
 			{
-				for (i = 0; i < NUMMOBJFREESLOTS; i++)
-					if (!FREE_MOBJS[i]) {
-						FREE_MOBJS[i] = Z_Malloc(strlen(word)+1, PU_STATIC, NULL);
-						strcpy(FREE_MOBJS[i],word);
-						break;
-					}
+				CONS_Printf("MobjType MT_%s allocated.\n",word);
+				P_AllocateMobjinfo(Z_StrDup(va("MT_%s", word)));
 			}
 			else if (fastcmp(type, "SKINCOLOR"))
 			{
@@ -572,99 +568,99 @@ void readthing(MYFILE *f, INT32 num)
 
 			if (fastcmp(word, "MAPTHINGNUM") || fastcmp(word, "DOOMEDNUM"))
 			{
-				mobjinfo[num].doomednum = (INT32)atoi(word2);
+				mobjinfo[num]->doomednum = (INT32)atoi(word2);
 			}
 			else if (fastcmp(word, "SPAWNSTATE"))
 			{
-				mobjinfo[num].spawnstate = get_number(word2);
+				mobjinfo[num]->spawnstate = get_number(word2);
 			}
 			else if (fastcmp(word, "SPAWNHEALTH"))
 			{
-				mobjinfo[num].spawnhealth = (INT32)get_number(word2);
+				mobjinfo[num]->spawnhealth = (INT32)get_number(word2);
 			}
 			else if (fastcmp(word, "SEESTATE"))
 			{
-				mobjinfo[num].seestate = get_number(word2);
+				mobjinfo[num]->seestate = get_number(word2);
 			}
 			else if (fastcmp(word, "SEESOUND"))
 			{
-				mobjinfo[num].seesound = get_number(word2);
+				mobjinfo[num]->seesound = get_number(word2);
 			}
 			else if (fastcmp(word, "REACTIONTIME"))
 			{
-				mobjinfo[num].reactiontime = (INT32)get_number(word2);
+				mobjinfo[num]->reactiontime = (INT32)get_number(word2);
 			}
 			else if (fastcmp(word, "ATTACKSOUND"))
 			{
-				mobjinfo[num].attacksound = get_number(word2);
+				mobjinfo[num]->attacksound = get_number(word2);
 			}
 			else if (fastcmp(word, "PAINSTATE"))
 			{
-				mobjinfo[num].painstate = get_number(word2);
+				mobjinfo[num]->painstate = get_number(word2);
 			}
 			else if (fastcmp(word, "PAINCHANCE"))
 			{
-				mobjinfo[num].painchance = (INT32)get_number(word2);
+				mobjinfo[num]->painchance = (INT32)get_number(word2);
 			}
 			else if (fastcmp(word, "PAINSOUND"))
 			{
-				mobjinfo[num].painsound = get_number(word2);
+				mobjinfo[num]->painsound = get_number(word2);
 			}
 			else if (fastcmp(word, "MELEESTATE"))
 			{
-				mobjinfo[num].meleestate = get_number(word2);
+				mobjinfo[num]->meleestate = get_number(word2);
 			}
 			else if (fastcmp(word, "MISSILESTATE"))
 			{
-				mobjinfo[num].missilestate = get_number(word2);
+				mobjinfo[num]->missilestate = get_number(word2);
 			}
 			else if (fastcmp(word, "DEATHSTATE"))
 			{
-				mobjinfo[num].deathstate = get_number(word2);
+				mobjinfo[num]->deathstate = get_number(word2);
 			}
 			else if (fastcmp(word, "DEATHSOUND"))
 			{
-				mobjinfo[num].deathsound = get_number(word2);
+				mobjinfo[num]->deathsound = get_number(word2);
 			}
 			else if (fastcmp(word, "XDEATHSTATE"))
 			{
-				mobjinfo[num].xdeathstate = get_number(word2);
+				mobjinfo[num]->xdeathstate = get_number(word2);
 			}
 			else if (fastcmp(word, "SPEED"))
 			{
-				mobjinfo[num].speed = get_number(word2);
+				mobjinfo[num]->speed = get_number(word2);
 			}
 			else if (fastcmp(word, "RADIUS"))
 			{
-				mobjinfo[num].radius = get_number(word2);
+				mobjinfo[num]->radius = get_number(word2);
 			}
 			else if (fastcmp(word, "HEIGHT"))
 			{
-				mobjinfo[num].height = get_number(word2);
+				mobjinfo[num]->height = get_number(word2);
 			}
 			else if (fastcmp(word, "DISPOFFSET"))
 			{
-				mobjinfo[num].dispoffset = get_number(word2);
+				mobjinfo[num]->dispoffset = get_number(word2);
 			}
 			else if (fastcmp(word, "MASS"))
 			{
-				mobjinfo[num].mass = (INT32)get_number(word2);
+				mobjinfo[num]->mass = (INT32)get_number(word2);
 			}
 			else if (fastcmp(word, "DAMAGE"))
 			{
-				mobjinfo[num].damage = (INT32)get_number(word2);
+				mobjinfo[num]->damage = (INT32)get_number(word2);
 			}
 			else if (fastcmp(word, "ACTIVESOUND"))
 			{
-				mobjinfo[num].activesound = get_number(word2);
+				mobjinfo[num]->activesound = get_number(word2);
 			}
 			else if (fastcmp(word, "FLAGS"))
 			{
-				mobjinfo[num].flags = (INT32)get_number(word2);
+				mobjinfo[num]->flags = (INT32)get_number(word2);
 			}
 			else if (fastcmp(word, "RAISESTATE"))
 			{
-				mobjinfo[num].raisestate = get_number(word2);
+				mobjinfo[num]->raisestate = get_number(word2);
 			}
 			else
 				deh_warning("Thing %d: unknown word '%s'", num, word);
@@ -4154,17 +4150,11 @@ mobjtype_t get_mobjtype(const char *word)
 	mobjtype_t i;
 	if (*word >= '0' && *word <= '9')
 		return atoi(word);
-	if (fastncmp("MT_",word,3))
-		word += 3; // take off the MT_
-	for (i = 0; i < NUMMOBJFREESLOTS; i++) {
-		if (!FREE_MOBJS[i])
-			break;
-		if (fastcmp(word, FREE_MOBJS[i]))
-			return MT_FIRSTFREESLOT+i;
-	}
-	for (i = 0; i < MT_FIRSTFREESLOT; i++)
-		if (fastcmp(word, MOBJTYPE_LIST[i]+3))
+	I_Assert(fastncmp("MT_",word,3));
+	for (i = 0; i < nummobjinfo; i++) {
+		if (fastcmp(word, mobjinfo[i]->name))
 			return i;
+	}
 	deh_warning("Couldn't find mobjtype named 'MT_%s'",word);
 	return MT_NULL;
 }

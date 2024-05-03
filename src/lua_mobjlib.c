@@ -389,7 +389,7 @@ static int mobj_get(lua_State *L)
 		lua_pushinteger(L, mo->type);
 		break;
 	case mobj_info:
-		LUA_PushUserdata(L, &mobjinfo[mo->type], META_MOBJINFO);
+		LUA_PushUserdata(L, mobjinfo[mo->type], META_MOBJINFO);
 		break;
 	case mobj_health:
 		lua_pushinteger(L, mo->health);
@@ -773,10 +773,10 @@ static int mobj_set(lua_State *L)
 	case mobj_type: // yeah sure, we'll let you change the mobj's type.
 	{
 		mobjtype_t newtype = luaL_checkinteger(L, 3);
-		if (newtype >= NUMMOBJTYPES)
-			return luaL_error(L, "mobj.type %d out of range (0 - %d).", newtype, NUMMOBJTYPES-1);
+		if (newtype >= nummobjinfo)
+			return luaL_error(L, "mobj.type %d out of range (0 - %zu).", newtype, nummobjinfo-1);
 		mo->type = newtype;
-		mo->info = &mobjinfo[newtype];
+		mo->info = mobjinfo[newtype];
 		P_SetScale(mo, mo->scale, false);
 		break;
 	}

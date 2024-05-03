@@ -489,7 +489,7 @@ springstate:
 		if (object->player && spring->reactiontime && !(spring->info->flags & MF_ENEMY))
 		{
 			if (object->player->powers[pw_carry] != CR_NIGHTSMODE) // don't make graphic in NiGHTS
-				P_SetMobjState(P_SpawnMobj(spring->x, spring->y, spring->z + (spring->height/2), MT_SCORE), mobjinfo[MT_SCORE].spawnstate+11);
+				P_SetMobjState(P_SpawnMobj(spring->x, spring->y, spring->z + (spring->height/2), MT_SCORE), mobjinfo[MT_SCORE]->spawnstate+11);
 			P_AddPlayerScore(object->player, 10);
 			spring->reactiontime--;
 		}

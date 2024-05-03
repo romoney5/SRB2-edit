@@ -29,7 +29,6 @@
 #include "deh_tables.h"
 
 char *FREE_STATES[NUMSTATEFREESLOTS];
-char *FREE_MOBJS[NUMMOBJFREESLOTS];
 char *FREE_SKINCOLORS[NUMCOLORFREESLOTS];
 bitarray_t used_spr[BIT_ARRAY_SIZE(NUMSPRITEFREESLOTS)]; // Sprite freeslots in use
 
@@ -5849,15 +5848,11 @@ void DEH_TableCheck(void)
 {
 #if defined(_DEBUG) || defined(PARANOIA)
 	const size_t dehstates = sizeof(STATE_LIST)/sizeof(const char*);
-	const size_t dehmobjs  = sizeof(MOBJTYPE_LIST)/sizeof(const char*);
 	const size_t dehpowers = sizeof(POWERS_LIST)/sizeof(const char*);
 	const size_t dehcolors = sizeof(COLOR_ENUMS)/sizeof(const char*);
 
 	if (dehstates != S_FIRSTFREESLOT)
 		I_Error("You forgot to update the Dehacked states list, you dolt!\n(%d states defined, versus %s in the Dehacked list)\n", S_FIRSTFREESLOT, sizeu1(dehstates));
-
-	if (dehmobjs != MT_FIRSTFREESLOT)
-		I_Error("You forgot to update the Dehacked mobjtype list, you dolt!\n(%d mobj types defined, versus %s in the Dehacked list)\n", MT_FIRSTFREESLOT, sizeu1(dehmobjs));
 
 	if (dehpowers != NUMPOWERS)
 		I_Error("You forgot to update the Dehacked powers list, you dolt!\n(%d powers defined, versus %s in the Dehacked list)\n", NUMPOWERS, sizeu1(dehpowers));

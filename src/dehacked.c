@@ -305,11 +305,11 @@ static void DEH_LoadDehackedFile(MYFILE *f, boolean mainfile)
 				{
 					if (i == 0 && word2[0] != '0') // If word2 isn't a number
 						i = get_mobjtype(word2); // find a thing by name
-					if (i < NUMMOBJTYPES && i > 0)
+					if (i < (INT32)nummobjinfo && i > 0)
 						readthing(f, i);
 					else
 					{
-						deh_warning("Thing %d out of range (1 - %d)", i, NUMMOBJTYPES-1);
+						deh_warning("Thing %d out of range (1 - %zu)", i, nummobjinfo-1);
 						ignorelines(f);
 					}
 				}
