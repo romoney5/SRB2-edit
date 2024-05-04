@@ -1410,18 +1410,15 @@ static int mobjinfo_set(lua_State *L)
 }
 
 // mobjinfo_t * -> MT_*
-/*
 static int mobjinfo_num(lua_State *L)
 {
 	mobjinfo_t *info = *((mobjinfo_t **)luaL_checkudata(L, 1, META_MOBJINFO));
 
 	I_Assert(info != NULL);
-	I_Assert(info >= mobjinfo);
 
-	lua_pushinteger(L, info-mobjinfo);
+	lua_pushinteger(L, P_GetMobjinfoIndex(info));
 	return 1;
 }
-*/
 
 //////////////
 // SFX INFO //
@@ -1914,7 +1911,7 @@ int LUA_InfoLib(lua_State *L)
 	lua_setfield(L, LUA_REGISTRYINDEX, LREG_ACTIONS);
 
 	LUA_RegisterUserdataMetatable(L, META_STATE, state_get, state_set, state_num);
-	LUA_RegisterUserdataMetatable(L, META_MOBJINFO, mobjinfo_get, mobjinfo_set, NULL);
+	LUA_RegisterUserdataMetatable(L, META_MOBJINFO, mobjinfo_get, mobjinfo_set, mobjinfo_num);
 	LUA_RegisterUserdataMetatable(L, META_SKINCOLOR, skincolor_get, skincolor_set, skincolor_num);
 	LUA_RegisterUserdataMetatable(L, META_COLORRAMP, colorramp_get, colorramp_set, colorramp_len);
 	LUA_RegisterUserdataMetatable(L, META_SFXINFO, sfxinfo_get, sfxinfo_set, sfxinfo_num);
