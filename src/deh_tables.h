@@ -20,12 +20,10 @@
 
 // Free slot names
 // The crazy word-reading stuff uses these.
-extern char *FREE_STATES[NUMSTATEFREESLOTS];
 extern char *FREE_SKINCOLORS[NUMCOLORFREESLOTS];
 extern bitarray_t used_spr[BIT_ARRAY_SIZE(NUMSPRITEFREESLOTS)]; // Sprite freeslots in use
 
 #define initfreeslots() {\
-	memset(FREE_STATES, 0, sizeof(FREE_STATES));\
 	memset(FREE_SKINCOLORS, 0, sizeof(FREE_SKINCOLORS));\
 	memset(used_spr, 0, sizeof(used_spr));\
 	memset(actionsoverridden, LUA_REFNIL, sizeof(actionsoverridden));\
@@ -55,8 +53,6 @@ struct int_const_s {
 extern const char NIGHTSGRADE_LIST[];
 extern struct flickytypes_s FLICKYTYPES[];
 extern actionpointer_t actionpointers[]; // Array mapping action names to action functions.
-extern const char *const STATE_LIST[];
-extern const char *const MOBJTYPE_LIST[];
 extern const char *const MOBJFLAG_LIST[];
 extern const char *const MOBJFLAG2_LIST[]; // \tMF2_(\S+).*// (.+) --> \t"\1", // \2
 extern const char *const MOBJEFLAG_LIST[];

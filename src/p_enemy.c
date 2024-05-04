@@ -1900,7 +1900,7 @@ void A_CrushclawAim(void *data)
 		crab->y + P_ReturnThrustY(actor, actor->angle, locvar1*crab->scale),
 		crab->z + locvar2*crab->scale);
 
-	if (!crab->target || !crab->info->missilestate || (statenum_t)(crab->state-states) == crab->info->missilestate)
+	if (!crab->target || !crab->info->missilestate || (statenum_t)(crab->state->num) == crab->info->missilestate)
 		return;
 
 	if (((ang + ANG1) < ANG2) || P_AproxDistance(crab->x - crab->target->x, crab->y - crab->target->y) < 333*crab->scale)
@@ -2134,7 +2134,7 @@ static void P_VultureHoverParticle(mobj_t *actor)
 			dust = P_SpawnMobj(px, py, pz, MT_ARIDDUST);
 			if (!P_MobjWasRemoved(dust))
 			{
-				P_SetMobjState(dust, (statenum_t)(dust->state - states + P_RandomRange(0, 2)));
+				P_SetMobjState(dust, (statenum_t)(dust->state->num + P_RandomRange(0, 2)));
 				P_Thrust(dust, angle, FixedDiv(12*FRACUNIT, max(FRACUNIT, fdist/2)));
 				dust->momx += actor->momx;
 				dust->momy += actor->momy;
@@ -4822,7 +4822,7 @@ void A_FishJump(void *data)
 	}
 
 	if (actor->momz < 0
-		&& (actor->state < &states[actor->info->meleestate] || actor->state > &states[actor->info->xdeathstate]))
+		&& (actor->state->num < actor->info->meleestate || actor->state->num > actor->info->xdeathstate))
 		P_SetMobjStateNF(actor, actor->info->meleestate);
 }
 
@@ -5070,7 +5070,7 @@ void A_SignSpin(void *data)
 				P_SetMobjState(actor, actor->info->deathstate);
 				return;
 			}
-			if ((statenum_t)(actor->state-states) != actor->info->painstate)
+			if ((statenum_t)(actor->state->num) != actor->info->painstate)
 				P_SetMobjState(actor, actor->info->painstate);
 			actor->movedir = min((mapangle - actor->angle) >> 2, actor->movedir);
 		}
@@ -5147,7 +5147,7 @@ void A_SignPlayer(void *data)
 	skin_t *skin = NULL;
 	mobj_t *ov;
 	UINT16 facecolor, signcolor = 0;
-	UINT32 signframe = states[actor->info->raisestate].frame;
+	UINT32 signframe = states[actor->info->raisestate]->frame;
 
 	facecolor = signcolor = (UINT16)locvar2;
 
@@ -5233,14 +5233,14 @@ void A_SignPlayer(void *data)
 			{
 				ov->color = facecolor;
 				ov->skin = skin;
-				if ((statenum_t)(ov->state-states) != actor->info->seestate)
+				if ((statenum_t)(ov->state->num) != actor->info->seestate)
 					P_SetMobjState(ov, actor->info->seestate); // S_PLAY_SIGN
 			}
 			else // CLEAR! sign
 			{
 				ov->color = SKINCOLOR_NONE;
 				ov->skin = NULL; // needs to be NULL in the case of SF_HIRES characters
-				if ((statenum_t)(ov->state-states) != actor->info->missilestate)
+				if ((statenum_t)(ov->state->num) != actor->info->missilestate)
 					P_SetMobjState(ov, actor->info->missilestate); // S_CLEARSIGN
 			}
 		}
@@ -5248,7 +5248,7 @@ void A_SignPlayer(void *data)
 		{
 			ov->color = SKINCOLOR_NONE;
 			ov->skin = NULL;
-			if ((statenum_t)(ov->state-states) != actor->info->meleestate)
+			if ((statenum_t)(ov->state->num) != actor->info->meleestate)
 				P_SetMobjState(ov, actor->info->meleestate); // S_EGGMANSIGN
 			if (!signcolor)
 				signcolor = SKINCOLOR_CARBON;
@@ -5773,7 +5773,7 @@ void A_ChickenCheck(void *data)
 	|| (actor->eflags & MFE_VERTICALFLIP && actor->z + actor->height >= actor->ceilingz))
 	{
 		if (!(actor->momx || actor->momy || actor->momz)
-			&& actor->state > &states[actor->info->seestate])
+			&& actor->state > states[actor->info->seestate])
 		{
 			A_Chase(actor);
 			P_SetMobjState(actor, actor->info->seestate);
@@ -6203,7 +6203,7 @@ void A_UnidusBall(void *data)
 	else if (locvar1 == 2)
 	{
 		boolean skull = (actor->target->flags2 & MF2_SKULLFLY) == MF2_SKULLFLY;
-		if (actor->target->state == &states[actor->target->info->painstate])
+		if (actor->target->state == states[actor->target->info->painstate])
 		{
 			P_KillMobj(actor, NULL, NULL, 0);
 			return;
@@ -6425,7 +6425,7 @@ void A_CrawlaCommanderThink(void *data)
 		if (P_LookForPlayers(actor, true, false, 0))
 			return; // got a new target
 
-		if (actor->state != &states[actor->info->spawnstate])
+		if (actor->state != states[actor->info->spawnstate])
 			P_SetMobjState(actor, actor->info->spawnstate);
 		return;
 	}
@@ -7334,7 +7334,7 @@ void A_Boss2Pogo(void *data)
 
 	if (actor->z <= actor->floorz + FixedMul(8*FRACUNIT, actor->scale) && actor->momz <= 0)
 	{
-		if (actor->state != &states[actor->info->raisestate])
+		if (actor->state != states[actor->info->raisestate])
 			P_SetMobjState(actor, actor->info->raisestate);
 		// Pogo Mode
 	}
@@ -8257,7 +8257,7 @@ void A_Boss3Path(void *data)
 		if (P_MobjWasRemoved(actor))
 			return;
 
-		if (actor->tracer->state == &states[actor->tracer->info->missilestate])
+		if (actor->tracer->state == states[actor->tracer->info->missilestate])
 			P_SetMobjState(actor, actor->info->missilestate);
 		return;
 	}
@@ -9617,19 +9617,19 @@ void A_DualAction(void *data)
 
 	CONS_Debug(DBG_GAMELOGIC, "A_DualAction called from object type %d, var1: %d, var2: %d\n", actor->type, locvar1, locvar2);
 
-	var1 = states[locvar1].var1;
-	var2 = states[locvar1].var2;
-	astate = &states[locvar1];
+	var1 = states[locvar1]->var1;
+	var2 = states[locvar1]->var2;
+	astate = states[locvar1];
 
 	CONS_Debug(DBG_GAMELOGIC, "A_DualAction: Calling First Action (state %d)...\n", locvar1);
-	states[locvar1].action(actor);
+	states[locvar1]->action(actor);
 
-	var1 = states[locvar2].var1;
-	var2 = states[locvar2].var2;
-	astate = &states[locvar2];
+	var1 = states[locvar2]->var1;
+	var2 = states[locvar2]->var2;
+	astate = states[locvar2];
 
 	CONS_Debug(DBG_GAMELOGIC, "A_DualAction: Calling Second Action (state %d)...\n", locvar2);
-	states[locvar2].action(actor);
+	states[locvar2]->action(actor);
 }
 
 // Function: A_RemoteAction
@@ -9707,13 +9707,13 @@ void A_RemoteAction(void *data)
 	if (actor->target)
 	{
 		// Steal the var1 and var2 from "locvar2"
-		var1 = states[locvar2].var1;
-		var2 = states[locvar2].var2;
-		astate = &states[locvar2];
+		var1 = states[locvar2]->var1;
+		var2 = states[locvar2]->var2;
+		astate = states[locvar2];
 
 		CONS_Debug(DBG_GAMELOGIC, "A_RemoteAction: Calling action on %p\n"
 				"var1 is %d\nvar2 is %d\n", actor->target, var1, var2);
-		states[locvar2].action(actor->target);
+		states[locvar2]->action(actor->target);
 	}
 
 	P_SetTarget(&actor->target, originaltarget); // Restore the original target.
@@ -10883,13 +10883,13 @@ void A_CusValAction(void *data)
 
 	if (locvar2 == 5)
 	{
-		var1 = states[locvar1].var1;
+		var1 = states[locvar1]->var1;
 		var2 = (INT32)actor->cvmem;
 	}
 	else if (locvar2 == 4)
 	{
 		var1 = (INT32)actor->cvmem;
-		var2 = states[locvar1].var2;
+		var2 = states[locvar1]->var2;
 	}
 	else if (locvar2 == 3)
 	{
@@ -10903,17 +10903,17 @@ void A_CusValAction(void *data)
 	}
 	else if (locvar2 == 1)
 	{
-		var1 = states[locvar1].var1;
+		var1 = states[locvar1]->var1;
 		var2 = (INT32)actor->cusval;
 	}
 	else
 	{
 		var1 = (INT32)actor->cusval;
-		var2 = states[locvar1].var2;
+		var2 = states[locvar1]->var2;
 	}
 
-	astate = &states[locvar1];
-	states[locvar1].action(actor);
+	astate = states[locvar1];
+	states[locvar1]->action(actor);
 }
 
 // Function: A_ForceStop
@@ -11026,31 +11026,31 @@ void A_InfoState(void *data)
 	switch (locvar1)
 	{
 	case 0:
-		if (actor->state != &states[actor->info->spawnstate])
+		if (actor->state != states[actor->info->spawnstate])
 			P_SetMobjState(actor, actor->info->spawnstate);
 		break;
 	case 1:
-		if (actor->state != &states[actor->info->seestate])
+		if (actor->state != states[actor->info->seestate])
 			P_SetMobjState(actor, actor->info->seestate);
 		break;
 	case 2:
-		if (actor->state != &states[actor->info->meleestate])
+		if (actor->state != states[actor->info->meleestate])
 			P_SetMobjState(actor, actor->info->meleestate);
 		break;
 	case 3:
-		if (actor->state != &states[actor->info->missilestate])
+		if (actor->state != states[actor->info->missilestate])
 			P_SetMobjState(actor, actor->info->missilestate);
 		break;
 	case 4:
-		if (actor->state != &states[actor->info->deathstate])
+		if (actor->state != states[actor->info->deathstate])
 			P_SetMobjState(actor, actor->info->deathstate);
 		break;
 	case 5:
-		if (actor->state != &states[actor->info->xdeathstate])
+		if (actor->state != states[actor->info->xdeathstate])
 			P_SetMobjState(actor, actor->info->xdeathstate);
 		break;
 	case 6:
-		if (actor->state != &states[actor->info->raisestate])
+		if (actor->state != states[actor->info->raisestate])
 			P_SetMobjState(actor, actor->info->raisestate);
 		break;
 	default:
@@ -13708,7 +13708,7 @@ void A_Boss5MakeJunk(void *data)
 		if (!P_MobjWasRemoved(broked))
 		{
 			S_StartSound(broked, sfx_alart);
-			broked->fuse = states[S_FANG_INTRO12].tics+10;
+			broked->fuse = states[S_FANG_INTRO12]->tics+10;
 			P_SetMobjState(broked, S_ALART1);
 		}
 	}
@@ -14013,7 +14013,7 @@ static boolean PIT_TNTExplode(mobj_t *nearby)
 
 	if (barrel->type == nearby->type) // nearby is also a barrel
 	{
-		if (nearby->state == &states[nearby->info->spawnstate])
+		if (nearby->state == states[nearby->info->spawnstate])
 		{
 			if (barrel->info->attacksound)
 				S_StartSound(nearby, barrel->info->attacksound);

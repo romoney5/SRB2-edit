@@ -12381,7 +12381,7 @@ static void M_SetPlayerSetupFollowItem(void)
 	{
 		case MT_TAILSOVERLAY:
 		{
-			const state_t *state = &states[S_TAILSOVERLAY_MINUS30DEGREES];
+			const state_t *state = states[S_TAILSOVERLAY_MINUS30DEGREES];
 			const UINT8 sprite2 = P_GetSkinSprite2(skins[setupm_fakeskin], state->frame & FF_FRAMEMASK, NULL);
 
 			if (state->sprite != SPR_PLAY)
@@ -12405,7 +12405,7 @@ static void M_SetPlayerSetupFollowItem(void)
 		}
 		case MT_METALJETFUME:
 		{
-			const state_t *state = &states[S_JETFUME1];
+			const state_t *state = states[S_JETFUME1];
 
 			if (!(state->frame & FF_ANIMATE))
 				break;

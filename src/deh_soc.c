@@ -464,12 +464,8 @@ void readfreeslots(MYFILE *f)
 			}
 			else if (fastcmp(type, "S"))
 			{
-				for (i = 0; i < NUMSTATEFREESLOTS; i++)
-					if (!FREE_STATES[i]) {
-						FREE_STATES[i] = Z_Malloc(strlen(word)+1, PU_STATIC, NULL);
-						strcpy(FREE_STATES[i],word);
-						break;
-					}
+				CONS_Printf("State S_%s allocated.\n",word);
+				P_AllocateState(Z_StrDup(word));
 			}
 			else if (fastcmp(type, "MT"))
 			{
@@ -2797,27 +2793,27 @@ void readframe(MYFILE *f, INT32 num)
 
 			if (fastcmp(word1, "SPRITENUMBER") || fastcmp(word1, "SPRITENAME"))
 			{
-				states[num].sprite = get_sprite(word2);
+				states[num]->sprite = get_sprite(word2);
 			}
 			else if (fastcmp(word1, "SPRITESUBNUMBER") || fastcmp(word1, "SPRITEFRAME"))
 			{
-				states[num].frame = (INT32)get_number(word2); // So the FF_ flags get calculated
+				states[num]->frame = (INT32)get_number(word2); // So the FF_ flags get calculated
 			}
 			else if (fastcmp(word1, "DURATION"))
 			{
-				states[num].tics = (INT32)get_number(word2); // So TICRATE can be used
+				states[num]->tics = (INT32)get_number(word2); // So TICRATE can be used
 			}
 			else if (fastcmp(word1, "NEXT"))
 			{
-				states[num].nextstate = get_state(word2);
+				states[num]->nextstate = get_state(word2);
 			}
 			else if (fastcmp(word1, "VAR1"))
 			{
-				states[num].var1 = (INT32)get_number(word2);
+				states[num]->var1 = (INT32)get_number(word2);
 			}
 			else if (fastcmp(word1, "VAR2"))
 			{
-				states[num].var2 = (INT32)get_number(word2);
+				states[num]->var2 = (INT32)get_number(word2);
 			}
 			else if (fastcmp(word1, "ACTION"))
 			{
@@ -2840,18 +2836,18 @@ void readframe(MYFILE *f, INT32 num)
 
 				for (z = 0; actionpointers[z].name; z++)
 				{
-					if (actionpointers[z].action == states[num].action)
+					if (actionpointers[z].action == states[num]->action)
 						break;
 				}
 
 				z = 0;
-				found = LUA_SetLuaAction(&states[num], actiontocompare);
+				found = LUA_SetLuaAction(states[num], actiontocompare);
 				if (!found)
 					while (actionpointers[z].name)
 					{
 						if (fastcmp(actiontocompare, actionpointers[z].name))
 						{
-							states[num].action = actionpointers[z].action;
+							states[num]->action = actionpointers[z].action;
 							found = true;
 							break;
 						}
@@ -4147,11 +4143,12 @@ void readwipes(MYFILE *f)
 
 mobjtype_t get_mobjtype(const char *word)
 { // Returns the value of MT_ enumerations
-	mobjtype_t i;
+	UINT32 i;
 	if (*word >= '0' && *word <= '9')
 		return atoi(word);
 	I_Assert(fastncmp("MT_",word,3));
-	for (i = 0; i < nummobjinfo; i++) {
+	for (i = 0; i < nummobjinfo; i++)
+	{
 		if (fastcmp(word, mobjinfo[i]->name))
 			return i;
 	}
@@ -4161,20 +4158,16 @@ mobjtype_t get_mobjtype(const char *word)
 
 statenum_t get_state(const char *word)
 { // Returns the value of S_ enumerations
-	statenum_t i;
+	UINT32 i;
 	if (*word >= '0' && *word <= '9')
 		return atoi(word);
 	if (fastncmp("S_",word,2))
 		word += 2; // take off the S_
-	for (i = 0; i < NUMSTATEFREESLOTS; i++) {
-		if (!FREE_STATES[i])
-			break;
-		if (fastcmp(word, FREE_STATES[i]))
-			return S_FIRSTFREESLOT+i;
-	}
-	for (i = 0; i < S_FIRSTFREESLOT; i++)
-		if (fastcmp(word, STATE_LIST[i]+2))
+	for (i = 0; i < numstates; i++)
+	{
+		if (fastcmp(word, states[i]->name))
 			return i;
+	}
 	deh_warning("Couldn't find state named 'S_%s'",word);
 	return S_NULL;
 }

@@ -46,7 +46,7 @@ else if (hook_cmd_running)\
 return luaL_error(L, "CMD building code should not call this function!");
 
 #define NOSPAWNNULL if (type >= nummobjinfo)\
-return luaL_error(L, "mobj type %d out of range (0 - %zu)", type, nummobjinfo-1);\
+return luaL_error(L, "mobj type %d out of range (0 - %u)", type, nummobjinfo-1);\
 else if (type == MT_NULL)\
 {\
 	if (!nospawnnull_seen) {\
@@ -757,8 +757,8 @@ static int lib_pSpawnLockOn(lua_State *L)
 		return LUA_ErrInvalid(L, "mobj_t");
 	if (!player)
 		return LUA_ErrInvalid(L, "player_t");
-	if (state >= NUMSTATES)
-		return luaL_error(L, "state %d out of range (0 - %d)", state, NUMSTATES-1);
+	if (state >= numstates)
+		return luaL_error(L, "state %d out of range (0 - %d)", state, numstates-1);
 	if (P_IsLocalPlayer(player)) // Only display it on your own view. Don't display it for spectators
 	{
 		mobj_t *visual = P_SpawnMobj(lockon->x, lockon->y, lockon->z, MT_LOCKON); // positioning, flip handled in P_SceneryThinker
@@ -956,8 +956,8 @@ static int lib_pSpawnParaloop(lua_State *L)
 	NOHUD
 	INLEVEL
 	NOSPAWNNULL
-	if (nstate >= NUMSTATES)
-		return luaL_error(L, "state %d out of range (0 - %d)", nstate, NUMSTATES-1);
+	if (nstate >= numstates)
+		return luaL_error(L, "state %d out of range (0 - %d)", nstate, numstates-1);
 	P_SpawnParaloop(x, y, z, radius, number, type, nstate, rotangle, spawncenter);
 	P_SetTarget(&tmthing, ptmthing);
 	return 0;
@@ -2562,8 +2562,8 @@ static int lib_pSetMobjStateNF(lua_State *L)
 	INLEVEL
 	if (!mobj)
 		return LUA_ErrInvalid(L, "mobj_t");
-	if (state >= NUMSTATES)
-		return luaL_error(L, "state %d out of range (0 - %d)", state, NUMSTATES-1);
+	if (state >= numstates)
+		return luaL_error(L, "state %d out of range (0 - %d)", state, numstates-1);
 	if (mobj->player && state == S_NULL)
 		return luaL_error(L, "Attempt to remove player mobj with S_NULL.");
 	lua_pushboolean(L, P_SetMobjStateNF(mobj, state));
@@ -3194,31 +3194,31 @@ static int lib_rSkinUsable(lua_State *L)
 
 static int lib_pGetStateSprite2(lua_State *L)
 {
-	int statenum = luaL_checkinteger(L, 1);
-	if (statenum < 0 || statenum >= NUMSTATES)
-		return luaL_error(L, "state %d out of range (0 - %d)", statenum, NUMSTATES-1);
+	UINT32 statenum = luaL_checkinteger(L, 1);
+	if (statenum >= numstates)
+		return luaL_error(L, "state %d out of range (0 - %d)", statenum, numstates-1);
 
-	lua_pushinteger(L, P_GetStateSprite2(&states[statenum]));
+	lua_pushinteger(L, P_GetStateSprite2(states[statenum]));
 	return 1;
 }
 
 static int lib_pGetSprite2StateFrame(lua_State *L)
 {
-	int statenum = luaL_checkinteger(L, 1);
-	if (statenum < 0 || statenum >= NUMSTATES)
-		return luaL_error(L, "state %d out of range (0 - %d)", statenum, NUMSTATES-1);
+	UINT32 statenum = luaL_checkinteger(L, 1);
+	if (statenum >= numstates)
+		return luaL_error(L, "state %d out of range (0 - %d)", statenum, numstates-1);
 
-	lua_pushinteger(L, P_GetSprite2StateFrame(&states[statenum]));
+	lua_pushinteger(L, P_GetSprite2StateFrame(states[statenum]));
 	return 1;
 }
 
 static int lib_pIsStateSprite2Super(lua_State *L)
 {
-	int statenum = luaL_checkinteger(L, 1);
-	if (statenum < 0 || statenum >= NUMSTATES)
-		return luaL_error(L, "state %d out of range (0 - %d)", statenum, NUMSTATES-1);
+	UINT32 statenum = luaL_checkinteger(L, 1);
+	if (statenum >= numstates)
+		return luaL_error(L, "state %d out of range (0 - %d)", statenum, numstates-1);
 
-	lua_pushboolean(L, P_IsStateSprite2Super(&states[statenum]));
+	lua_pushboolean(L, P_IsStateSprite2Super(states[statenum]));
 	return 1;
 }
 

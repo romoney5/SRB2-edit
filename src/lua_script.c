@@ -1227,7 +1227,7 @@ static UINT8 ArchiveValue(save_t *save_p, int TABLESINDEX, int myindex)
 		{
 			state_t *state = *((state_t **)lua_touserdata(gL, myindex));
 			P_WriteUINT8(save_p, ARCH_STATE);
-			P_WriteUINT16(save_p, state - states);
+			P_WriteUINT16(save_p, state->num);
 			break;
 		}
 		case ARCH_MOBJ:
@@ -1649,7 +1649,7 @@ static UINT8 UnArchiveValue(save_t *save_p, int TABLESINDEX)
 		LUA_PushUserdata(gL, &mobjinfo[P_ReadUINT16(save_p)], META_MOBJINFO);
 		break;
 	case ARCH_STATE:
-		LUA_PushUserdata(gL, &states[P_ReadUINT16(save_p)], META_STATE);
+		LUA_PushUserdata(gL, states[P_ReadUINT16(save_p)], META_STATE);
 		break;
 	case ARCH_MOBJ:
 		LUA_PushUserdata(gL, P_FindNewPosition(P_ReadUINT32(save_p)), META_MOBJ);

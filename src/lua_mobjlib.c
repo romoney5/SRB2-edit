@@ -321,7 +321,7 @@ static int mobj_get(lua_State *L)
 		lua_pushinteger(L, mo->tics);
 		break;
 	case mobj_state: // state number, not struct
-		lua_pushinteger(L, mo->state-states);
+		lua_pushinteger(L, mo->state->num);
 		break;
 	case mobj_flags:
 		lua_pushinteger(L, mo->flags);
@@ -774,7 +774,7 @@ static int mobj_set(lua_State *L)
 	{
 		mobjtype_t newtype = luaL_checkinteger(L, 3);
 		if (newtype >= nummobjinfo)
-			return luaL_error(L, "mobj.type %d out of range (0 - %zu).", newtype, nummobjinfo-1);
+			return luaL_error(L, "mobj.type %d out of range (0 - %u).", newtype, nummobjinfo-1);
 		mo->type = newtype;
 		mo->info = mobjinfo[newtype];
 		P_SetScale(mo, mo->scale, false);

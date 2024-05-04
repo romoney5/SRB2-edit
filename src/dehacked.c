@@ -309,7 +309,7 @@ static void DEH_LoadDehackedFile(MYFILE *f, boolean mainfile)
 						readthing(f, i);
 					else
 					{
-						deh_warning("Thing %d out of range (1 - %zu)", i, nummobjinfo-1);
+						deh_warning("Thing %d out of range (1 - %d)", i, nummobjinfo-1);
 						ignorelines(f);
 					}
 				}
@@ -445,11 +445,11 @@ static void DEH_LoadDehackedFile(MYFILE *f, boolean mainfile)
 				{
 					if (i == 0 && word2[0] != '0') // If word2 isn't a number
 						i = get_state(word2); // find a state by name
-					if (i < NUMSTATES && i >= 0)
+					if ((UINT32)i < numstates && i >= 0)
 						readframe(f, i);
 					else
 					{
-						deh_warning("Frame %d out of range (0 - %d)", i, NUMSTATES-1);
+						deh_warning("Frame %d out of range (0 - %d)", i, numstates-1);
 						ignorelines(f);
 					}
 				}

@@ -416,13 +416,13 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 	{
 		if (special->type == MT_STEAM)
 		{
-			if (player && player->mo->state == &states[player->mo->info->painstate]) // can't use gas jets when player is in pain!
+			if (player && player->mo->state == states[player->mo->info->painstate]) // can't use gas jets when player is in pain!
 				return;
 
 			fixed_t speed = special->info->mass; // gas jets use this for the vertical thrust
 			SINT8 flipval = P_MobjFlip(special); // virtually everything here centers around the thruster's gravity, not the object's!
 
-			if (special->state != &states[S_STEAM1]) // Only when it bursts
+			if (special->state != states[S_STEAM1]) // Only when it bursts
 				return;
 
 			toucher->eflags |= MFE_SPRUNG;
@@ -501,17 +501,17 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 				&& !(player->charability == CA_TWINSPIN && player->panim == PA_ABILITY)
 				&& !(player->charability2 == CA2_MELEE && player->panim == PA_ABILITY2))
 				{
-					if ((special->state == &states[S_FANG_BOUNCE3]
-					  || special->state == &states[S_FANG_BOUNCE4]
-					  || special->state == &states[S_FANG_PINCHBOUNCE3]
-					  || special->state == &states[S_FANG_PINCHBOUNCE4])
+					if ((special->state == states[S_FANG_BOUNCE3]
+					  || special->state == states[S_FANG_BOUNCE4]
+					  || special->state == states[S_FANG_PINCHBOUNCE3]
+					  || special->state == states[S_FANG_PINCHBOUNCE4])
 					&& P_MobjFlip(special)*((special->z + special->height/2) - (toucher->z + toucher->height/2)) > (toucher->height/2))
 					{
 						P_DamageMobj(toucher, special, special, 1, 0);
 						P_SetTarget(&special->tracer, toucher);
 
-						if (special->state == &states[S_FANG_PINCHBOUNCE3]
-						 || special->state == &states[S_FANG_PINCHBOUNCE4])
+						if (special->state == states[S_FANG_PINCHBOUNCE3]
+						 || special->state == states[S_FANG_PINCHBOUNCE4])
 							P_SetMobjState(special, S_FANG_PINCHPATHINGSTART2);
 						else
 						{
@@ -636,8 +636,8 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 			if (special->type == MT_BLUESPHERE || special->type == MT_FLINGBLUESPHERE)
 			{
 				special->destscale = ((player->powers[pw_carry] == CR_NIGHTSMODE) ? 4 : 2)*special->scale;
-				if (states[special->info->deathstate].tics > 0)
-					special->scalespeed = FixedDiv(FixedDiv(special->destscale, special->scale), states[special->info->deathstate].tics<<FRACBITS);
+				if (states[special->info->deathstate]->tics > 0)
+					special->scalespeed = FixedDiv(FixedDiv(special->destscale, special->scale), states[special->info->deathstate]->tics<<FRACBITS);
 				else
 					special->scalespeed = 4*FRACUNIT/5;
 			}
@@ -1625,7 +1625,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 
 				P_ResetPlayer(player);
 
-				if (special->target && special->target->state == &states[S_BLACKEGG_SHOOT1])
+				if (special->target && special->target->state == states[S_BLACKEGG_SHOOT1])
 				{
 					if (special->target->health <= 2 && P_RandomChance(FRACUNIT/2))
 						P_SetMobjState(special->target, special->target->info->missilestate);
@@ -1676,7 +1676,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 			return;
 
 		case MT_EGGROBO1:
-			if (special->state == &states[special->info->deathstate])
+			if (special->state == states[special->info->deathstate])
 				return;
 			if (P_PlayerInPain(player))
 				return;
@@ -1801,7 +1801,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 				return;
 			if (mariomode)
 				return;
-			if (special->state-states != S_EXTRALARGEBUBBLE)
+			if (special->state->num != S_EXTRALARGEBUBBLE)
 				return; // Don't grab the bubble during its spawn animation
 			else if (toucher->eflags & MFE_VERTICALFLIP)
 			{
@@ -1825,7 +1825,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 
 			if (!player->climbing)
 			{
-				if (player->bot && player->bot != BOT_MPAI && toucher->state-states != S_PLAY_GASP)
+				if (player->bot && player->bot != BOT_MPAI && toucher->state->num != S_PLAY_GASP)
 					S_StartSound(toucher, special->info->deathsound); // Force it to play a sound for bots
 				P_SetMobjState(toucher, S_PLAY_GASP);
 				P_ResetPlayer(player);
@@ -1839,7 +1839,7 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 				break;
 
 		case MT_WATERDROP:
-			if (special->state == &states[special->info->spawnstate])
+			if (special->state == states[special->info->spawnstate])
 			{
 				special->z = toucher->z+toucher->height-FixedMul(8*FRACUNIT, special->scale);
 				special->momz = 0;

@@ -469,7 +469,7 @@ static void Got_KickCmd(UINT8 **p, INT32 playernum)
 						if (!players[i].mo->state)
 							CONS_Printf("State: S_NULL\n");
 						else
-							CONS_Printf("State: %d\n", (statenum_t)(players[i].mo->state-states));
+							CONS_Printf("State: %d\n", (statenum_t)(players[i].mo->state->num));
 					}
 					else
 						CONS_Printf("Mobj: NULL\n");
@@ -1920,7 +1920,7 @@ INT16 Consistancy(void)
 					ret += mo->target->flags;
 					ret -= mo->target->flags2;
 					ret += mo->target->eflags;
-					ret -= mo->target->state - states;
+					ret -= mo->target->state->num;
 					ret += mo->target->tics;
 					ret -= mo->target->sprite;
 					ret += mo->target->frame;
@@ -1940,14 +1940,14 @@ INT16 Consistancy(void)
 					ret += mo->tracer->flags;
 					ret -= mo->tracer->flags2;
 					ret += mo->tracer->eflags;
-					ret -= mo->tracer->state - states;
+					ret -= mo->tracer->state->num;
 					ret += mo->tracer->tics;
 					ret -= mo->tracer->sprite;
 					ret += mo->tracer->frame;
 				}
 				else
 					ret ^= 0xAAAA;
-				ret -= mo->state - states;
+				ret -= mo->state->num;
 				ret += mo->tics;
 				ret -= mo->sprite;
 				ret += mo->frame;

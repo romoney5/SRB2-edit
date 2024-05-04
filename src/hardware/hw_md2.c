@@ -1154,7 +1154,7 @@ static void HWR_GetBlendedTexture(patch_t *patch, patch_t *blendpatch, INT32 ski
 static boolean HWR_AllowModel(mobj_t *mobj)
 {
 	// Signpost overlay. Not needed.
-	if (mobj->sprite2 == SPR2_SIGN || mobj->state-states == S_PLAY_SIGN)
+	if (mobj->sprite2 == SPR2_SIGN || mobj->state->num == S_PLAY_SIGN)
 		return false;
 
 	// Otherwise, render the model.
@@ -1693,7 +1693,7 @@ boolean HWR_DrawModel(gl_vissprite_t *spr)
 
 			if (spr2frames)
 			{
-				UINT16 next_spr2 = P_GetStateSprite2(&states[spr->mobj->state->nextstate]);
+				UINT16 next_spr2 = P_GetStateSprite2(states[spr->mobj->state->nextstate]);
 
 				// Add or remove SPR2F_SUPER based on certain conditions
 				next_spr2 = P_ApplySuperFlagToSprite2(next_spr2, spr->mobj);
@@ -1701,7 +1701,7 @@ boolean HWR_DrawModel(gl_vissprite_t *spr)
 				if (HWR_CanInterpolateSprite2(spr2frames)
 					&& (spr->mobj->frame & FF_ANIMATE
 					|| (spr->mobj->state->nextstate != S_NULL
-					&& states[spr->mobj->state->nextstate].sprite == SPR_PLAY
+					&& states[spr->mobj->state->nextstate]->sprite == SPR_PLAY
 					&& ((P_GetSkinSprite2(spr->mobj->skin, next_spr2, spr->mobj->player) == spr->mobj->sprite2)))))
 				{
 					nextFrame = (spr->mobj->frame & FF_FRAMEMASK) + 1;
@@ -1729,9 +1729,9 @@ boolean HWR_DrawModel(gl_vissprite_t *spr)
 				}
 				else
 				{
-					if (spr->mobj->state->nextstate != S_NULL && states[spr->mobj->state->nextstate].sprite != SPR_NULL
-					&& !(spr->mobj->player && (spr->mobj->state->nextstate == S_PLAY_WAIT) && spr->mobj->state == &states[S_PLAY_STND]))
-						nextFrame = (states[spr->mobj->state->nextstate].frame & FF_FRAMEMASK) % mod;
+					if (spr->mobj->state->nextstate != S_NULL && states[spr->mobj->state->nextstate]->sprite != SPR_NULL
+					&& !(spr->mobj->player && (spr->mobj->state->nextstate == S_PLAY_WAIT) && spr->mobj->state == states[S_PLAY_STND]))
+						nextFrame = (states[spr->mobj->state->nextstate]->frame & FF_FRAMEMASK) % mod;
 				}
 			}
 		}

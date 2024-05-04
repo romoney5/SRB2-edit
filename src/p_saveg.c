@@ -2171,7 +2171,7 @@ static void SaveMobjThinker(save_t *save_p, const thinker_t *th, const UINT8 typ
 		diff |= MD_HEALTH;
 	if (mobj->reactiontime != mobj->info->reactiontime)
 		diff |= MD_RTIME;
-	if ((statenum_t)(mobj->state-states) != mobj->info->spawnstate)
+	if ((statenum_t)(mobj->state->num) != mobj->info->spawnstate)
 		diff |= MD_STATE;
 	if (mobj->tics != mobj->state->tics)
 		diff |= MD_TICS;
@@ -2357,7 +2357,7 @@ static void SaveMobjThinker(save_t *save_p, const thinker_t *th, const UINT8 typ
 	if (diff & MD_RTIME)
 		P_WriteINT32(save_p, mobj->reactiontime);
 	if (diff & MD_STATE)
-		P_WriteUINT16(save_p, mobj->state-states);
+		P_WriteUINT32(save_p, mobj->state->num);
 	if (diff & MD_TICS)
 		P_WriteINT32(save_p, mobj->tics);
 	if (diff & MD_SPRITE) {
@@ -3384,9 +3384,9 @@ static thinker_t* LoadMobjThinker(save_t *save_p, actionf_p1 thinker)
 		mobj->reactiontime = mobj->info->reactiontime;
 
 	if (diff & MD_STATE)
-		mobj->state = &states[P_ReadUINT16(save_p)];
+		mobj->state = states[P_ReadUINT32(save_p)];
 	else
-		mobj->state = &states[mobj->info->spawnstate];
+		mobj->state = states[mobj->info->spawnstate];
 	if (diff & MD_TICS)
 		mobj->tics = P_ReadINT32(save_p);
 	else

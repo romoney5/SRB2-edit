@@ -576,7 +576,6 @@ extern int actionsoverridden[NUMACTIONS][MAX_ACTION_RECURSION];
 // ratio of states to sprites to mobj types is roughly 6 : 1 : 1
 #define NUMMOBJFREESLOTS 1024
 #define NUMSPRITEFREESLOTS NUMMOBJFREESLOTS
-#define NUMSTATEFREESLOTS (NUMMOBJFREESLOTS*8)
 #define MAXSPRITENAME 64
 
 // Hey, moron! If you change this table, don't forget about sprnames in info.c and the sprite lights in hw_light.c!
@@ -4399,14 +4398,12 @@ typedef enum state
 	S_OLDK_DIE0,
 	S_OLDK_DIE1,
 	S_OLDK_DIE2,
-
-	S_FIRSTFREESLOT,
-	S_LASTFREESLOT = S_FIRSTFREESLOT + NUMSTATEFREESLOTS - 1,
-	NUMSTATES
 } statenum_t;
 
 typedef struct
 {
+	const char *name;
+	UINT32 num;
 	spritenum_t sprite;
 	UINT32 frame; // we use the upper 16 bits for translucency and other shade effects
 	INT32 tics;
@@ -4417,7 +4414,9 @@ typedef struct
 	UINT16 sprite2;
 } state_t;
 
-extern state_t states[NUMSTATES];
+extern state_t **states;
+extern UINT32 numstates;
+
 extern char sprnames[NUMSPRITES + 1][MAXSPRITENAME + 1];
 extern char spr2names[NUMPLAYERSPRITES][MAXSPRITENAME + 1];
 extern playersprite_t spr2defaults[NUMPLAYERSPRITES];
@@ -5238,9 +5237,10 @@ typedef struct
 } mobjinfo_t;
 
 extern mobjinfo_t **mobjinfo;
-extern size_t nummobjinfo;
+extern UINT32 nummobjinfo;
 
 UINT32 P_AllocateMobjinfo(const char *name);
+UINT32 P_AllocateState(const char *name);
 UINT32 P_GetMobjinfoIndex(mobjinfo_t *info);
 void P_InitializeTables(void);
 

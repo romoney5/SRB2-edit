@@ -625,7 +625,7 @@ void B_HandleFlightIndicator(player_t *player)
 	}
 
 	// if the mobj isn't a flight indicator, let's not mess with it
-	if (tails->hnext->type != MT_OVERLAY || (tails->hnext->state != states+S_FLIGHTINDICATOR))
+	if (tails->hnext->type != MT_OVERLAY || (tails->hnext->state->num != S_FLIGHTINDICATOR))
 		return;
 
 	// if it shouldn't exist, remove it

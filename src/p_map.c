@@ -483,7 +483,7 @@ boolean P_DoSpring(mobj_t *spring, mobj_t *object)
 	final = true;
 
 springstate:
-	if ((statenum_t)(spring->state-states) < spring->info->raisestate)
+	if ((statenum_t)(spring->state->num) < spring->info->raisestate)
 	{
 		P_SetMobjState(spring, spring->info->raisestate);
 		if (object->player && spring->reactiontime && !(spring->info->flags & MF_ENEMY))
@@ -512,7 +512,7 @@ static void P_DoFan(mobj_t *fan, mobj_t *object)
 	fixed_t speed = fan->info->mass; // fans use this for the vertical thrust
 	SINT8 flipval = P_MobjFlip(fan); // virtually everything here centers around the thruster's gravity, not the object's!
 
-	if (p && object->state == &states[object->info->painstate]) // can't use fans when player is in pain!
+	if (p && object->state == states[object->info->painstate]) // can't use fans when player is in pain!
 		return;
 
 	// is object's top below thruster's position? if not, calculate distance between their bottoms
@@ -852,7 +852,7 @@ static unsigned PIT_DoCheckThing(mobj_t *thing)
 	if (thing->type == MT_METALSONIC_BATTLE
 	&& (tmthing->flags & MF_MISSILE)
 	&& tmthing->target != thing
-	&& thing->state == &states[thing->info->spawnstate])
+	&& thing->state == states[thing->info->spawnstate])
 	{
 		blockdist = thing->radius + tmthing->radius;
 
@@ -1116,7 +1116,7 @@ static unsigned PIT_DoCheckThing(mobj_t *thing)
 		{
 			if (!tmthing->momx && !tmthing->momy)
 				return CHECKTHING_IGNORE;
-			if ((statenum_t)(thing->state-states) >= thing->info->meleestate)
+			if ((statenum_t)(thing->state->num) >= thing->info->meleestate)
 				return CHECKTHING_IGNORE;
 			if (thing->z > tmthing->z + tmthing->height)
 				return CHECKTHING_NOCOLLIDE; // overhead
@@ -1139,7 +1139,7 @@ static unsigned PIT_DoCheckThing(mobj_t *thing)
 		{
 			if (tmthing->extravalue1 <= 0)
 				return CHECKTHING_IGNORE;
-			if ((statenum_t)(thing->state-states) >= thing->info->meleestate)
+			if ((statenum_t)(thing->state->num) >= thing->info->meleestate)
 				return CHECKTHING_IGNORE;
 			if (thing->z > tmthing->z + tmthing->height)
 				return CHECKTHING_NOCOLLIDE; // overhead
@@ -1291,7 +1291,7 @@ static unsigned PIT_DoCheckThing(mobj_t *thing)
 		    && thing->type == MT_BLACKEGGMAN && tmthing->target != thing)
 		{
 			// Not if Brak's already in pain
-			if (!(thing->state >= &states[S_BLACKEGG_PAIN1] && thing->state <= &states[S_BLACKEGG_PAIN35]))
+			if (!(thing->state->num >= S_BLACKEGG_PAIN1 && thing->state->num <= S_BLACKEGG_PAIN35))
 				P_SetMobjState(thing, thing->info->painstate);
 			return CHECKTHING_DONE;
 		}
@@ -3037,7 +3037,7 @@ static boolean P_ThingHeightClip(mobj_t *thing)
 	if (tmfloorz > oldfloorz+thing->height)
 		return true;
 
-	bouncing = thing->player && thing->state-states == S_PLAY_BOUNCE_LANDING && P_IsObjectOnGround(thing);
+	bouncing = thing->player && thing->state->num == S_PLAY_BOUNCE_LANDING && P_IsObjectOnGround(thing);
 
 	if ((onfloor || bouncing) && !(thing->flags & MF_NOGRAVITY) && floormoved)
 	{

@@ -1966,7 +1966,7 @@ static void ST_drawNiGHTSHUD(void)
 	ST_DrawTopLeftOverlayPatch(16, 8, nbracket);
 	if (G_IsSpecialStage(gamemap))
 		ST_DrawTopLeftOverlayPatch(24, 16, (
-			(stplyr->bonustime && (leveltime & 4) && (states[S_BLUESPHEREBONUS].frame & FF_ANIMATE)) ? nssbon : nsshud));
+			(stplyr->bonustime && (leveltime & 4) && (states[S_BLUESPHEREBONUS]->frame & FF_ANIMATE)) ? nssbon : nsshud));
 	else
 		ST_DrawTopLeftOverlayPatch(24, 16, *(((stplyr->bonustime) ? nbon : nhud)+((leveltime/2)%12)));
 

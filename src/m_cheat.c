@@ -1008,22 +1008,22 @@ static void OP_CycleThings(INT32 amt)
 		(mobjinfo[op_currentthing]->doomednum == -1
 			|| op_currentthing == MT_NIGHTSDRONE
 			|| mobjinfo[op_currentthing]->flags & (MF_AMBIENT|MF_NOSECTOR)
-			|| (states[mobjinfo[op_currentthing]->spawnstate].sprite == SPR_NULL
-			 && states[mobjinfo[op_currentthing]->seestate].sprite == SPR_NULL)
+			|| (states[mobjinfo[op_currentthing]->spawnstate]->sprite == SPR_NULL
+			 && states[mobjinfo[op_currentthing]->seestate]->sprite == SPR_NULL)
 		);
 		amt -= add;
 	}
 
 	// HACK, minus has SPR_NULL sprite
-	if (states[mobjinfo[op_currentthing]->spawnstate].sprite == SPR_NULL)
+	if (states[mobjinfo[op_currentthing]->spawnstate]->sprite == SPR_NULL)
 	{
-		states[S_OBJPLACE_DUMMY].sprite = states[mobjinfo[op_currentthing]->seestate].sprite;
-		states[S_OBJPLACE_DUMMY].frame = states[mobjinfo[op_currentthing]->seestate].frame;
+		states[S_OBJPLACE_DUMMY]->sprite = states[mobjinfo[op_currentthing]->seestate]->sprite;
+		states[S_OBJPLACE_DUMMY]->frame = states[mobjinfo[op_currentthing]->seestate]->frame;
 	}
 	else
 	{
-		states[S_OBJPLACE_DUMMY].sprite = states[mobjinfo[op_currentthing]->spawnstate].sprite;
-		states[S_OBJPLACE_DUMMY].frame = states[mobjinfo[op_currentthing]->spawnstate].frame;
+		states[S_OBJPLACE_DUMMY]->sprite = states[mobjinfo[op_currentthing]->spawnstate]->sprite;
+		states[S_OBJPLACE_DUMMY]->frame = states[mobjinfo[op_currentthing]->spawnstate]->frame;
 	}
 	if (players[0].mo->eflags & MFE_VERTICALFLIP) // correct z when flipped
 		players[0].mo->z += players[0].mo->height - FixedMul(mobjinfo[op_currentthing]->height, players[0].mo->scale);
@@ -1568,7 +1568,7 @@ void Command_ObjectPlace_f(void)
 				P_RestoreMusic(&players[0]);
 			}
 			else
-				op_oldstate = (statenum_t)(players[0].mo->state-states);
+				op_oldstate = (statenum_t)(players[0].mo->state->num);
 		}
 
 		if (thingarg < COM_Argc())
@@ -1603,7 +1603,7 @@ void Command_ObjectPlace_f(void)
 			return;
 
 		// If still in dummy state, get out of it.
-		if (players[0].mo->state == &states[S_OBJPLACE_DUMMY])
+		if (players[0].mo->state == states[S_OBJPLACE_DUMMY])
 			P_SetMobjState(players[0].mo, op_oldstate);
 
 		// Reset everything back to how it was before we entered objectplace.

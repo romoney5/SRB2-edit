@@ -2056,7 +2056,7 @@ void P_SwitchWeather(INT32 weathernum)
 			if (weathernum == PRECIP_RAIN || weathernum == PRECIP_STORM || weathernum == PRECIP_STORM_NOSTRIKES) // Snow To Rain
 			{
 				precipmobj->flags = mobjinfo[MT_RAIN]->flags;
-				st = &states[mobjinfo[MT_RAIN]->spawnstate];
+				st = states[mobjinfo[MT_RAIN]->spawnstate];
 				precipmobj->state = st;
 				precipmobj->tics = st->tics;
 				precipmobj->sprite = st->sprite;
@@ -2082,7 +2082,7 @@ void P_SwitchWeather(INT32 weathernum)
 				else
 					z = 0;
 
-				st = &states[mobjinfo[MT_SNOWFLAKE]->spawnstate+z];
+				st = states[mobjinfo[MT_SNOWFLAKE]->spawnstate+z];
 				precipmobj->state = st;
 				precipmobj->tics = st->tics;
 				precipmobj->sprite = st->sprite;
@@ -2642,7 +2642,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo, sector_t *callsec)
 			if (mo && !mo->player)
 			{
 				statenum_t state = line->stringargs[0] ? get_number(line->stringargs[0]) : S_NULL;
-				if (state >= 0 && state < NUMSTATES)
+				if (state >= 0 && state < numstates)
 					P_SetMobjState(mo, state);
 			}
 			break;
@@ -2904,7 +2904,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo, sector_t *callsec)
 		case 442: // Calls P_SetMobjState on mobjs of a given type in the tagged sectors
 		{
 			const mobjtype_t type = line->stringargs[0] ? get_number(line->stringargs[0]) : MT_NULL;
-			statenum_t state = NUMSTATES;
+			statenum_t state = numstates;
 			mobj_t *thing;
 
 			if (type < 0 || type >= nummobjinfo)
@@ -2914,7 +2914,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo, sector_t *callsec)
 			{
 				state = line->stringargs[1] ? get_number(line->stringargs[1]) : S_NULL;
 
-				if (state < 0 || state >= NUMSTATES)
+				if (state < 0 || state >= numstates)
 					break;
 			}
 
@@ -3840,7 +3840,7 @@ void P_SetupSignExit(player_t *player)
 			&& !((gametyperules & GTR_FRIENDLY) && (netgame || multiplayer) && cv_exitmove.value))
 				P_SetTarget(&player->mo->target, thing);
 
-		if (thing->state != &states[thing->info->spawnstate])
+		if (thing->state != states[thing->info->spawnstate])
 			continue;
 
 		P_SetTarget(&thing->target, player->mo);
@@ -3871,7 +3871,7 @@ void P_SetupSignExit(player_t *player)
 			&& !((gametyperules & GTR_FRIENDLY) && (netgame || multiplayer) && cv_exitmove.value))
 				P_SetTarget(&player->mo->target, thing);
 
-		if (thing->state != &states[thing->info->spawnstate])
+		if (thing->state != states[thing->info->spawnstate])
 			continue;
 
 		P_SetTarget(&thing->target, player->mo);
@@ -4680,7 +4680,7 @@ static void P_ProcessZoomTube(player_t *player, mtag_t sectag, boolean end)
 	player->pflags &= ~(PF_JUMPED|PF_NOJUMPDAMAGE|PF_GLIDING|PF_BOUNCING|PF_SLIDING|PF_CANCARRY);
 	player->climbing = 0;
 
-	if (player->mo->state-states != S_PLAY_ROLL)
+	if (player->mo->state->num != S_PLAY_ROLL)
 	{
 		P_SetMobjState(player->mo, S_PLAY_ROLL);
 		S_StartSound(player->mo, sfx_spin);
@@ -4761,7 +4761,7 @@ static void P_ProcessRopeHang(player_t *player, mtag_t sectag)
 	if (player->cmd.buttons & BT_SPIN)
 		return;
 
-	if (!(player->pflags & PF_SLIDING) && player->mo->state == &states[player->mo->info->painstate])
+	if (!(player->pflags & PF_SLIDING) && player->mo->state == states[player->mo->info->painstate])
 		return;
 
 	if (player->exiting)
@@ -8808,7 +8808,7 @@ void T_Pusher(pusher_t *p)
 		if (thing->player && thing->player->powers[pw_carry] == CR_ROPEHANG)
 			continue;
 
-		if (thing->player && (thing->state == &states[thing->info->painstate]) && (thing->player->powers[pw_flashing] > (flashingtics/4)*3 && thing->player->powers[pw_flashing] <= flashingtics))
+		if (thing->player && (thing->state == states[thing->info->painstate]) && (thing->player->powers[pw_flashing] > (flashingtics/4)*3 && thing->player->powers[pw_flashing] <= flashingtics))
 			continue;
 
 		inFOF = touching = moved = false;

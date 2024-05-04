@@ -59,11 +59,11 @@ void P_RunCachedActions(void)
 
 	for (ac = actioncachehead.next; ac != &actioncachehead; ac = next)
 	{
-		var1 = states[ac->statenum].var1;
-		var2 = states[ac->statenum].var2;
-		astate = &states[ac->statenum];
+		var1 = states[ac->statenum]->var1;
+		var2 = states[ac->statenum]->var2;
+		astate = states[ac->statenum];
 		if (ac->mobj && !P_MobjWasRemoved(ac->mobj)) // just in case...
-			states[ac->statenum].action(ac->mobj);
+			states[ac->statenum]->action(ac->mobj);
 		next = ac->next;
 		Z_Free(ac);
 	}
@@ -190,11 +190,25 @@ static boolean P_SetPlayerMobjState(mobj_t *mobj, statenum_t state)
 	player_t *player = mobj->player;
 
 	// remember states seen, to detect cycles:
-	static statenum_t seenstate_tab[NUMSTATES]; // fast transition table
-	statenum_t *seenstate = seenstate_tab; // pointer to table
+	static statenum_t *seenstate_tab; // fast transition table
+	static UINT32 numseenstate_tab;
+	statenum_t *seenstate; // pointer to table
 	static INT32 recursion; // detects recursion
 	statenum_t i; // initial state
-	statenum_t tempstate[NUMSTATES]; // for use with recursion
+	static statenum_t *tempstate; // for use with recursion
+
+	if (tempstate == NULL || seenstate_tab == NULL || numseenstate_tab != numstates)
+	{
+		Z_Free(seenstate_tab);
+		Z_Malloc(sizeof(*seenstate_tab) * numstates, PU_CACHE_UNLOCKED, &seenstate_tab);
+		memset(seenstate_tab, 0, sizeof(*seenstate_tab) * numstates);
+
+		Z_Free(tempstate);
+		Z_Malloc(sizeof(*tempstate) * numstates, PU_CACHE_UNLOCKED, &tempstate);
+		numseenstate_tab = numstates;
+	}
+
+	seenstate = seenstate_tab;
 
 #ifdef PARANOIA
 	if (player == NULL)
@@ -222,15 +236,15 @@ static boolean P_SetPlayerMobjState(mobj_t *mobj, statenum_t state)
 	{
 		if (state == S_PLAY_JUMP)
 		{
-			if (player->mo->state-states == S_PLAY_WALK)
+			if (player->mo->state->num == S_PLAY_WALK)
 				return P_SetPlayerMobjState(mobj, S_PLAY_FLOAT);
 			return true;
 		}
-		else if (player->mo->state-states == S_PLAY_FLOAT && state == S_PLAY_STND)
+		else if (player->mo->state->num == S_PLAY_FLOAT && state == S_PLAY_STND)
 			return true;
 	}
 	// You were in pain state after taking a hit, and you're moving out of pain state now?
-	else if (mobj->state == &states[mobj->info->painstate] && player->powers[pw_flashing] == flashingtics && state != mobj->info->painstate)
+	else if (mobj->state == states[mobj->info->painstate] && player->powers[pw_flashing] == flashingtics && state != mobj->info->painstate)
 	{
 		// Start flashing, since you've landed.
 		player->powers[pw_flashing] = flashingtics-1;
@@ -306,7 +320,7 @@ static boolean P_SetPlayerMobjState(mobj_t *mobj, statenum_t state)
 	}
 
 	if (recursion++) // if recursion detected,
-		memset(seenstate = tempstate, 0, sizeof tempstate); // clear state table
+		memset(seenstate = tempstate, 0, sizeof(*tempstate) * numstates); // clear state table
 
 	i = state;
 
@@ -319,12 +333,12 @@ static boolean P_SetPlayerMobjState(mobj_t *mobj, statenum_t state)
 			return false;
 		}
 
-		st = &states[state];
+		st = states[state];
 		mobj->state = st;
 		mobj->tics = st->tics;
 
 		// Adjust the player's animation speed
-		if (mobj->state-states == S_PLAY_WAIT && (player->charflags & SF_FASTWAIT))
+		if (mobj->state->num == S_PLAY_WAIT && (player->charflags & SF_FASTWAIT))
 			mobj->tics = 5;
 		else if (player->panim == PA_EDGE && (player->charflags & SF_FASTEDGE))
 			mobj->tics = 2;
@@ -441,7 +455,7 @@ static boolean P_SetPlayerMobjState(mobj_t *mobj, statenum_t state)
 			{
 				if (st->frame & FF_SPR2ENDSTATE) // no frame advancement
 				{
-					if (st->var1 == mobj->state-states)
+					if ((UINT32)st->var1 == mobj->state->num)
 						frame--;
 					else
 					{
@@ -500,23 +514,36 @@ static boolean P_SetPlayerMobjState(mobj_t *mobj, statenum_t state)
 	return true;
 }
 
-
 boolean P_SetMobjState(mobj_t *mobj, statenum_t state)
 {
 	state_t *st;
 
 	// remember states seen, to detect cycles:
-	static statenum_t seenstate_tab[NUMSTATES]; // fast transition table
-	statenum_t *seenstate = seenstate_tab; // pointer to table
+	static statenum_t *seenstate_tab; // fast transition table
+	static UINT32 numseenstate_tab;
+	statenum_t *seenstate; // pointer to table
 	static INT32 recursion; // detects recursion
 	statenum_t i = state; // initial state
-	statenum_t tempstate[NUMSTATES]; // for use with recursion
+	static statenum_t *tempstate; // for use with recursion
+
+	if (tempstate == NULL || seenstate_tab == NULL || numseenstate_tab != numstates)
+	{
+		Z_Free(seenstate_tab);
+		Z_Malloc(sizeof(*seenstate_tab) * numstates, PU_CACHE_UNLOCKED, &seenstate_tab);
+		memset(seenstate_tab, 0, sizeof(*seenstate_tab) * numstates);
+
+		Z_Free(tempstate);
+		Z_Malloc(sizeof(*tempstate) * numstates, PU_CACHE_UNLOCKED, &tempstate);
+		numseenstate_tab = numstates;
+	}
+
+	seenstate = seenstate_tab;
 
 	if (mobj->player != NULL)
 		return P_SetPlayerMobjState(mobj, state);
 
 	if (recursion++) // if recursion detected,
-		memset(seenstate = tempstate, 0, sizeof tempstate); // clear state table
+		memset(seenstate = tempstate, 0, sizeof(*tempstate) * numstates); // clear state table
 
 	do
 	{
@@ -526,7 +553,7 @@ boolean P_SetMobjState(mobj_t *mobj, statenum_t state)
 			return false;
 		}
 
-		st = &states[state];
+		st = states[state];
 		mobj->state = st;
 		mobj->tics = st->tics;
 
@@ -585,7 +612,7 @@ boolean P_SetMobjState(mobj_t *mobj, statenum_t state)
 			{
 				if (st->frame & FF_SPR2ENDSTATE) // no frame advancement
 				{
-					if (st->var1 == mobj->state-states)
+					if ((UINT32)st->var1 == mobj->state->num)
 						frame--;
 					else
 					{
@@ -656,7 +683,7 @@ boolean P_SetMobjStateNF(mobj_t *mobj, statenum_t state)
 		P_RemoveMobj(mobj);
 		return false;
 	}
-	st = &states[state];
+	st = states[state];
 	mobj->state = st;
 	mobj->tics = st->tics;
 	mobj->sprite = st->sprite;
@@ -675,7 +702,7 @@ static boolean P_SetPrecipMobjState(precipmobj_t *mobj, statenum_t state)
 		P_RemovePrecipMobj(mobj);
 		return false;
 	}
-	st = &states[state];
+	st = states[state];
 	mobj->state = st;
 	mobj->tics = st->tics;
 	mobj->sprite = st->sprite;
@@ -3746,7 +3773,7 @@ static void P_PlayerMobjThinker(mobj_t *mobj)
 	// momentum movement
 	mobj->eflags &= ~MFE_JUSTSTEPPEDDOWN;
 
-	if (mobj->state-states == S_PLAY_BOUNCE_LANDING)
+	if (mobj->state->num == S_PLAY_BOUNCE_LANDING)
 		goto animonly; // no need for checkposition - doesn't move at ALL
 
 	// Zoom tube
@@ -3887,7 +3914,7 @@ void P_RainThinker(precipmobj_t *mobj)
 {
 	P_CycleStateAnimation((mobj_t *)mobj);
 
-	if (mobj->state != &states[S_RAIN1])
+	if (mobj->state->num != states[S_RAIN1]->num)
 	{
 		// cycle through states,
 		// calling action functions at transitions
@@ -3900,7 +3927,7 @@ void P_RainThinker(precipmobj_t *mobj)
 		if (!P_SetPrecipMobjState(mobj, mobj->state->nextstate))
 			return;
 
-		if (mobj->state != &states[S_RAINRETURN])
+		if (mobj->state->num != states[S_RAINRETURN]->num)
 			return;
 
 		mobj->z = mobj->ceilingz;
@@ -4102,8 +4129,8 @@ static void P_GenericBossThinker(mobj_t *mobj)
 
 	// Don't call A_ functions here, let the SOC do the AI!
 
-	if (mobj->state == &states[mobj->info->meleestate]
-		|| (mobj->state == &states[mobj->info->missilestate]
+	if (mobj->state == states[mobj->info->meleestate]
+		|| (mobj->state == states[mobj->info->missilestate]
 		&& mobj->health > mobj->info->damage))
 	{
 		mobj->angle = R_PointToAngle2(mobj->x, mobj->y, mobj->target->x, mobj->target->y);
@@ -4148,11 +4175,11 @@ static void P_Boss1Thinker(mobj_t *mobj)
 		if (dist > 0 && P_MobjFlip(mobj)*mobj->momz > 0)
 			mobj->momz = FixedMul(mobj->momz, FRACUNIT - (dist>>12));
 	}
-	else if (mobj->state != &states[mobj->info->spawnstate] && mobj->health > 0 && mobj->flags & MF_FLOAT)
+	else if (mobj->state != states[mobj->info->spawnstate] && mobj->health > 0 && mobj->flags & MF_FLOAT)
 		mobj->momz = FixedMul(mobj->momz,7*FRACUNIT/8);
 
-	if (mobj->state == &states[mobj->info->meleestate]
-		|| (mobj->state == &states[mobj->info->missilestate]
+	if (mobj->state == states[mobj->info->meleestate]
+		|| (mobj->state == states[mobj->info->missilestate]
 		&& mobj->health > mobj->info->damage))
 	{
 		mobj->angle = R_PointToAngle2(mobj->x, mobj->y, mobj->target->x, mobj->target->y);
@@ -4187,9 +4214,9 @@ static void P_Boss2Thinker(mobj_t *mobj)
 		return;
 	}
 
-	if (mobj->state == &states[mobj->info->spawnstate] && mobj->health > mobj->info->damage)
+	if (mobj->state == states[mobj->info->spawnstate] && mobj->health > mobj->info->damage)
 		A_Boss2Chase(mobj);
-	else if (mobj->health > 0 && mobj->state != &states[mobj->info->painstate] && mobj->state != &states[mobjinfo[mobj->info->missilestate]->raisestate])
+	else if (mobj->health > 0 && mobj->state != states[mobj->info->painstate] && mobj->state != states[mobjinfo[mobj->info->missilestate]->raisestate])
 	{
 		mobj->flags &= ~MF_NOGRAVITY;
 		A_Boss2Pogo(mobj);
@@ -4209,7 +4236,7 @@ static void P_Boss2Thinker(mobj_t *mobj)
 //
 static void P_Boss3Thinker(mobj_t *mobj)
 {
-	if (mobj->state == &states[mobj->info->spawnstate])
+	if (mobj->state == states[mobj->info->spawnstate])
 		mobj->flags2 &= ~MF2_FRET;
 
 	if (mobj->flags2 & MF2_FRET)
@@ -4222,7 +4249,7 @@ static void P_Boss3Thinker(mobj_t *mobj)
 		mobj->movecount = 0;
 		mobj->reactiontime = 0;
 
-		if (mobj->state < &states[mobj->info->xdeathstate])
+		if (mobj->state < states[mobj->info->xdeathstate])
 			return;
 
 		if (mobj->threshold == -1)
@@ -4249,7 +4276,7 @@ static void P_Boss3Thinker(mobj_t *mobj)
 		if (mobj->threshold >= curpath)
 			mobj->threshold++;
 
-		if (mobj->state != &states[mobj->info->spawnstate])
+		if (mobj->state != states[mobj->info->spawnstate])
 			P_SetMobjState(mobj, mobj->info->spawnstate);
 
 		mobj->reactiontime--;
@@ -4336,7 +4363,7 @@ static void P_Boss3Thinker(mobj_t *mobj)
 	else if (mobj->movecount) // Firing mode
 	{
 		// Check if the attack animation is running. If not, play it.
-		if (mobj->state < &states[mobj->info->missilestate] || mobj->state > &states[mobj->info->raisestate])
+		if (mobj->state < states[mobj->info->missilestate] || mobj->state > states[mobj->info->raisestate])
 		{
 			// look for a new target
 			P_BossTargetPlayer(mobj, true);
@@ -4366,7 +4393,7 @@ static void P_Boss3Thinker(mobj_t *mobj)
 
 		P_SetTarget(&mobj->target, NULL);
 
-		if (mobj->state != &states[mobj->info->spawnstate] && mobj->health > 0
+		if (mobj->state != states[mobj->info->spawnstate] && mobj->health > 0
 			&& !(mobj->flags2 & MF2_FRET))
 			P_SetMobjState(mobj, mobj->info->spawnstate);
 
@@ -4637,7 +4664,7 @@ static void P_Boss4Thinker(mobj_t *mobj)
 {
 	fixed_t movespeed = 0;
 
-	if ((statenum_t)(mobj->state-states) == mobj->info->spawnstate)
+	if ((statenum_t)(mobj->state->num) == mobj->info->spawnstate)
 	{
 		if (mobj->flags2 & MF2_FRET && (mobj->health > mobj->info->damage))
 			mobj->flags2 &= ~MF2_FRET;
@@ -4901,7 +4928,7 @@ static void P_Boss4Thinker(mobj_t *mobj)
 	}
 
 	// Leave if animating.
-	if ((statenum_t)(mobj->state-states) != mobj->info->spawnstate)
+	if ((statenum_t)(mobj->state->num) != mobj->info->spawnstate)
 		return;
 
 	// Map allows us to get killed despite cage being down?
@@ -4947,7 +4974,7 @@ static void P_Boss5Thinker(mobj_t *mobj)
 			}
 			return;
 		}
-		if (mobj->state == &states[mobj->info->xdeathstate])
+		if (mobj->state == states[mobj->info->xdeathstate])
 			mobj->momz -= (2*FRACUNIT)/3;
 		else if (mobj->tracer && P_AproxDistance(mobj->tracer->x - mobj->x, mobj->tracer->y - mobj->y) < 2*mobj->radius)
 			mobj->flags &= ~MF_NOCLIP;
@@ -4955,16 +4982,16 @@ static void P_Boss5Thinker(mobj_t *mobj)
 	else
 	{
 		if (mobj->flags2 & MF2_FRET && (leveltime & 1)
-		&& mobj->state != &states[S_FANG_PAIN1] && mobj->state != &states[S_FANG_PAIN2])
+		&& mobj->state->num != states[S_FANG_PAIN1]->num && mobj->state->num != states[S_FANG_PAIN2]->num)
 			mobj->flags2 |= MF2_DONTDRAW;
 		else
 			mobj->flags2 &= ~MF2_DONTDRAW;
 	}
 
-	if (mobj->state == &states[S_FANG_BOUNCE3]
-	||  mobj->state == &states[S_FANG_BOUNCE4]
-	||  mobj->state == &states[S_FANG_PINCHBOUNCE3]
-	||  mobj->state == &states[S_FANG_PINCHBOUNCE4])
+	if (mobj->state->num == states[S_FANG_BOUNCE3]->num
+	||  mobj->state->num == states[S_FANG_BOUNCE4]->num
+	||  mobj->state->num == states[S_FANG_PINCHBOUNCE3]->num
+	||  mobj->state->num == states[S_FANG_PINCHBOUNCE4]->num)
 	{
 		if (P_MobjFlip(mobj)*mobj->momz > 0
 		&& abs(mobj->momx) < FRACUNIT/2 && abs(mobj->momy) < FRACUNIT/2
@@ -5008,19 +5035,19 @@ static void P_Boss7Thinker(mobj_t *mobj)
 		}
 	}
 
-	if (mobj->state == &states[S_BLACKEGG_STND] && mobj->tics == mobj->state->tics)
+	if (mobj->state->num == states[S_BLACKEGG_STND]->num && mobj->tics == mobj->state->tics)
 	{
 		mobj->reactiontime += P_RandomByte();
 
 		if (mobj->health <= mobj->info->damage)
 			mobj->reactiontime /= 4;
 	}
-	else if (mobj->state == &states[S_BLACKEGG_DIE4] && mobj->tics == mobj->state->tics)
+	else if (mobj->state->num == states[S_BLACKEGG_DIE4]->num && mobj->tics == mobj->state->tics)
 		A_BossDeath(mobj);
-	else if (mobj->state >= &states[S_BLACKEGG_WALK1]
-		&& mobj->state <= &states[S_BLACKEGG_WALK6])
+	else if (mobj->state->num >= states[S_BLACKEGG_WALK1]->num
+		&& mobj->state->num <= states[S_BLACKEGG_WALK6]->num)
 		A_Boss7Chase(mobj);
-	else if (mobj->state == &states[S_BLACKEGG_PAIN1] && mobj->tics == mobj->state->tics)
+	else if (mobj->state->num == states[S_BLACKEGG_PAIN1]->num && mobj->tics == mobj->state->tics)
 	{
 		if (mobj->health > 0)
 			mobj->health--;
@@ -5045,7 +5072,7 @@ static void P_Boss7Thinker(mobj_t *mobj)
 			}
 		}
 	}
-	else if (mobj->state == &states[S_BLACKEGG_PAIN35] && mobj->tics == 1)
+	else if (mobj->state->num == states[S_BLACKEGG_PAIN35]->num && mobj->tics == 1)
 	{
 		if (mobj->health == mobj->info->damage)
 		{
@@ -5056,7 +5083,7 @@ static void P_Boss7Thinker(mobj_t *mobj)
 				P_LinedefExecute(mobj->spawnpoint->args[4], mobj, NULL);
 		}
 	}
-	else if (mobj->state == &states[S_BLACKEGG_HITFACE4] && mobj->tics == mobj->state->tics)
+	else if (mobj->state->num == states[S_BLACKEGG_HITFACE4]->num && mobj->tics == mobj->state->tics)
 	{
 		// This is where Black Eggman hits his face.
 		// If a player is on top of him, the player gets hurt.
@@ -5093,7 +5120,7 @@ static void P_Boss7Thinker(mobj_t *mobj)
 			}
 		}
 	}
-	else if (mobj->state == &states[S_BLACKEGG_GOOP])
+	else if (mobj->state->num == states[S_BLACKEGG_GOOP]->num)
 	{
 		// Lob cannon balls
 		if (mobj->movecount-- <= 0 || !mobj->target)
@@ -5112,7 +5139,7 @@ static void P_Boss7Thinker(mobj_t *mobj)
 			S_StartSound(0, sfx_begoop);
 		}
 	}
-	else if (mobj->state == &states[S_BLACKEGG_SHOOT2])
+	else if (mobj->state->num == states[S_BLACKEGG_SHOOT2]->num)
 	{
 		// Chaingun goop
 		mobj_t *missile;
@@ -5135,7 +5162,7 @@ static void P_Boss7Thinker(mobj_t *mobj)
 		if (leveltime & 1)
 			S_StartSound(0, sfx_beshot);
 	}
-	else if (mobj->state == &states[S_BLACKEGG_JUMP1] && mobj->tics == 1)
+	else if (mobj->state->num == states[S_BLACKEGG_JUMP1]->num && mobj->tics == 1)
 	{
 		mobj_t *hitspot = NULL, *mo2;
 		angle_t an;
@@ -5258,7 +5285,7 @@ static void P_Boss7Thinker(mobj_t *mobj)
 
 //		mobj->momz = 10*FRACUNIT;
 	}
-	else if (mobj->state == &states[S_BLACKEGG_JUMP2] && mobj->z <= mobj->floorz)
+	else if (mobj->state->num == states[S_BLACKEGG_JUMP2]->num && mobj->z <= mobj->floorz)
 	{
 		// BANG! onto the ground
 		INT32 i,j;
@@ -5317,7 +5344,7 @@ static void P_Boss7Thinker(mobj_t *mobj)
 
 		P_SetMobjState(mobj, mobj->info->spawnstate);
 	}
-	else if (mobj->state == &states[mobj->info->deathstate] && mobj->tics == mobj->state->tics)
+	else if (mobj->state == states[mobj->info->deathstate] && mobj->tics == mobj->state->tics)
 		S_StartSound(0, sfx_bedie1 + (P_RandomFixed() & 1));
 
 }
@@ -5337,7 +5364,7 @@ static void P_Boss7Thinker(mobj_t *mobj)
 // because I am a totally competent programmer who can do shit right.
 static void P_Boss9Thinker(mobj_t *mobj)
 {
-	if ((statenum_t)(mobj->state-states) == mobj->info->spawnstate)
+	if ((statenum_t)(mobj->state->num) == mobj->info->spawnstate)
 		mobj->flags2 &= ~MF2_FRET;
 
 	if (!mobj->tracer)
@@ -5376,7 +5403,7 @@ static void P_Boss9Thinker(mobj_t *mobj)
 	if (mobj->health <= 0)
 		return;
 
-	if ((statenum_t)(mobj->state-states) == mobj->info->meleestate)
+	if ((statenum_t)(mobj->state->num) == mobj->info->meleestate)
 	{
 		P_InstaThrust(mobj, mobj->angle, -4*FRACUNIT);
 		P_TryMove(mobj, mobj->x+mobj->momx, mobj->y+mobj->momy, true);
@@ -5715,7 +5742,7 @@ static void P_Boss9Thinker(mobj_t *mobj)
 			// Pinball attack!
 			if (mobj->movecount == 3 && (mobj->movedir == 0 || mobj->movedir == 2))
 			{
-				if ((statenum_t)(mobj->state-states) != mobj->info->seestate)
+				if ((statenum_t)(mobj->state->num) != mobj->info->seestate)
 					P_SetMobjState(mobj, mobj->info->seestate);
 				if (mobj->movedir == 0) // mobj health == 1
 					P_InstaThrust(mobj, mobj->angle, 38*FRACUNIT);
@@ -5833,7 +5860,7 @@ static void P_Boss9Thinker(mobj_t *mobj)
 				else
 					P_Thrust(mobj, R_PointToAngle2(0, 0, mobj->momx, mobj->momy), -6*FRACUNIT/8);
 			}
-			if (mobj->state == states+mobj->info->raisestate)
+			if (mobj->state->num == mobj->info->raisestate)
 				return;
 		}
 
@@ -5985,7 +6012,7 @@ static void P_Boss9Thinker(mobj_t *mobj)
 		}
 
 		// Idle AI
-		if (mobj->state == &states[mobj->info->spawnstate])
+		if (mobj->state == states[mobj->info->spawnstate])
 		{
 			fixed_t dist;
 
@@ -7316,7 +7343,7 @@ static void P_RosySceneryThink(mobj_t *mobj)
 	UINT8 i;
 	fixed_t pdist = 1700*mobj->scale, work, actualwork;
 	player_t *player = NULL;
-	statenum_t stat = (mobj->state - states);
+	statenum_t stat = (mobj->state->num);
 	for (i = 0; i < MAXPLAYERS; i++)
 	{
 		if (!playeringame[i])
@@ -7627,7 +7654,7 @@ static void P_MobjSceneryThink(mobj_t *mobj)
 			&& mobj->target->player
 			&& (mobj->target->player->powers[pw_shield] & SH_NOSTACK) == SH_ELEMENTAL */
 			&& mobj->target->player->pflags & PF_SHIELDABILITY
-			&& ((statenum_t)(mobj->tracer->state - states) < mobj->info->raisestate
+			&& ((statenum_t)(mobj->tracer->state->num) < mobj->info->raisestate
 				|| (mobj->tracer->state->nextstate < mobj->info->raisestate && mobj->tracer->tics == 1)))
 		{
 			P_SetMobjState(mobj, mobj->info->painstate);
@@ -7662,14 +7689,14 @@ static void P_MobjSceneryThink(mobj_t *mobj)
 	case MT_FLAMEAURA_ORB:
 		if (!(mobj->flags2 & MF2_SHIELD))
 			return;
-		if ((statenum_t)(mobj->state - states) < mobj->info->painstate)
+		if ((statenum_t)(mobj->state->num) < mobj->info->painstate)
 			mobj->angle = mobj->target->angle; // implicitly okay because of P_AddShield
 		if (mobj->tracer
 			/* && mobj->target -- the following is implicit by P_AddShield
 			&& mobj->target->player
 			&& (mobj->target->player->powers[pw_shield] & SH_NOSTACK) == SH_FLAMEAURA */
 			&& mobj->target->player->pflags & PF_SHIELDABILITY
-			&& ((statenum_t)(mobj->tracer->state - states) < mobj->info->raisestate
+			&& ((statenum_t)(mobj->tracer->state->num) < mobj->info->raisestate
 				|| (mobj->tracer->state->nextstate < mobj->info->raisestate && mobj->tracer->tics == 1)))
 		{
 			P_SetMobjState(mobj, mobj->info->painstate);
@@ -7688,7 +7715,7 @@ static void P_MobjSceneryThink(mobj_t *mobj)
 			)
 		{
 			if (mobj->target->player->pflags & PF_SHIELDABILITY
-				&& ((statenum_t)(mobj->state - states) < mobj->info->painstate
+				&& ((statenum_t)(mobj->state->num) < mobj->info->painstate
 					|| (mobj->state->nextstate < mobj->info->painstate && mobj->tics == 1)))
 			{
 				P_SetMobjState(mobj, mobj->info->painstate);
@@ -7697,7 +7724,7 @@ static void P_MobjSceneryThink(mobj_t *mobj)
 				mobj->tracer->tics++;
 			}
 			else if (mobj->target->eflags & MFE_JUSTHITFLOOR
-				&& (statenum_t)(mobj->state - states) == mobj->info->painstate)
+				&& (statenum_t)(mobj->state->num) == mobj->info->painstate)
 			{
 				P_SetMobjState(mobj, mobj->info->painstate + 1);
 				mobj->tics++;
@@ -7856,7 +7883,7 @@ static void P_MobjSceneryThink(mobj_t *mobj)
 	case MT_BROKENROBOT:
 		if (((!(mobj->eflags & MFE_VERTICALFLIP) && mobj->z <= P_FloorzAtPos(mobj->x, mobj->y, mobj->z, mobj->height))
 			|| (mobj->eflags & MFE_VERTICALFLIP && mobj->z + mobj->height >= P_CeilingzAtPos(mobj->x, mobj->y, mobj->z, mobj->height)))
-			&& mobj->state != &states[mobj->info->deathstate])
+			&& mobj->state != states[mobj->info->deathstate])
 		{
 			P_SetMobjState(mobj, mobj->info->deathstate);
 			return;
@@ -8125,7 +8152,7 @@ static boolean P_MobjBossThink(mobj_t *mobj)
 		if (mobj->momz && mobj->z + mobj->momz <= mobj->floorz)
 		{
 			S_StartSound(mobj, sfx_befall);
-			if (mobj->state != states + S_CYBRAKDEMON_DIE8)
+			if (mobj->state->num != S_CYBRAKDEMON_DIE8)
 				P_SetMobjState(mobj, S_CYBRAKDEMON_DIE8);
 		}
 	}
@@ -8378,7 +8405,7 @@ static void P_ArrowThink(mobj_t *mobj)
 
 static void P_BumbleboreThink(mobj_t *mobj)
 {
-	statenum_t st = mobj->state - states;
+	statenum_t st = mobj->state->num;
 	if (st == S_BUMBLEBORE_FLY1 || st == S_BUMBLEBORE_FLY2)
 	{
 		if (!mobj->target)
@@ -8421,7 +8448,7 @@ static void P_BumbleboreThink(mobj_t *mobj)
 
 static boolean P_HangsterThink(mobj_t *mobj)
 {
-	statenum_t st = mobj->state - states;
+	statenum_t st = mobj->state->num;
 	//ghost image trail when flying down
 	if (st == S_HANGSTER_SWOOP1 || st == S_HANGSTER_SWOOP2)
 	{
@@ -8528,7 +8555,7 @@ static boolean P_JetFume1Think(mobj_t *mobj)
 		mobj->x = jetx;
 		mobj->y = jety;
 		mobj->destscale = mobj->target->scale;
-		if (!(dashmod && mobj->target->state == states + S_METALSONIC_BOUNCE))
+		if (!(dashmod && mobj->target->state->num == S_METALSONIC_BOUNCE))
 		{
 			mobj->destscale = (mobj->destscale + FixedDiv(R_PointToDist2(0, 0, mobj->target->momx, mobj->target->momy), 36*mobj->target->scale))/3;
 		}
@@ -8570,7 +8597,7 @@ static boolean P_EggRobo1Think(mobj_t *mobj)
 		mobj->flags2 |= MF2_STRONGBOX;
 	}
 
-	if (mobj->state == &states[mobj->info->deathstate]) // todo: make map actually set health to 0 for these
+	if (mobj->state == states[mobj->info->deathstate]) // todo: make map actually set health to 0 for these
 	{
 		if (mobj->movecount)
 		{
@@ -8608,11 +8635,11 @@ static boolean P_EggRobo1Think(mobj_t *mobj)
 		}
 
 		mobj->z = mobj->threshold + FixedMul(FINESINE(((leveltime + mobj->movecount)*ANG2 >> (ANGLETOFINESHIFT - 2)) & FINEMASK), 8*mobj->scale);
-		if (mobj->state != &states[mobj->info->meleestate])
+		if (mobj->state != states[mobj->info->meleestate])
 		{
 			boolean didmove = false;
 
-			if (mobj->state == &states[mobj->info->spawnstate])
+			if (mobj->state == states[mobj->info->spawnstate])
 			{
 				UINT8 i;
 				fixed_t dist = INT32_MAX;
@@ -8830,7 +8857,7 @@ static void P_NiGHTSDroneThink(mobj_t *mobj)
 
 	// now toggle states!
 	// GOAL mode?
-	if (sparkle->state >= &states[S_NIGHTSDRONE_SPARKLING1] && sparkle->state <= &states[S_NIGHTSDRONE_SPARKLING16])
+	if (sparkle->state->num >= states[S_NIGHTSDRONE_SPARKLING1]->num && sparkle->state->num <= states[S_NIGHTSDRONE_SPARKLING16]->num)
 	{
 		INT32 i;
 		boolean bonustime = false;
@@ -8845,9 +8872,9 @@ static void P_NiGHTSDroneThink(mobj_t *mobj)
 		if (!bonustime)
 		{
 			CONS_Debug(DBG_NIGHTSBASIC, "Removing goal post\n");
-			if (goalpost && goalpost->state != &states[S_INVISIBLE])
+			if (goalpost && goalpost->state->num != states[S_INVISIBLE]->num)
 				P_SetMobjState(goalpost, S_INVISIBLE);
-			if (sparkle && sparkle->state != &states[S_INVISIBLE])
+			if (sparkle && sparkle->state->num != states[S_INVISIBLE]->num)
 				P_SetMobjState(sparkle, S_INVISIBLE);
 		}
 	}
@@ -8901,9 +8928,9 @@ static void P_NiGHTSDroneThink(mobj_t *mobj)
 			CONS_Debug(DBG_NIGHTSBASIC, "Adding goal post\n");
 			if (!(droneman->flags2 & MF2_DONTDRAW))
 				droneman->flags2 |= MF2_DONTDRAW;
-			if (goalpost->state == &states[S_INVISIBLE])
+			if (goalpost->state->num == states[S_INVISIBLE]->num)
 				P_SetMobjState(goalpost, mobjinfo[goalpost->type]->meleestate);
-			if (sparkle->state == &states[S_INVISIBLE])
+			if (sparkle->state->num == states[S_INVISIBLE]->num)
 				P_SetMobjState(sparkle, mobjinfo[sparkle->type]->meleestate);
 		}
 		else if (!G_IsSpecialStage(gamemap))
@@ -8918,11 +8945,11 @@ static void P_NiGHTSDroneThink(mobj_t *mobj)
 			if (bonustime)
 			{
 				// show droneman if at least one player is non-nights
-				if (goalpost->state != &states[S_INVISIBLE])
+				if (goalpost->state->num != states[S_INVISIBLE]->num)
 					P_SetMobjState(goalpost, S_INVISIBLE);
-				if (sparkle->state != &states[S_INVISIBLE])
+				if (sparkle->state->num != states[S_INVISIBLE]->num)
 					P_SetMobjState(sparkle, S_INVISIBLE);
-				if (droneman->state != &states[mobjinfo[droneman->type]->meleestate])
+				if (droneman->state != states[mobjinfo[droneman->type]->meleestate])
 					P_SetMobjState(droneman, mobjinfo[droneman->type]->meleestate);
 				if (droneman->flags2 & MF2_DONTDRAW)
 					droneman->flags2 &= ~MF2_DONTDRAW;
@@ -9153,12 +9180,12 @@ static void P_PterabyteThink(mobj_t *mobj)
 		if (mobj->reactiontime)
 			return;
 
-		if (mobj->state - states == S_PTERABYTE_SWOOPDOWN)
+		if (mobj->state->num == S_PTERABYTE_SWOOPDOWN)
 		{
 			P_SetMobjState(mobj, S_PTERABYTE_SWOOPUP);
 			mobj->reactiontime = mobj->movecount;
 		}
-		else if (mobj->state - states == S_PTERABYTE_SWOOPUP)
+		else if (mobj->state->num == S_PTERABYTE_SWOOPUP)
 		{
 			P_SetMobjState(mobj, S_PTERABYTE_FLY1);
 			mobj->extravalue1++;
@@ -9191,7 +9218,7 @@ static void P_DragonbomberThink(mobj_t *mobj)
 		if (mobj->threshold == 0) // if the timer hits 0, look for a mine to drop!
 		{
 			mobj_t *segment = mobj;
-			while (segment->tracer != NULL && !P_MobjWasRemoved(segment->tracer) && segment->tracer->state == &states[segment->tracer->info->spawnstate])
+			while (segment->tracer != NULL && !P_MobjWasRemoved(segment->tracer) && segment->tracer->state == states[segment->tracer->info->spawnstate])
 				segment = segment->tracer;
 			if (segment != mobj) // found an unactivated segment?
 			{
@@ -9231,7 +9258,7 @@ static void P_DragonbomberThink(mobj_t *mobj)
 	}
 	else // Can we find a player to chase?
 	{
-		if (mobj->tracer == NULL || mobj->tracer->state != &states[mobj->tracer->info->spawnstate]
+		if (mobj->tracer == NULL || mobj->tracer->state != states[mobj->tracer->info->spawnstate]
 			|| !P_LookForPlayers(mobj, true, false, 2000*mobj->scale)) // if not, circle around the spawnpoint
 		{
 			if (!mobj->spawnpoint) // unless we don't have one, in which case uhhh just circle around wherever we currently are I guess??
@@ -9447,7 +9474,7 @@ static boolean P_MobjRegularThink(mobj_t *mobj)
 				if (leveltime % mobj->info->painchance == 0)
 					S_StartSound(mobj, mobj->info->activesound);
 
-				if ((statenum_t)(mobj->state - states) != mobj->info->seestate)
+				if ((statenum_t)(mobj->state->num) != mobj->info->seestate)
 					P_SetMobjState(mobj, mobj->info->seestate);
 			}
 			else
@@ -9457,7 +9484,7 @@ static boolean P_MobjRegularThink(mobj_t *mobj)
 				mobj->momx >>= 1;
 				mobj->momy >>= 1;
 				mobj->momz >>= 1;
-				if ((statenum_t)(mobj->state - states) != mobj->info->spawnstate)
+				if ((statenum_t)(mobj->state->num) != mobj->info->spawnstate)
 					P_SetMobjState(mobj, mobj->info->spawnstate);
 			}
 		}
@@ -9518,11 +9545,11 @@ static boolean P_MobjRegularThink(mobj_t *mobj)
 	}
 	break;
 	case MT_SPINCUSHION:
-		if (mobj->target && mobj->state - states >= S_SPINCUSHION_AIM1 && mobj->state - states <= S_SPINCUSHION_AIM5)
+		if (mobj->target && mobj->state->num >= S_SPINCUSHION_AIM1 && mobj->state->num <= S_SPINCUSHION_AIM5)
 			mobj->angle = R_PointToAngle2(mobj->x, mobj->y, mobj->target->x, mobj->target->y);
 		break;
 	case MT_CRUSHCLAW:
-		if (mobj->state - states == S_CRUSHCLAW_STAY && mobj->target)
+		if (mobj->state->num == S_CRUSHCLAW_STAY && mobj->target)
 		{
 			mobj_t *chain = mobj->target->target;
 			SINT8 sign = ((mobj->tics & 1) ? mobj->tics : -(SINT8)(mobj->tics));
@@ -9536,12 +9563,12 @@ static boolean P_MobjRegularThink(mobj_t *mobj)
 		break;
 	case MT_SMASHINGSPIKEBALL:
 		mobj->momx = mobj->momy = 0;
-		if (mobj->state - states == S_SMASHSPIKE_FALL && P_IsObjectOnGround(mobj))
+		if (mobj->state->num == S_SMASHSPIKE_FALL && P_IsObjectOnGround(mobj))
 		{
 			P_SetMobjState(mobj, S_SMASHSPIKE_STOMP1);
 			S_StartSound(mobj, sfx_spsmsh);
 		}
-		else if (mobj->state - states == S_SMASHSPIKE_RISE2 && P_MobjFlip(mobj)*(mobj->z - mobj->movecount) >= 0)
+		else if (mobj->state->num == S_SMASHSPIKE_RISE2 && P_MobjFlip(mobj)*(mobj->z - mobj->movecount) >= 0)
 		{
 			mobj->momz = 0;
 			P_SetMobjState(mobj, S_SMASHSPIKE_FLOAT);
@@ -9580,8 +9607,8 @@ static boolean P_MobjRegularThink(mobj_t *mobj)
 	case MT_EGGMOBILE2_POGO:
 		if (!mobj->target
 			|| !mobj->target->health
-			|| mobj->target->state == &states[mobj->target->info->spawnstate]
-			|| mobj->target->state == &states[mobj->target->info->raisestate])
+			|| mobj->target->state == states[mobj->target->info->spawnstate]
+			|| mobj->target->state == states[mobj->target->info->raisestate])
 		{
 			P_RemoveMobj(mobj);
 			return false;
@@ -9761,7 +9788,7 @@ static boolean P_MobjRegularThink(mobj_t *mobj)
 		mobj->momx = FixedMul(mobj->momx, (3*FRACUNIT)/4); // originally 50000
 		mobj->momy = FixedMul(mobj->momy, (3*FRACUNIT)/4); // same
 		//mobj->momz = mobj->momz+P_MobjFlip(mobj)/3; // no meaningful change in value to be frank
-		if (mobj->state >= &states[S_SPINDUST_BUBBLE1] && mobj->state <= &states[S_SPINDUST_BUBBLE4]) // bubble dust!
+		if (mobj->state->num >= states[S_SPINDUST_BUBBLE1]->num && mobj->state->num <= states[S_SPINDUST_BUBBLE4]->num) // bubble dust!
 		{
 			P_MobjCheckWater(mobj);
 			if (mobj->watertop != mobj->subsector->sector->floorheight - 1000*FRACUNIT
@@ -10108,13 +10135,13 @@ static boolean P_FuseThink(mobj_t *mobj)
 		P_RemoveMobj(mobj);
 		return false;
 	case MT_LAVAFALL:
-		if (mobj->state - states == S_LAVAFALL_DORMANT)
+		if (mobj->state->num == S_LAVAFALL_DORMANT)
 		{
 			mobj->fuse = 30;
 			P_SetMobjState(mobj, S_LAVAFALL_TELL);
 			S_StartSound(mobj, mobj->info->seesound);
 		}
-		else if (mobj->state - states == S_LAVAFALL_TELL)
+		else if (mobj->state->num == S_LAVAFALL_TELL)
 		{
 			mobj->fuse = 40;
 			P_SetMobjState(mobj, S_LAVAFALL_SHOOT);
@@ -10723,7 +10750,7 @@ mobj_t *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type, ...)
 
 	// do not set the state with P_SetMobjState,
 	// because action routines can not be called yet
-	st = &states[info->spawnstate];
+	st = states[info->spawnstate];
 
 	mobj->state = st;
 	mobj->tics = st->tics;
@@ -11153,7 +11180,7 @@ static precipmobj_t *P_SpawnPrecipMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype
 
 	// do not set the state with P_SetMobjState,
 	// because action routines can not be called yet
-	st = &states[mobjinfo[type]->spawnstate];
+	st = states[mobjinfo[type]->spawnstate];
 
 	mobj->state = st;
 	mobj->tics = st->tics;

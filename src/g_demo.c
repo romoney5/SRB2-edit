@@ -814,8 +814,8 @@ void G_GhostTicker(void)
 						mobj = P_SpawnMobjFromMobj(g->mo, 0, 0, -FixedDiv(FixedMul(g->mo->info->height, g->mo->scale) - g->mo->height,3*FRACUNIT), MT_THOK);
 						if (!P_MobjWasRemoved(mobj))
 						{
-							mobj->sprite = states[mobjinfo[type]->spawnstate].sprite;
-							mobj->frame = (states[mobjinfo[type]->spawnstate].frame & FF_FRAMEMASK) | tr_trans60<<FF_TRANSSHIFT;
+							mobj->sprite = states[mobjinfo[type]->spawnstate]->sprite;
+							mobj->frame = (states[mobjinfo[type]->spawnstate]->frame & FF_FRAMEMASK) | tr_trans60<<FF_TRANSSHIFT;
 							mobj->color = g->mo->color;
 							mobj->skin = g->mo->skin;
 							P_SetScale(mobj, g->mo->scale, true);
@@ -1120,8 +1120,8 @@ void G_ReadMetalTic(mobj_t *metal)
 					mobj = P_SpawnMobjFromMobj(metal, 0, 0, -FixedDiv(FixedMul(metal->info->height, metal->scale) - metal->height,3*FRACUNIT), MT_THOK);
 					if (!P_MobjWasRemoved(mobj))
 					{
-						mobj->sprite = states[mobjinfo[type]->spawnstate].sprite;
-						mobj->frame = states[mobjinfo[type]->spawnstate].frame;
+						mobj->sprite = states[mobjinfo[type]->spawnstate]->sprite;
+						mobj->frame = states[mobjinfo[type]->spawnstate]->frame;
 						mobj->angle = metal->angle;
 						mobj->color = metal->color;
 						mobj->skin = metal->skin;
@@ -2630,7 +2630,7 @@ void G_AddGhost(char *defdemoname)
 		}
 	gh->oldmo.color = gh->mo->color;
 
-	gh->mo->state = &states[S_PLAY_STND];
+	gh->mo->state = states[S_PLAY_STND];
 	gh->mo->sprite = gh->mo->state->sprite;
 	gh->mo->sprite2 = P_GetStateSprite2(gh->mo->state);
 	gh->mo->frame = (gh->mo->state->frame & ~FF_FRAMEMASK) | P_GetSprite2StateFrame(gh->mo->state);

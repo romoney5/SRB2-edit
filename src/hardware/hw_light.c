@@ -987,8 +987,8 @@ void HWR_DoCoronasLighting(FOutVector *outVerts, gl_vissprite_t *spr)
 
 	//CONS_Debug(DBG_RENDER, "sprite (type): %d (%s)\n", spr->type, sprnames[spr->type]);
 	p_lspr = t_lspr[spr->mobj->sprite];
-	if ((spr->mobj->state>=&states[S_EXPLODE1] && spr->mobj->state<=&states[S_EXPLODE3])
-	 || (spr->mobj->state>=&states[S_FATSHOTX1] && spr->mobj->state<=&states[S_FATSHOTX3]))
+	if ((spr->mobj->state->num>=S_EXPLODE1 && spr->mobj->state->num<=S_EXPLODE3)
+	 || (spr->mobj->state->num>=S_FATSHOTX1 && spr->mobj->state->num<=S_FATSHOTX3))
 	{
 		p_lspr = &lspr[ROCKETEXP_L];
 	}

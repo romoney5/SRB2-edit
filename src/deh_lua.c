@@ -88,18 +88,9 @@ static inline int lib_freeslot(lua_State *L)
 		}
 		else if (fastcmp(type, "S"))
 		{
-			statenum_t i;
-			for (i = 0; i < NUMSTATEFREESLOTS; i++)
-				if (!FREE_STATES[i]) {
-					CONS_Printf("State S_%s allocated.\n",word);
-					FREE_STATES[i] = Z_Malloc(strlen(word)+1, PU_STATIC, NULL);
-					strcpy(FREE_STATES[i],word);
-					lua_pushinteger(L, S_FIRSTFREESLOT + i);
-					r++;
-					break;
-				}
-			if (i == NUMSTATEFREESLOTS)
-				CONS_Alert(CONS_WARNING, "Ran out of free State slots!\n");
+			CONS_Printf("State S_%s allocated.\n",word);
+			lua_pushinteger(L, P_AllocateState(Z_StrDup(word)));
+			r++;
 		}
 		else if (fastcmp(type, "MT"))
 		{
@@ -412,24 +403,21 @@ static int ScanConstants(lua_State *L, boolean mathlib, const char *word)
 	}
 	else if (fastncmp("S_",word,2)) {
 		p = word+2;
-		for (i = 0; i < NUMSTATEFREESLOTS; i++) {
-			if (!FREE_STATES[i])
-				break;
-			if (fastcmp(p, FREE_STATES[i])) {
-				CacheAndPushConstant(L, word, S_FIRSTFREESLOT+i);
-				return 1;
-			}
-		}
-		for (i = 0; i < S_FIRSTFREESLOT; i++)
-			if (fastcmp(p, STATE_LIST[i]+2)) {
+		for (i = 0; (UINT32)i < numstates; i++)
+		{
+			if (fastcmp(p, states[i]->name))
+			{
 				CacheAndPushConstant(L, word, i);
 				return 1;
 			}
+		}
 		return luaL_error(L, "state '%s' does not exist.\n", word);
 	}
 	else if (fastncmp("MT_",word,3)) {
-		for (i = 0; (size_t)i < nummobjinfo; i++) {
-			if (fastcmp(word, mobjinfo[i]->name)) {
+		for (i = 0; (UINT32)i < nummobjinfo; i++)
+		{
+			if (fastcmp(word, mobjinfo[i]->name))
+			{
 				CacheAndPushConstant(L, word, i);
 				return 1;
 			}

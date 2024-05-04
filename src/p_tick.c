@@ -154,7 +154,7 @@ void Command_CountMobjs_f(void)
 			i = atoi(COM_Argv(j));
 			if (i >= nummobjinfo)
 			{
-				CONS_Printf(M_GetText("Object number %d out of range (max %zu).\n"), i, nummobjinfo-1);
+				CONS_Printf(M_GetText("Object number %d out of range (max %u).\n"), i, nummobjinfo-1);
 				continue;
 			}
 
