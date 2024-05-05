@@ -1083,7 +1083,7 @@ static int lib_setMobjInfo(lua_State *L)
 			info->seestate = (statenum_t)value;
 		} else if (i == 5 || (str && fastcmp(str,"seesound"))) {
 			value = luaL_checkinteger(L, 3);
-			if (value < sfx_None || value >= NUMSFX)
+			if (value < sfx_None || (UINT32)value >= S_numsfx)
 				return luaL_error(L, "seesound number %d is invalid.", value);
 			info->seesound = (sfxenum_t)value;
 		} else if (i == 6 || (str && fastcmp(str,"reactiontime")))
@@ -1431,9 +1431,9 @@ static int lib_getSfxInfo(lua_State *L)
 	lua_remove(L, 1);
 
 	i = luaL_checkinteger(L, 1);
-	if (i == 0 || i >= NUMSFX)
-		return luaL_error(L, "sfxinfo[] index %d out of range (1 - %d)", i, NUMSFX-1);
-	LUA_PushUserdata(L, &S_sfx[i], META_SFXINFO);
+	if (i == 0 || i >= S_numsfx)
+		return luaL_error(L, "sfxinfo[] index %d out of range (1 - %d)", i, S_numsfx-1);
+	LUA_PushUserdata(L, S_sfx[i], META_SFXINFO);
 	return 1;
 }
 
@@ -1445,9 +1445,9 @@ static int lib_setSfxInfo(lua_State *L)
 	lua_remove(L, 1);
 	{
 		UINT32 i = luaL_checkinteger(L, 1);
-		if (i == 0 || i >= NUMSFX)
-			return luaL_error(L, "sfxinfo[] index %d out of range (1 - %d)", i, NUMSFX-1);
-		info = &S_sfx[i]; // get the sfxinfo to assign to.
+		if (i == 0 || i >= S_numsfx)
+			return luaL_error(L, "sfxinfo[] index %d out of range (1 - %d)", i, S_numsfx-1);
+		info = S_sfx[i]; // get the sfxinfo to assign to.
 	}
 	luaL_checktype(L, 2, LUA_TTABLE); // check that we've been passed a table.
 	lua_remove(L, 1); // pop sfx num, don't need it any more.
@@ -1492,7 +1492,7 @@ static int lib_setSfxInfo(lua_State *L)
 
 static int lib_sfxlen(lua_State *L)
 {
-	lua_pushinteger(L, NUMSFX);
+	lua_pushinteger(L, S_numsfx);
 	return 1;
 }
 
@@ -1570,11 +1570,9 @@ static int sfxinfo_set(lua_State *L)
 static int sfxinfo_num(lua_State *L)
 {
 	sfxinfo_t *sfx = *((sfxinfo_t **)luaL_checkudata(L, 1, META_SFXINFO));
-
 	I_Assert(sfx != NULL);
-	I_Assert(sfx >= S_sfx);
 
-	lua_pushinteger(L, (UINT32)(sfx-S_sfx));
+	lua_pushinteger(L, S_GetSoundIndex(sfx));
 	return 1;
 }
 

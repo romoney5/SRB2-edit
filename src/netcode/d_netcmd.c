@@ -4453,14 +4453,14 @@ static void Gravity_OnChange(void)
 
 static void SoundTest_OnChange(void)
 {
-	INT32 sfxfreeint = (INT32)sfxfree;
+	INT32 numsfxint = (INT32)S_numsfx;
 	if (cv_soundtest.value < 0)
 	{
-		CV_SetValue(&cv_soundtest, sfxfreeint-1);
+		CV_SetValue(&cv_soundtest, numsfxint-1);
 		return;
 	}
 
-	if (cv_soundtest.value >= sfxfreeint)
+	if (cv_soundtest.value >= numsfxint)
 	{
 		CV_SetValue(&cv_soundtest, 0);
 		return;

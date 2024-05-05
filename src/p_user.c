@@ -1582,7 +1582,7 @@ void P_PlayLivesJingle(player_t *player)
 		P_PlayJingle(player, JT_1UP);
 		if (player)
 			player->powers[pw_extralife] = extralifetics + 1;
-		strlcpy(S_sfx[sfx_None].caption, "One-up", 7);
+		strlcpy(S_sfx[sfx_None]->caption, "One-up", 7);
 		S_StartCaption(sfx_None, -1, extralifetics+1);
 	}
 }
@@ -1638,7 +1638,7 @@ boolean P_EvaluateMusicStatus(UINT16 status, const char *musname)
 			case JT_SHOES:  // Speed shoes
 				if (players[i].powers[pw_sneakers] > 1 && !players[i].powers[pw_super])
 				{
-					//strlcpy(S_sfx[sfx_None].caption, "Speed shoes", 12);
+					//strlcpy(S_sfx[sfx_None]->caption, "Speed shoes", 12);
 					//S_StartCaption(sfx_None, -1, players[i].powers[pw_sneakers]);
 					result = true;
 				}
@@ -1650,7 +1650,7 @@ boolean P_EvaluateMusicStatus(UINT16 status, const char *musname)
 			case JT_MINV: // Mario Invincibility
 				if (players[i].powers[pw_invulnerability] > 1)
 				{
-					//strlcpy(S_sfx[sfx_None].caption, "Invincibility", 14);
+					//strlcpy(S_sfx[sfx_None]->caption, "Invincibility", 14);
 					//S_StartCaption(sfx_None, -1, players[i].powers[pw_invulnerability]);
 					result = true;
 				}
@@ -1719,7 +1719,7 @@ void P_RestoreMusic(player_t *player)
 	// Invulnerability
 	else if (player->powers[pw_invulnerability] > 1 && !player->powers[pw_super])
 	{
-		strlcpy(S_sfx[sfx_None].caption, "Invincibility", 14);
+		strlcpy(S_sfx[sfx_None]->caption, "Invincibility", 14);
 		S_StartCaption(sfx_None, -1, player->powers[pw_invulnerability]);
 		if (!S_RecallMusic(JT_INV, false) && !S_RecallMusic(JT_MINV, false))
 			P_PlayJingle(player, (mariomode) ? JT_MINV : JT_INV);
@@ -1728,7 +1728,7 @@ void P_RestoreMusic(player_t *player)
 	// Shoes
 	else if (player->powers[pw_sneakers] > 1 && !player->powers[pw_super])
 	{
-		strlcpy(S_sfx[sfx_None].caption, "Speed shoes", 12);
+		strlcpy(S_sfx[sfx_None]->caption, "Speed shoes", 12);
 		S_StartCaption(sfx_None, -1, player->powers[pw_sneakers]);
 		if (mapheaderinfo[gamemap-1]->levelflags & LF_SPEEDMUSIC)
 		{

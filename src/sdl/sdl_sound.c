@@ -88,8 +88,6 @@
 // Needed for calling the actual sound output.
 #define NUM_CHANNELS            MIX_CHANNELS*4
 
-#define INDEXOFSFX(x) ((sfxinfo_t *)x - S_sfx)
-
 static Uint16 samplecount = 1024; //Alam: 1KB samplecount at 22050hz is 46.439909297052154195011337868481ms of buffer
 
 typedef struct chan_struct
@@ -435,7 +433,7 @@ static INT32 addsfx(sfxenum_t sfxid, INT32 volume, INT32 step, INT32 seperation)
 	// Okay, in the less recent channel,
 	//  we will handle the new SFX.
 	// Set pointer to raw data.
-	channels[slot].data = (Uint8 *)S_sfx[sfxid].data;
+	channels[slot].data = (Uint8 *)S_sfx[sfxid]->data;
 	channels[slot].samplerate = (channels[slot].data[3]<<8)+channels[slot].data[2];
 	channels[slot].data += 8; //Alam: offset of the sound header
 
@@ -460,12 +458,12 @@ static INT32 addsfx(sfxenum_t sfxid, INT32 volume, INT32 step, INT32 seperation)
 
 	// Preserve sound SFX id,
 	//  e.g. for avoiding duplicates of chainsaw.
-	channels[slot].id = S_sfx[sfxid].data;
+	channels[slot].id = S_sfx[sfxid]->data;
 
 	channels[slot].sfxid = sfxid;
 
 	// Set pointer to end of raw data.
-	channels[slot].end = channels[slot].data + S_sfx[sfxid].length;
+	channels[slot].end = channels[slot].data + S_sfx[sfxid]->length;
 
 
 	// You tell me.
@@ -566,14 +564,14 @@ void I_FreeSfx(sfxinfo_t * sfx)
 	{
 		size_t i;
 
-		for (i = 1; i < NUMSFX; i++)
+		for (i = 1; i < S_numsfx; i++)
 		{
 			// Alias? Example is the chaingun sound linked to pistol.
-			if (S_sfx[i].data == sfx->data)
+			if (S_sfx[i]->data == sfx->data)
 			{
-				if (S_sfx+i != sfx) S_sfx[i].data = NULL;
-				S_sfx[i].lumpnum = LUMPERROR;
-				S_sfx[i].length = 0;
+				if (S_sfx[i] != sfx) S_sfx[i]->data = NULL;
+				S_sfx[i]->lumpnum = LUMPERROR;
+				S_sfx[i]->length = 0;
 			}
 		}
 		//Snd_LockAudio(); //Alam: too much?
@@ -614,7 +612,7 @@ INT32 I_StartSound(sfxenum_t id, UINT8 vol, UINT8 sep, UINT8 pitch, UINT8 priori
 	if (sound_disabled)
 		return 0;
 
-	if (S_sfx[id].data == NULL) return -1;
+	if (S_sfx[id]->data == NULL) return -1;
 
 	Snd_LockAudio();
 	id = addsfx(id, vol, steptable[pitch], sep);
@@ -1275,7 +1273,7 @@ void I_StartupSound(void)
 			//I_AddExitFunc(I_ShutdownSound);
 			snddev.bps = 16;
 			snddev.sample_rate = audio.freq;
-			snddev.numsfxs = NUMSFX;
+			snddev.numsfxs = S_numsfx;
 #if defined (_WIN32)
 			snddev.cooplevel = 0x00000002;
 			snddev.hWnd = vid.WndParent;

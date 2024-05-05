@@ -4286,7 +4286,7 @@ void A_Invincibility(void *data)
 		if (mariomode)
 			G_GhostAddColor(GHC_INVINCIBLE);
 		P_PlayJingle(player, (mariomode) ? JT_MINV : JT_INV);
-		strlcpy(S_sfx[sfx_None].caption, "Invincibility", 14);
+		strlcpy(S_sfx[sfx_None]->caption, "Invincibility", 14);
 		S_StartCaption(sfx_None, -1, player->powers[pw_invulnerability]);
 	}
 }
@@ -4322,7 +4322,7 @@ void A_SuperSneakers(void *data)
 			S_SpeedMusic(1.4f);
 		else
 			P_PlayJingle(player, JT_SHOES);
-		strlcpy(S_sfx[sfx_None].caption, "Speed shoes", 12);
+		strlcpy(S_sfx[sfx_None]->caption, "Speed shoes", 12);
 		S_StartCaption(sfx_None, -1, player->powers[pw_sneakers]);
 	}
 }
@@ -11421,7 +11421,7 @@ void A_VileAttack(void *data)
 	if (P_MobjWasRemoved(actor))
 		return;
 
-	if (locvar1 <= 0 || locvar1 >= NUMSFX)
+	if (locvar1 <= 0 || (UINT32)locvar1 >= S_numsfx)
 		soundtoplay = sfx_brakrx;
 	else
 		soundtoplay = (sfxenum_t)locvar1;
@@ -11559,7 +11559,7 @@ void A_VileFire(void *data)
 	P_SetThingPosition(actor);
 
 	// Play sound, if one's specified
-	if (locvar1 > 0 && locvar1 < NUMSFX)
+	if (locvar1 > 0 && (UINT32)locvar1 < S_numsfx)
 		S_StartSound(actor, (sfxenum_t)locvar1);
 
 	// Now draw the line to the actor's target
@@ -11718,7 +11718,7 @@ void A_BrakChase(void *data)
 	}
 
 	// Optionally play a sound effect
-	if (locvar2 > 0 && locvar2 < NUMSFX)
+	if (locvar2 > 0 && (UINT32)locvar1 < S_numsfx)
 		S_StartSound(actor, (sfxenum_t)locvar2);
 
 	// make active sound

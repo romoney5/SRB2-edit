@@ -195,7 +195,7 @@ boolean P_IsValidSprite2(skin_t *skin, UINT16 spr2)
 
 static void Sk_SetDefaultValue(skin_t *skin)
 {
-	INT32 i;
+	UINT32 i;
 	//
 	// set default skin values
 	//
@@ -247,9 +247,9 @@ static void Sk_SetDefaultValue(skin_t *skin)
 
 	skin->natkcolor = SKINCOLOR_NONE;
 
-	for (i = 0; i < sfx_skinsoundslot0; i++)
-		if (S_sfx[i].skinsound != -1)
-			skin->soundsid[S_sfx[i].skinsound] = i;
+	for (i = 0; i < S_numsfx; i++)
+		if (S_sfx[i]->skinsound != -1)
+			skin->soundsid[S_sfx[i]->skinsound] = i;
 }
 
 //
@@ -762,16 +762,16 @@ static boolean R_ProcessPatchableFields(skin_t *skin, char *stoken, char *value)
 
 		// copy name of sounds that are remapped
 		// for this skin
-		for (i = 0; i < sfx_skinsoundslot0; i++)
+		for (i = 0; i < S_numsfx; i++)
 		{
-			if (!S_sfx[i].name)
+			if (!S_sfx[i]->name)
 				continue;
-			if (S_sfx[i].skinsound != -1
-				&& !stricmp(S_sfx[i].name,
+			if (S_sfx[i]->skinsound != -1
+				&& !stricmp(S_sfx[i]->name,
 					stoken + stokenadjust))
 			{
-				skin->soundsid[S_sfx[i].skinsound] =
-					S_AddSoundFx(value, S_sfx[i].singularity, S_sfx[i].pitch, true);
+				skin->soundsid[S_sfx[i]->skinsound] =
+					S_AddSoundFx(value, S_sfx[i]->singularity, S_sfx[i]->pitch);
 				found = true;
 			}
 		}

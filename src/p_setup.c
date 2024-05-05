@@ -1303,11 +1303,11 @@ static void P_WriteSkincolor(INT32 constant, char **target)
 static void P_WriteSfx(INT32 constant, char **target)
 {
 	if (constant <= sfx_None
-	|| constant >= (INT32)sfxfree)
+	|| constant >= (INT32)S_numsfx)
 		return;
 
 	P_WriteDuplicateText(
-		va("SFX_%s", S_sfx[constant].name),
+		va("SFX_%s", S_sfx[constant]->name),
 		target
 	);
 }
@@ -8243,15 +8243,15 @@ void P_LoadSoundsRange(UINT16 wadnum, UINT16 first, UINT16 num)
 	for (; num > 0; num--, lumpinfo++)
 	{
 		// Let's check whether it's replacing an existing sound or it's a brand new one.
-		for (j = 1; j < NUMSFX; j++)
+		for (j = 1; j < S_numsfx; j++)
 		{
-			if (S_sfx[j].name && !strnicmp(S_sfx[j].name, lumpinfo->name + 2, 6))
+			if (S_sfx[j]->name && !strnicmp(S_sfx[j]->name, lumpinfo->name + 2, 6))
 			{
 				// the sound will be reloaded when needed,
 				// since sfx->data will be NULL
 				CONS_Debug(DBG_SETUP, "Sound %.8s replaced\n", lumpinfo->name);
 
-				I_FreeSfx(&S_sfx[j]);
+				I_FreeSfx(S_sfx[j]);
 				break; // there shouldn't be two sounds with the same name, so stop looking
 			}
 		}
@@ -8380,15 +8380,15 @@ static boolean P_LoadAddon(UINT16 numlumps)
 			{
 				if (name[1] == 'S')
 				{
-					for (j = 1; j < NUMSFX; j++)
+					for (j = 1; j < S_numsfx; j++)
 					{
-						if (S_sfx[j].name && !strnicmp(S_sfx[j].name, name + 2, 6))
+						if (S_sfx[j]->name && !strnicmp(S_sfx[j]->name, name + 2, 6))
 						{
 							// the sound will be reloaded when needed,
 							// since sfx->data will be NULL
 							CONS_Debug(DBG_SETUP, "Sound %.8s replaced\n", name);
 
-							I_FreeSfx(&S_sfx[j]);
+							I_FreeSfx(S_sfx[j]);
 
 							sreplaces++;
 							break; // there shouldn't be two sounds with the same name, so stop looking

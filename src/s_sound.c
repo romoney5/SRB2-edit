@@ -402,7 +402,7 @@ void S_StopSoundByID(void *origin, sfxenum_t sfx_id)
 #endif
 	for (cnum = 0; cnum < numofchannels; cnum++)
 	{
-		if (channels[cnum].sfxinfo == &S_sfx[sfx_id] && channels[cnum].origin == origin)
+		if (channels[cnum].sfxinfo == S_sfx[sfx_id] && channels[cnum].origin == origin)
 		{
 			S_StopChannel(cnum);
 			break;
@@ -423,7 +423,7 @@ void S_StopSoundByNum(sfxenum_t sfxnum)
 #endif
 	for (cnum = 0; cnum < numofchannels; cnum++)
 	{
-		if (channels[cnum].sfxinfo == &S_sfx[sfxnum])
+		if (channels[cnum].sfxinfo == S_sfx[sfxnum])
 		{
 			S_StopChannel(cnum);
 			break;
@@ -442,14 +442,14 @@ void S_StartCaption(sfxenum_t sfx_id, INT32 cnum, UINT16 lifespan)
 
 	// check for bogus sound #
 	// I_Assert(sfx_id >= 0); -- allowing sfx_None; this shouldn't be allowed directly if S_StartCaption is ever exposed to Lua by itself
-	I_Assert(sfx_id < NUMSFX);
+	I_Assert(sfx_id < S_numsfx);
 
-	sfx = &S_sfx[sfx_id];
+	sfx = S_sfx[sfx_id];
 
 	if (sfx->caption[0] == '/') // no caption for this one
 		return;
 
-	start = ((closedcaptions[0].s && (closedcaptions[0].s-S_sfx == sfx_None)) ? 1 : 0);
+	start = ((closedcaptions[0].s && (closedcaptions[0].s == S_sfx[sfx_None])) ? 1 : 0);
 
 	if (sfx_id)
 	{
@@ -594,15 +594,15 @@ void S_StartSoundAtVolume(const void *origin_p, sfxenum_t sfx_id, INT32 volume)
 
 	// check for bogus sound #
 	I_Assert(sfx_id >= 1);
-	I_Assert(sfx_id < NUMSFX);
+	I_Assert(sfx_id < S_numsfx);
 
-	sfx = &S_sfx[sfx_id];
+	sfx = S_sfx[sfx_id];
 
 	if (sfx->skinsound != -1 && origin && origin->skin)
 	{
 		// redirect player sound to the sound in the skin table
 		sfx_id = ((skin_t *)origin->skin)->soundsid[sfx->skinsound];
-		sfx = &S_sfx[sfx_id];
+		sfx = S_sfx[sfx_id];
 	}
 
 	// Initialize sound parameters
@@ -999,7 +999,7 @@ void S_UpdateClosedCaptions(void)
 		if (!closedcaptions[i].s)
 			continue;
 
-		if (i == 0 && (closedcaptions[0].s-S_sfx == sfx_None) && gamestopped)
+		if (i == 0 && (closedcaptions[0].s == S_sfx[sfx_None]) && gamestopped)
 			continue;
 
 		if (!(--closedcaptions[i].t))
@@ -1035,8 +1035,8 @@ void S_SetSfxVolume(INT32 volume)
 void S_ClearSfx(void)
 {
 	size_t i;
-	for (i = 1; i < NUMSFX; i++)
-		I_FreeSfx(S_sfx + i);
+	for (i = 1; i < S_numsfx; i++)
+		I_FreeSfx(S_sfx[i]);
 }
 
 static void S_StopChannel(INT32 cnum)
@@ -1238,7 +1238,7 @@ INT32 S_IdPlaying(sfxenum_t id)
 #endif
 
 	for (cnum = 0; cnum < numofchannels; cnum++)
-		if ((size_t)(channels[cnum].sfxinfo - S_sfx) == (size_t)id)
+		if (channels[cnum].sfxinfo == S_sfx[id])
 			return 1;
 	return 0;
 }
@@ -1259,7 +1259,7 @@ INT32 S_SoundPlaying(void *origin, sfxenum_t id)
 	for (cnum = 0; cnum < numofchannels; cnum++)
 	{
 		if (channels[cnum].origin == origin
-		 && (size_t)(channels[cnum].sfxinfo - S_sfx) == (size_t)id)
+		 && channels[cnum].sfxinfo == S_sfx[id])
 			return 1;
 	}
 	return 0;
@@ -1268,18 +1268,17 @@ INT32 S_SoundPlaying(void *origin, sfxenum_t id)
 //
 // S_StartSoundName
 // Starts a sound using the given name.
-#define MAXNEWSOUNDS 10
-static sfxenum_t newsounds[MAXNEWSOUNDS] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 void S_StartSoundName(void *mo, const char *soundname)
 {
-	INT32 i, soundnum = 0;
+	UINT32 i;
+	INT32 soundnum = 0;
 	// Search existing sounds...
-	for (i = sfx_None + 1; i < NUMSFX; i++)
+	for (i = sfx_None + 1; i < S_numsfx; i++)
 	{
-		if (!S_sfx[i].name)
+		if (!S_sfx[i]->name)
 			continue;
-		if (!stricmp(S_sfx[i].name, soundname))
+		if (!stricmp(S_sfx[i]->name, soundname))
 		{
 			soundnum = i;
 			break;
@@ -1288,25 +1287,7 @@ void S_StartSoundName(void *mo, const char *soundname)
 
 	if (!soundnum)
 	{
-		for (i = 0; i < MAXNEWSOUNDS; i++)
-		{
-			if (newsounds[i] == 0)
-				break;
-			if (!S_IdPlaying(newsounds[i]))
-			{
-				S_RemoveSoundFx(newsounds[i]);
-				break;
-			}
-		}
-
-		if (i == MAXNEWSOUNDS)
-		{
-			CONS_Debug(DBG_GAMELOGIC, "Cannot load another extra sound!\n");
-			return;
-		}
-
-		soundnum = S_AddSoundFx(soundname, false, 0, false);
-		newsounds[i] = soundnum;
+		soundnum = S_AddSoundFx(soundname, false, 0);
 	}
 
 	S_StartSound(mo, soundnum);
@@ -1319,7 +1300,7 @@ void S_StartSoundName(void *mo, const char *soundname)
 //
 void S_InitSfxChannels(INT32 sfxVolume)
 {
-	INT32 i;
+	UINT32 i;
 
 	if (dedicated)
 		return;
@@ -1329,10 +1310,10 @@ void S_InitSfxChannels(INT32 sfxVolume)
 	SetChannelsNum();
 
 	// Note that sounds have not been cached (yet).
-	for (i = 1; i < NUMSFX; i++)
+	for (i = 1; i < S_numsfx; i++)
 	{
-		S_sfx[i].usefulness = -1; // for I_GetSfx()
-		S_sfx[i].lumpnum = LUMPERROR;
+		S_sfx[i]->usefulness = -1; // for I_GetSfx()
+		S_sfx[i]->lumpnum = LUMPERROR;
 	}
 
 	// precache sounds if requested by cmdline, or precachesound var true
@@ -1341,9 +1322,9 @@ void S_InitSfxChannels(INT32 sfxVolume)
 		// Initialize external data (all sounds) at start, keep static.
 		CONS_Printf(M_GetText("Loading sounds... "));
 
-		for (i = 1; i < NUMSFX; i++)
-			if (S_sfx[i].name)
-				S_sfx[i].data = I_GetSfx(&S_sfx[i]);
+		for (i = 1; i < S_numsfx; i++)
+			if (S_sfx[i]->name)
+				S_sfx[i]->data = I_GetSfx(S_sfx[i]);
 
 		CONS_Printf(M_GetText(" pre-cached all sound data\n"));
 	}
@@ -2326,7 +2307,7 @@ void S_StopMusic(void)
 
 	if (cv_closedcaptioning.value)
 	{
-		if (closedcaptions[0].s-S_sfx == sfx_None)
+		if (closedcaptions[0].s == S_sfx[sfx_None])
 		{
 			if (gamestate != wipegamestate)
 			{

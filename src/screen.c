@@ -628,7 +628,7 @@ void SCR_ClosedCaptions(void)
 		if (!closedcaptions[i].s)
 			continue;
 
-		music = (closedcaptions[i].s-S_sfx == sfx_None);
+		music = (closedcaptions[i].s == S_sfx[sfx_None]);
 
 		if (music && !gamestopped && (closedcaptions[i].t < flashingtics) && (closedcaptions[i].t & 1))
 			continue;

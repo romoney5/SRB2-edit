@@ -1900,7 +1900,7 @@ static void P_PlaySFX(INT32 sfxnum, mobj_t *mo, sector_t *callsec, INT16 tag, te
 	if (sfxnum == sfx_None)
 		return; // Do nothing!
 
-	if (sfxnum < sfx_None || sfxnum >= NUMSFX)
+	if (sfxnum < sfx_None || (UINT32)sfxnum >= S_numsfx)
 	{
 		CONS_Debug(DBG_GAMELOGIC, "Line type 414 Executor: sfx number %d is invalid!\n", sfxnum);
 		return;

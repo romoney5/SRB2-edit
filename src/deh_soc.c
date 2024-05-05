@@ -444,7 +444,7 @@ void readfreeslots(MYFILE *f)
 			// TODO: Out-of-slots warnings/errors.
 			// TODO: Name too long (truncated) warnings.
 			if (fastcmp(type, "SFX"))
-				S_AddSoundFx(word, false, 0, false);
+				S_AddSoundFx(word, false, 0);
 			else if (fastcmp(type, "SPR"))
 			{
 				if (strlen(word) > MAXSPRITENAME)
@@ -2910,20 +2910,20 @@ void readsound(MYFILE *f, INT32 num)
 
 			if (fastcmp(word, "SINGULAR"))
 			{
-				S_sfx[num].singularity = value;
+				S_sfx[num]->singularity = value;
 			}
 			else if (fastcmp(word, "PRIORITY"))
 			{
-				S_sfx[num].priority = value;
+				S_sfx[num]->priority = value;
 			}
 			else if (fastcmp(word, "FLAGS"))
 			{
-				S_sfx[num].pitch = value;
+				S_sfx[num]->pitch = value;
 			}
 			else if (fastcmp(word, "CAPTION") || fastcmp(word, "DESCRIPTION"))
 			{
-				deh_strlcpy(S_sfx[num].caption, word2,
-					sizeof(S_sfx[num].caption), va("Sound effect %d: caption", num));
+				deh_strlcpy(S_sfx[num]->caption, word2,
+					sizeof(S_sfx[num]->caption), va("Sound effect %d: caption", num));
 			}
 			else
 				deh_warning("Sound %d : unknown word '%s'",num,word);
@@ -4229,8 +4229,8 @@ sfxenum_t get_sfx(const char *word)
 		word += 4; // take off the SFX_
 	else if (fastncmp("DS",word,2))
 		word += 2; // take off the DS
-	for (i = 0; i < NUMSFX; i++)
-		if (S_sfx[i].name && fasticmp(word, S_sfx[i].name))
+	for (i = 0; i < S_numsfx; i++)
+		if (S_sfx[i]->name && fasticmp(word, S_sfx[i]->name))
 			return i;
 	deh_warning("Couldn't find sfx named 'SFX_%s'",word);
 	return sfx_None;

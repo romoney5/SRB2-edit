@@ -7698,7 +7698,7 @@ static void M_PauseLevelSelect(INT32 choice)
 			'\x1D' | V_YELLOWMAP, false);
 	}
 	if (cv_soundtest.value)
-		V_DrawRightAlignedString(BASEVIDWIDTH - currentMenu->x, currentMenu->y + y + 8, V_YELLOWMAP, S_sfx[cv_soundtest.value].name);
+		V_DrawRightAlignedString(BASEVIDWIDTH - currentMenu->x, currentMenu->y + y + 8, V_YELLOWMAP, S_sfx[cv_soundtest.value]->name);
 }*/
 
 static musicdef_t *curplaying = NULL;
@@ -7948,7 +7948,7 @@ static void M_DrawSoundTest(void)
 
 				if (curplaying == soundtestdefs[t])
 				{
-					sfxstr = (cv_soundtest.value) ? S_sfx[cv_soundtest.value].name : "N/A";
+					sfxstr = (cv_soundtest.value) ? S_sfx[cv_soundtest.value]->name : "N/A";
 					i = V_StringWidth(sfxstr, 0);
 					V_DrawFill(165+140-9-i, y-4, i+8, 16, 150);
 					V_DrawRightAlignedString(165+140-5, y, V_YELLOWMAP, sfxstr);

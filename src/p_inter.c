@@ -307,7 +307,7 @@ void P_DoMatchSuper(player_t *player)
 		S_StopMusic();
 		if (mariomode)
 			G_GhostAddColor(GHC_INVINCIBLE);
-		strlcpy(S_sfx[sfx_None].caption, "Invincibility", 14);
+		strlcpy(S_sfx[sfx_None]->caption, "Invincibility", 14);
 		S_StartCaption(sfx_None, -1, player->powers[pw_invulnerability]);
 		S_ChangeMusicInternal((mariomode) ? "_minv" : "_inv", false);
 	}
@@ -330,7 +330,7 @@ void P_DoMatchSuper(player_t *player)
 					S_StopMusic();
 					if (mariomode)
 						G_GhostAddColor(GHC_INVINCIBLE);
-					strlcpy(S_sfx[sfx_None].caption, "Invincibility", 14);
+					strlcpy(S_sfx[sfx_None]->caption, "Invincibility", 14);
 					S_StartCaption(sfx_None, -1, player->powers[pw_invulnerability]);
 					S_ChangeMusicInternal((mariomode) ? "_minv" : "_inv", false);
 				}

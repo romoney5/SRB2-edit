@@ -41,10 +41,6 @@ typedef enum
 	NUMSKINSOUNDS
 } skinsound_t;
 
-// free sfx for S_AddSoundFx()
-#define NUMSFXFREESLOTS 1600 // Matches SOC Editor.
-#define NUMSKINSFXSLOTS (128*NUMSKINSOUNDS)
-
 //
 // SoundFX struct.
 //
@@ -90,7 +86,8 @@ struct sfxinfo_struct
 };
 
 // the complete set of sound effects
-extern sfxinfo_t S_sfx[];
+extern sfxinfo_t **S_sfx;
+extern UINT32 S_numsfx;
 
 //
 // Identifiers for all sfx in game.
@@ -870,24 +867,10 @@ typedef enum
 	sfx_kc6c,
 	sfx_kc6d,
 	sfx_kc6e,
-
-	// free slots for S_AddSoundFx() at run-time --------------------
-	sfx_freeslot0,
-	//
-	// ... 1600 free sounds here ...
-	//
-	sfx_lastfreeslot = sfx_freeslot0 + NUMSFXFREESLOTS-1,
-	// end of freeslots ---------------------------------------------
-
-	sfx_skinsoundslot0,
-	sfx_lastskinsoundslot = sfx_skinsoundslot0 + NUMSKINSFXSLOTS-1,
-	NUMSFX
 } sfxenum_t;
 
-
 void S_InitRuntimeSounds(void);
-sfxenum_t S_AddSoundFx(const char *name, boolean singular, INT32 flags, boolean skinsound);
-extern sfxenum_t sfxfree; // sound test and slotting
-void S_RemoveSoundFx(sfxenum_t id);
+sfxenum_t S_AddSoundFx(const char *name, boolean singular, INT32 flags);
+UINT32 S_GetSoundIndex(sfxinfo_t *sfx);
 
 #endif

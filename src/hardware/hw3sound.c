@@ -168,7 +168,7 @@ void HW3S_StopSoundByID(void *origin, sfxenum_t sfx_id)
 
 	for (snum = 0; snum < num_sources; snum++)
 	{
-		if (sources[snum].sfxinfo == &S_sfx[sfx_id] && sources[snum].origin == origin)
+		if (sources[snum].sfxinfo == S_sfx[sfx_id] && sources[snum].origin == origin)
 		{
 			HW3S_KillSource(snum);
 			break;
@@ -182,7 +182,7 @@ void HW3S_StopSoundByNum(sfxenum_t sfxnum)
 
 	for (snum = 0; snum < num_sources; snum++)
 	{
-		if (sources[snum].sfxinfo == &S_sfx[sfxnum])
+		if (sources[snum].sfxinfo == S_sfx[sfxnum])
 		{
 			HW3S_KillSource(snum);
 			break;
@@ -357,13 +357,13 @@ INT32 HW3S_I_StartSound(const void *origin_p, source3D_data_t *source_parm, chan
 	if (sound_disabled)
 		return -1;
 
-	sfx = &S_sfx[sfx_id];
+	sfx = S_sfx[sfx_id];
 
 	if (sfx->skinsound!=-1 && origin && origin->skin)
 	{
 		// it redirect player sound to the sound in the skin table
 		sfx_id = ((skin_t *)origin->skin)->soundsid[sfx->skinsound];
-		sfx    = &S_sfx[sfx_id];
+		sfx    = S_sfx[sfx_id];
 	}
 
 	if (!sfx->data)
@@ -754,7 +754,7 @@ INT32 HW3S_IdPlaying(sfxenum_t id)
 {
 	INT32         snum;
 	for (snum = 0; snum < num_sources; snum++)
-		if ((size_t)(sources[snum].sfxinfo - S_sfx) == (size_t)id)
+		if (sources[snum].sfxinfo == S_sfx[id])
 			return 1;
 	return 0;
 }
@@ -769,7 +769,7 @@ INT32 HW3S_SoundPlaying(void *origin, sfxenum_t id)
 	for (snum = 0; snum < num_sources; snum++)
 	{
 		if (sources[snum].origin == origin
-		 && (size_t)(sources[snum].sfxinfo - S_sfx) == (size_t)id)
+		 && sources[snum].sfxinfo == S_sfx[id])
 			return 1;
 	}
 	return 0;

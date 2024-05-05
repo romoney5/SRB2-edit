@@ -3386,8 +3386,8 @@ static int lib_sStartSound(lua_State *L)
 	player_t *player = NULL;
 	//NOHUD
 
-	if (sound_id >= NUMSFX)
-		return luaL_error(L, "sfx %d out of range (0 - %d)", sound_id, NUMSFX-1);
+	if (sound_id >= S_numsfx)
+		return luaL_error(L, "sfx %d out of range (0 - %d)", sound_id, S_numsfx-1);
 
 	if (!lua_isnone(L, 3) && lua_isuserdata(L, 3))
 	{
@@ -3416,8 +3416,8 @@ static int lib_sStartSoundAtVolume(lua_State *L)
 	player_t *player = NULL;
 	//NOHUD
 
-	if (sound_id >= NUMSFX)
-		return luaL_error(L, "sfx %d out of range (0 - %d)", sound_id, NUMSFX-1);
+	if (sound_id >= S_numsfx)
+		return luaL_error(L, "sfx %d out of range (0 - %d)", sound_id, S_numsfx-1);
 	if (!lua_isnone(L, 4) && lua_isuserdata(L, 4))
 	{
 		player = *((player_t **)luaL_checkudata(L, 4, META_PLAYER));
@@ -3450,8 +3450,8 @@ static int lib_sStopSoundByID(lua_State *L)
 	sfxenum_t sound_id = luaL_checkinteger(L, 2);
 	//NOHUD
 
-	if (sound_id >= NUMSFX)
-		return luaL_error(L, "sfx %d out of range (0 - %d)", sound_id, NUMSFX-1);
+	if (sound_id >= S_numsfx)
+		return luaL_error(L, "sfx %d out of range (0 - %d)", sound_id, S_numsfx-1);
 	if (!lua_isnil(L, 1))
 		if (!GetValidSoundOrigin(L, &origin))
 			return LUA_ErrInvalid(L, "mobj_t/sector_t");
@@ -3655,8 +3655,8 @@ static int lib_sIdPlaying(lua_State *L)
 {
 	sfxenum_t id = luaL_checkinteger(L, 1);
 	//NOHUD
-	if (id >= NUMSFX)
-		return luaL_error(L, "sfx %d out of range (0 - %d)", id, NUMSFX-1);
+	if (id >= S_numsfx)
+		return luaL_error(L, "sfx %d out of range (0 - %d)", id, S_numsfx-1);
 	lua_pushboolean(L, S_IdPlaying(id));
 	return 1;
 }
@@ -3667,8 +3667,8 @@ static int lib_sSoundPlaying(lua_State *L)
 	sfxenum_t id = luaL_checkinteger(L, 2);
 	//NOHUD
 	INLEVEL
-	if (id >= NUMSFX)
-		return luaL_error(L, "sfx %d out of range (0 - %d)", id, NUMSFX-1);
+	if (id >= S_numsfx)
+		return luaL_error(L, "sfx %d out of range (0 - %d)", id, S_numsfx-1);
 	if (!GetValidSoundOrigin(L, &origin))
 		return LUA_ErrInvalid(L, "mobj_t/sector_t");
 
@@ -3695,7 +3695,7 @@ static int lib_sStartMusicCaption(lua_State *L)
 
 	if (lifespan && (!player || P_IsLocalPlayer(player)))
 	{
-		strlcpy(S_sfx[sfx_None].caption, caption, sizeof(S_sfx[sfx_None].caption));
+		strlcpy(S_sfx[sfx_None]->caption, caption, sizeof(S_sfx[sfx_None]->caption));
 		S_StartCaption(sfx_None, -1, lifespan);
 	}
 	return 0;

@@ -457,11 +457,11 @@ static void DEH_LoadDehackedFile(MYFILE *f, boolean mainfile)
 				{
 					if (i == 0 && word2[0] != '0') // If word2 isn't a number
 						i = get_sfx(word2); // find a sound by name
-					if (i < NUMSFX && i > 0)
+					if ((UINT32)i < S_numsfx && i > 0)
 						readsound(f, i);
 					else
 					{
-						deh_warning("Sound %d out of range (1 - %d)", i, NUMSFX-1);
+						deh_warning("Sound %d out of range (1 - %d)", i, S_numsfx-1);
 						ignorelines(f);
 					}
 				}
