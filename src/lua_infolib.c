@@ -80,16 +80,16 @@ static int lib_getSprname(lua_State *L)
 	if (lua_isnumber(L, 1))
 	{
 		i = lua_tonumber(L, 1);
-		if (i > NUMSPRITES)
+		if (i > numspriteinfo)
 			return 0;
-		lua_pushlstring(L, sprnames[i], 4);
+		lua_pushstring(L, spriteinfo[i]->name);
 		return 1;
 	}
 	else if (lua_isstring(L, 1))
 	{
 		const char *name = lua_tostring(L, 1);
 		i = R_GetSpriteNumByName(name);
-		if (i != NUMSPRITES)
+		if (i != numspriteinfo)
 		{
 			lua_pushinteger(L, i);
 			return 1;
@@ -101,7 +101,7 @@ static int lib_getSprname(lua_State *L)
 /// \todo Maybe make it tally up the used_spr from dehacked?
 static int lib_sprnamelen(lua_State *L)
 {
-	lua_pushinteger(L, NUMSPRITES);
+	lua_pushinteger(L, numspriteinfo);
 	return 1;
 }
 
@@ -239,24 +239,24 @@ static int lib_spr2namelen(lua_State *L)
 // spriteinfo[]
 static int lib_getSpriteInfo(lua_State *L)
 {
-	UINT32 i = NUMSPRITES;
+	UINT32 i = numspriteinfo;
 	lua_remove(L, 1);
 
 	if (lua_type(L, 1) == LUA_TSTRING)
 	{
 		const char *name = lua_tostring(L, 1);
-		INT32 spr = R_GetSpriteNumByName(name);
-		if (spr == NUMSPRITES)
+		UINT32 spr = R_GetSpriteNumByName(name);
+		if (spr == numspriteinfo)
 			return luaL_error(L, "unknown sprite name %s", name);
 		i = spr;
 	}
 	else
 		i = luaL_checkinteger(L, 1);
 
-	if (i == 0 || i >= NUMSPRITES)
-		return luaL_error(L, "spriteinfo[] index %d out of range (1 - %d)", i, NUMSPRITES-1);
+	if (i == 0 || i >= numspriteinfo)
+		return luaL_error(L, "spriteinfo[] index %d out of range (1 - %d)", i, numspriteinfo-1);
 
-	LUA_PushUserdata(L, &spriteinfo[i], META_SPRITEINFO);
+	LUA_PushUserdata(L, spriteinfo[i], META_SPRITEINFO);
 	return 1;
 }
 
@@ -372,9 +372,9 @@ static int lib_setSpriteInfo(lua_State *L)
 	lua_remove(L, 1);
 	{
 		UINT32 i = luaL_checkinteger(L, 1);
-		if (i == 0 || i >= NUMSPRITES)
-			return luaL_error(L, "spriteinfo[] index %d out of range (1 - %d)", i, NUMSPRITES-1);
-		info = &spriteinfo[i]; // get the spriteinfo to assign to.
+		if (i == 0 || i >= numspriteinfo)
+			return luaL_error(L, "spriteinfo[] index %d out of range (1 - %d)", i, numspriteinfo-1);
+		info = spriteinfo[i]; // get the spriteinfo to assign to.
 	}
 	luaL_checktype(L, 2, LUA_TTABLE); // check that we've been passed a table.
 	lua_remove(L, 1); // pop sprite num, don't need it any more.
@@ -409,7 +409,7 @@ static int lib_setSpriteInfo(lua_State *L)
 
 static int lib_spriteinfolen(lua_State *L)
 {
-	lua_pushinteger(L, NUMSPRITES);
+	lua_pushinteger(L, numspriteinfo);
 	return 1;
 }
 
@@ -479,11 +479,9 @@ static int spriteinfo_set(lua_State *L)
 static int spriteinfo_num(lua_State *L)
 {
 	spriteinfo_t *sprinfo = *((spriteinfo_t **)luaL_checkudata(L, 1, META_SPRITEINFO));
-
 	I_Assert(sprinfo != NULL);
-	I_Assert(sprinfo >= spriteinfo);
 
-	lua_pushinteger(L, (UINT32)(sprinfo-spriteinfo));
+	lua_pushinteger(L, P_GetSpriteinfoIndex(sprinfo));
 	return 1;
 }
 
@@ -709,7 +707,7 @@ static int lib_setState(lua_State *L)
 
 		if (i == 1 || (str && fastcmp(str, "sprite"))) {
 			value = luaL_checkinteger(L, 3);
-			if (value < SPR_NULL || value >= NUMSPRITES)
+			if (value < SPR_NULL || (UINT32)value >= numspriteinfo)
 				return luaL_error(L, "sprite number %d is invalid.", value);
 			state->sprite = (spritenum_t)value;
 		} else if (i == 2 || (str && fastcmp(str, "frame"))) {
@@ -951,7 +949,7 @@ static int state_set(lua_State *L)
 
 	if (fastcmp(field,"sprite")) {
 		value = luaL_checknumber(L, 3);
-		if (value < SPR_NULL || value >= NUMSPRITES)
+		if (value < SPR_NULL || (UINT32)value >= numspriteinfo)
 			return luaL_error(L, "sprite number %d is invalid.", value);
 		st->sprite = (spritenum_t)value;
 	} else if (fastcmp(field,"frame"))

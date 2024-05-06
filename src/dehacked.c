@@ -354,11 +354,11 @@ static void DEH_LoadDehackedFile(MYFILE *f, boolean mainfile)
 				{
 					if (i == 0 && word2[0] != '0') // If word2 isn't a number
 						i = get_sprite(word2); // find a sprite by name
-					if (i < NUMSPRITES && i > 0)
+					if ((UINT32)i < numspriteinfo && i > 0)
 						readspriteinfo(f, i, false);
 					else
 					{
-						deh_warning("Sprite number %d out of range (0 - %d)", i, NUMSPRITES-1);
+						deh_warning("Sprite number %d out of range (0 - %d)", i, numspriteinfo-1);
 						ignorelines(f);
 					}
 				}

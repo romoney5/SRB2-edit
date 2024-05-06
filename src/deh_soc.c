@@ -450,17 +450,9 @@ void readfreeslots(MYFILE *f)
 				if (strlen(word) > MAXSPRITENAME)
 					I_Error("Sprite name is longer than %d characters\n", MAXSPRITENAME);
 
-				for (i = SPR_FIRSTFREESLOT; i <= SPR_LASTFREESLOT; i++)
-				{
-					if (in_bit_array(used_spr, i - SPR_FIRSTFREESLOT))
-						continue; // Already allocated, next.
-					// Found a free slot!
-					strcpy(sprnames[i], word);
-					set_bit_array(used_spr, i - SPR_FIRSTFREESLOT); // Okay, this sprite slot has been named now.
-					// Lua needs to update the value in _G if it exists
-					LUA_UpdateSprName(word, i);
-					break;
-				}
+				CONS_Printf("Sprite SPR_%s allocated.\n",word);
+				i = P_AllocateSpriteinfo(word);
+				LUA_UpdateSprName(word, i);
 			}
 			else if (fastcmp(type, "S"))
 			{
@@ -1060,7 +1052,7 @@ void readspriteinfo(MYFILE *f, INT32 num, boolean sprite2)
 					if (sprite2)
 						deh_warning("Sprite2 %s: invalid frame %s", spr2names[num], word2);
 					else
-						deh_warning("Sprite %s: invalid frame %s", sprnames[num], word2);
+						deh_warning("Sprite %s: invalid frame %s", spriteinfo[num]->name, word2);
 					break;
 				}
 
@@ -1082,11 +1074,11 @@ void readspriteinfo(MYFILE *f, INT32 num, boolean sprite2)
 					}
 				}
 				else
-					M_Memcpy(&spriteinfo[num], info, sizeof(spriteinfo_t));
+					M_Memcpy(spriteinfo[num], info, sizeof(spriteinfo_t));
 			}
 			else
 			{
-				//deh_warning("Sprite %s: unknown word '%s'", sprnames[num], word);
+				//deh_warning("Sprite %s: unknown word '%s'", spriteinfo[num]->name, word);
 				f->curpos = lastline;
 				break;
 			}
@@ -4200,7 +4192,7 @@ spritenum_t get_sprite(const char *word)
 	if (fastncmp("SPR_",word,4))
 		word += 4; // take off the SPR_
 	i = R_GetSpriteNumByName(word);
-	if (i != NUMSPRITES)
+	if (i != numspriteinfo)
 		return i;
 	deh_warning("Couldn't find sprite named 'SPR_%s'",word);
 	return SPR_NULL;

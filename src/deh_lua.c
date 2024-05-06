@@ -65,26 +65,13 @@ static inline int lib_freeslot(lua_State *L)
 		else if (fastcmp(type, "SPR"))
 		{
 			spritenum_t j;
-
 			if (strlen(word) > MAXSPRITENAME)
-				return luaL_error(L, "Sprite name is longer than %d characters\n", MAXSPRITENAME);
-
-			for (j = SPR_FIRSTFREESLOT; j <= SPR_LASTFREESLOT; j++)
-			{
-				if (in_bit_array(used_spr, j - SPR_FIRSTFREESLOT))
-					continue; // Already allocated, next.
-				// Found a free slot!
-				CONS_Printf("Sprite SPR_%s allocated.\n",word);
-				strcpy(sprnames[j], word);
-				set_bit_array(used_spr, j - SPR_FIRSTFREESLOT); // Okay, this sprite slot has been named now.
-				// Lua needs to update the value in _G if it exists
-				LUA_UpdateSprName(word, j);
-				lua_pushinteger(L, j);
-				r++;
-				break;
-			}
-			if (j > SPR_LASTFREESLOT)
-				CONS_Alert(CONS_WARNING, "Ran out of free sprite slots!\n");
+				I_Error("Sprite name is longer than %d characters\n", MAXSPRITENAME);
+			CONS_Printf("Sprite SPR_%s allocated.\n",word);
+			j = P_AllocateSpriteinfo(word);
+			LUA_UpdateSprName(word, j);
+			lua_pushinteger(L, j);
+			r++;
 		}
 		else if (fastcmp(type, "S"))
 		{
@@ -427,7 +414,7 @@ static int ScanConstants(lua_State *L, boolean mathlib, const char *word)
 	else if (fastncmp("SPR_",word,4)) {
 		p = word+4;
 		i = R_GetSpriteNumByName(p);
-		if (i != NUMSPRITES)
+		if ((UINT32)i != numspriteinfo)
 		{
 			// updating overridden sprnames is not implemented for soc parser,
 			// so don't use cache

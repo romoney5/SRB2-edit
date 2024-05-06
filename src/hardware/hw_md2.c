@@ -73,7 +73,8 @@
 #include "errno.h"
 #endif
 
-md2_t md2_models[NUMSPRITES];
+static UINT32 md2_nummodels;
+md2_t *md2_models;
 md2_t *md2_playermodels = NULL;
 size_t md2_numplayermodels = 0;
 
@@ -492,7 +493,9 @@ void HWR_InitModels(void)
 {
 	size_t i;
 
-	for (i = 0; i < NUMSPRITES; i++)
+	md2_nummodels = numspriteinfo;
+	md2_models = Z_Malloc(sizeof(*md2_models) * numspriteinfo, PU_STATIC, NULL);
+	for (i = 0; i < numspriteinfo; i++)
 	{
 		md2_models[i].scale = -1.0f;
 		md2_models[i].model = NULL;
@@ -505,6 +508,25 @@ void HWR_InitModels(void)
 
 	if (numsprites && numskins)
 		HWR_LoadModels();
+}
+
+extern void HWR_AllocateMD2Model(void);  // silence warning
+
+void HWR_AllocateMD2Model(void)
+{
+	UINT32 i;
+	md2_models = Z_Realloc(md2_models, sizeof(*md2_models) * numspriteinfo, PU_STATIC, NULL);
+	for (i = md2_nummodels; i < numspriteinfo; i++)
+	{
+		md2_models[i].scale = -1.0f;
+		md2_models[i].model = NULL;
+		md2_models[i].grpatch = NULL;
+		md2_models[i].notexturefile = false;
+		md2_models[i].noblendfile = false;
+		md2_models[i].found = false;
+		md2_models[i].error = false;
+	}
+	md2_nummodels = numspriteinfo;
 }
 
 void HWR_LoadModels(void)
@@ -574,7 +596,7 @@ void HWR_LoadModels(void)
 		// Add sprite models.
 		for (i = 0; i < numsprites; i++)
 		{
-			if (stricmp(name, sprnames[i]) == 0)
+			if (stricmp(name, spriteinfo[i]->name) == 0)
 			{
 				md2_models[i].scale = scale;
 				md2_models[i].offset = offset;
@@ -1550,7 +1572,7 @@ boolean HWR_DrawModel(gl_vissprite_t *spr)
 			return false; // we already failed loading this before :(
 		if (!md2->model)
 		{
-			//CONS_Debug(DBG_RENDER, "Loading model... (%s)", sprnames[spr->mobj->sprite]);
+			//CONS_Debug(DBG_RENDER, "Loading model... (%s)", spriteinfo[spr->mobj->sprite]->name);
 			sprintf(filename, "models/%s", md2->filename);
 			md2->model = md2_readModel(filename);
 

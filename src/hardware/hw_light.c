@@ -132,7 +132,7 @@ light_t lspr[NUMLIGHTS] =
 	{ LIGHT_SPR,      0.0f,   0.0f, 0xe0ffffff,  64.0f, 0xe0ffffff, 384.0f, 0.0f},
 };
 
-light_t *t_lspr[NUMSPRITES] =
+static const light_t *startt_lspr[] =
 {
 	&lspr[NOLIGHT],     // SPR_NULL
 	&lspr[NOLIGHT],     // SPR_UNKN
@@ -224,6 +224,7 @@ light_t *t_lspr[NUMSPRITES] =
 	// Boss 8 (Egg Rock)
 	&lspr[NOLIGHT],     // SPR_EGGT
 
+	// Cy-Brak-Demon; uses "BRAK" as well, but has some extras
 	&lspr[NOLIGHT], //SPR_RCKT
 	&lspr[NOLIGHT], //SPR_ELEC
 	&lspr[NOLIGHT], //SPR_TARG
@@ -303,6 +304,13 @@ light_t *t_lspr[NUMSPRITES] =
 	&lspr[NOLIGHT],     // SPR_AROW
 	&lspr[NOLIGHT],     // SPR_CFIR
 
+	// The letter
+	&lspr[NOLIGHT],     // SPR_LETR
+
+	// Tutorial Scenery
+	&lspr[NOLIGHT],     // SPR_TUPL
+	&lspr[NOLIGHT],     // SPR_TUPF
+
 	// Greenflower Scenery
 	&lspr[NOLIGHT],     // SPR_FWR1
 	&lspr[NOLIGHT],     // SPR_FWR2
@@ -322,16 +330,21 @@ light_t *t_lspr[NUMSPRITES] =
 	// Techno Hill Scenery
 	&lspr[NOLIGHT],     // SPR_THZP
 	&lspr[NOLIGHT],     // SPR_FWR5
+	&lspr[NOLIGHT],     // SPR_FWR6
+	&lspr[NOLIGHT],     // SPR_THZT
 	&lspr[REDBALL_L],   // SPR_ALRM
 
 	// Deep Sea Scenery
 	&lspr[NOLIGHT],     // SPR_GARG
 	&lspr[NOLIGHT],     // SPR_SEWE
 	&lspr[NOLIGHT],     // SPR_DRIP
-	&lspr[NOLIGHT],     // SPR_CRL1
-	&lspr[NOLIGHT],     // SPR_CRL2
-	&lspr[NOLIGHT],     // SPR_CRL3
+	&lspr[NOLIGHT],     // SPR_CORL
 	&lspr[NOLIGHT],     // SPR_BCRY
+	&lspr[NOLIGHT],     // SPR_KELP
+	&lspr[NOLIGHT],     // SPR_ALGA
+	&lspr[NOLIGHT],     // SPR_ALGB
+	&lspr[NOLIGHT],     // SPR_DSTG
+	&lspr[NOLIGHT],     // SPR_LIBE
 
 	// Castle Eggman Scenery
 	&lspr[NOLIGHT],     // SPR_CHAN
@@ -355,6 +368,7 @@ light_t *t_lspr[NUMSPRITES] =
 	&lspr[NOLIGHT],     // SPR_CFLG
 	&lspr[NOLIGHT],     // SPR_CSTA
 	&lspr[NOLIGHT],     // SPR_CBBS
+	&lspr[NOLIGHT],     // SPR_CABR
 
 	// Arid Canyon Scenery
 	&lspr[NOLIGHT],     // SPR_BTBL
@@ -620,135 +634,31 @@ light_t *t_lspr[NUMSPRITES] =
 
 	// LJ Knuckles
 	&lspr[NOLIGHT],		// SPR_OLDK,
-
-	// Free slots
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
-	&lspr[NOLIGHT],
 };
+
+static UINT32 t_numlspr;
+light_t **t_lspr;
+
+extern void HWR_AllocateLSpr(void);  // silence warning
+
+void HWR_AllocateLSpr(void)
+{
+	UINT32 i;
+	if (t_lspr == NULL)
+	{
+		I_Assert(sizeof(startt_lspr) / sizeof(startt_lspr[0]) == numspriteinfo);
+		t_lspr = Z_Malloc(sizeof(*startt_lspr) * numspriteinfo, PU_STATIC, NULL);
+		memcpy(t_lspr, startt_lspr, sizeof(*startt_lspr) * numspriteinfo);
+		t_numlspr = numspriteinfo;
+		return;
+	}
+	t_lspr = Z_Realloc(t_lspr, sizeof(*startt_lspr) * numspriteinfo, PU_STATIC, NULL);
+	for (i = t_numlspr; i < numspriteinfo; i++)
+	{
+		t_lspr[i] = &lspr[NOLIGHT];
+	}
+	t_numlspr = numspriteinfo;
+}
 
 #ifdef ALAM_LIGHTING
 

@@ -511,14 +511,14 @@ static int libd_getSpritePatch(lua_State *L)
 	if (lua_isnumber(L, 1)) // sprite number given, e.g. SPR_THOK
 	{
 		i = lua_tonumber(L, 1);
-		if (i >= NUMSPRITES)
+		if (i >= numspriteinfo)
 			return 0;
 	}
 	else if (lua_isstring(L, 1)) // sprite prefix name given, e.g. "THOK"
 	{
 		const char *name = lua_tostring(L, 1);
 		i = R_GetSpriteNumByName(name);
-		if (i >= NUMSPRITES)
+		if (i >= numspriteinfo)
 			return 0;
 	}
 	else
@@ -555,7 +555,7 @@ static int libd_getSpritePatch(lua_State *L)
 		INT32 rot = R_GetRollAngle(rollangle);
 
 		if (rot) {
-			patch_t *rotsprite = Patch_GetRotatedSprite(sprframe, frame, angle, sprframe->flip & (1<<angle), &spriteinfo[i], rot);
+			patch_t *rotsprite = Patch_GetRotatedSprite(sprframe, frame, angle, sprframe->flip & (1<<angle), spriteinfo[i], rot);
 			LUA_PushUserdata(L, rotsprite, META_PATCH);
 			lua_pushboolean(L, false);
 			lua_pushboolean(L, true);

@@ -4532,7 +4532,7 @@ static void HWR_ProjectSprite(mobj_t *thing)
 			thing->frame = states[S_UNKNOWN]->frame;
 			sprdef = &sprites[thing->sprite];
 #ifdef ROTSPRITE
-			sprinfo = &spriteinfo[thing->sprite];
+			sprinfo = spriteinfo[thing->sprite];
 #endif
 			rot = thing->frame&FF_FRAMEMASK;
 		}
@@ -4541,13 +4541,13 @@ static void HWR_ProjectSprite(mobj_t *thing)
 	{
 		sprdef = &sprites[thing->sprite];
 #ifdef ROTSPRITE
-		sprinfo = &spriteinfo[thing->sprite];
+		sprinfo = spriteinfo[thing->sprite];
 #endif
 
 		if (rot >= sprdef->numframes)
 		{
 			CONS_Alert(CONS_ERROR, M_GetText("HWR_ProjectSprite: invalid sprite frame %s/%s for %s\n"),
-				sizeu1(rot), sizeu2(sprdef->numframes), sprnames[thing->sprite]);
+				sizeu1(rot), sizeu2(sprdef->numframes), spriteinfo[thing->sprite]->name);
 			if (thing->sprite == thing->state->sprite && thing->frame == thing->state->frame)
 			{
 				thing->state->sprite = states[S_UNKNOWN]->sprite;
@@ -4556,7 +4556,7 @@ static void HWR_ProjectSprite(mobj_t *thing)
 			thing->sprite = states[S_UNKNOWN]->sprite;
 			thing->frame = states[S_UNKNOWN]->frame;
 			sprdef = &sprites[thing->sprite];
-			sprinfo = &spriteinfo[thing->sprite];
+			sprinfo = spriteinfo[thing->sprite];
 			rot = thing->frame&FF_FRAMEMASK;
 		}
 
@@ -4899,7 +4899,7 @@ static void HWR_ProjectSprite(mobj_t *thing)
 	vis->gz = gz;
 
 	//CONS_Debug(DBG_RENDER, "------------------\nH: sprite  : %d\nH: frame   : %x\nH: type    : %d\nH: sname   : %s\n\n",
-	//            thing->sprite, thing->frame, thing->type, sprnames[thing->sprite]);
+	//            thing->sprite, thing->frame, thing->type, spriteinfo[thing->sprite]->name);
 
 	vis->vflip = vflip;
 
@@ -4975,7 +4975,7 @@ static void HWR_ProjectPrecipitationSprite(precipmobj_t *thing)
 	if ((size_t)(thing->frame&FF_FRAMEMASK) >= sprdef->numframes)
 #ifdef RANGECHECK
 		I_Error("HWR_ProjectPrecipitationSprite: invalid sprite frame %i : %i for %s",
-		        thing->sprite, thing->frame, sprnames[thing->sprite]);
+		        thing->sprite, thing->frame, spriteinfo[thing->sprite]->name);
 #else
 		return;
 #endif

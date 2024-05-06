@@ -1081,10 +1081,6 @@ typedef enum sprite
 
 	// LJ Knuckles
 	SPR_OLDK,
-
-	SPR_FIRSTFREESLOT,
-	SPR_LASTFREESLOT = SPR_FIRSTFREESLOT + NUMSPRITEFREESLOTS - 1,
-	NUMSPRITES
 } spritenum_t;
 
 typedef enum playersprite
@@ -1181,6 +1177,26 @@ typedef enum playersprite
 	SPR2_LASTFREESLOT = 1024, // Do not make higher than SPR2F_MASK (currently 0x3FF) plus one
 	NUMPLAYERSPRITES
 } playersprite_t;
+
+#define MAXFRAMENUM 256
+
+typedef struct
+{
+	INT32 x, y;
+} spriteframepivot_t;
+
+typedef struct
+{
+	char name[MAXSPRITENAME+1];
+	spriteframepivot_t pivot[MAXFRAMENUM];
+	boolean available;
+} spriteinfo_t;
+
+// PNG support
+#define PNG_HEADER_SIZE 8
+
+extern UINT32 numspriteinfo;
+extern spriteinfo_t **spriteinfo;
 
 enum
 {
@@ -4417,7 +4433,6 @@ typedef struct
 extern state_t **states;
 extern UINT32 numstates;
 
-extern char sprnames[NUMSPRITES + 1][MAXSPRITENAME + 1];
 extern char spr2names[NUMPLAYERSPRITES][MAXSPRITENAME + 1];
 extern playersprite_t spr2defaults[NUMPLAYERSPRITES];
 extern state_t *astate;
@@ -5241,7 +5256,9 @@ extern UINT32 nummobjinfo;
 
 UINT32 P_AllocateMobjinfo(const char *name);
 UINT32 P_AllocateState(const char *name);
+UINT32 P_AllocateSpriteinfo(const char *name);
 UINT32 P_GetMobjinfoIndex(mobjinfo_t *info);
+UINT32 P_GetSpriteinfoIndex(spriteinfo_t *info);
 void P_InitializeTables(void);
 
 void P_PatchInfoTables(void);

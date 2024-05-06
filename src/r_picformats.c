@@ -1571,7 +1571,7 @@ static void R_ParseSpriteInfo(boolean spr2)
 	char *sprinfoToken;
 	size_t sprinfoTokenLength;
 	char newSpriteName[MAXSPRITENAME + 1]; // no longer dynamically allocated
-	spritenum_t sprnum = NUMSPRITES;
+	spritenum_t sprnum = numspriteinfo;
 	playersprite_t spr2num = NUMPLAYERSPRITES;
 	INT32 i;
 	UINT8 *skinnumbers = NULL;
@@ -1593,7 +1593,7 @@ static void R_ParseSpriteInfo(boolean spr2)
 	if (!spr2)
 	{
 		sprnum = R_GetSpriteNumByName(newSpriteName);
-		if (sprnum == NUMSPRITES)
+		if (sprnum == numspriteinfo)
 			I_Error("Error parsing SPRTINFO lump: Unknown sprite name \"%s\"", newSpriteName);
 	}
 	else

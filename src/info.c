@@ -29,7 +29,7 @@
 
 // Hey, moron! If you change this table, don't forget about the sprite enum in info.h and the sprite lights in hw_light.c!
 // For the sake of constant merge conflicts, let's spread this out
-char sprnames[NUMSPRITES + 1][MAXSPRITENAME + 1] =
+static const char sprnames[][MAXSPRITENAME + 1] =
 {
 	"NULL", // invisible object
 	"UNKN",
@@ -532,6 +532,9 @@ char sprnames[NUMSPRITES + 1][MAXSPRITENAME + 1] =
 	// LJ Knuckles
 	"OLDK",
 };
+
+UINT32 numspriteinfo;
+spriteinfo_t **spriteinfo;
 
 char spr2names[NUMPLAYERSPRITES][MAXSPRITENAME + 1] =
 {
@@ -22715,25 +22718,11 @@ skincolor_t skincolors[MAXSKINCOLORS] = {
 void P_PatchInfoTables(void)
 {
 	UINT32 i;
-	char *tempname;
 
 #if NUMSPRITEFREESLOTS > 9999 //tempname numbering actually starts at SPR_FIRSTFREESLOT, so the limit is actually 9999 + SPR_FIRSTFREESLOT-1, but the preprocessor doesn't understand enums, so its left at 9999 for safety
 "Update P_PatchInfoTables, you big dumb head"
 #endif
 
-	// empty out free slots
-	for (i = SPR_FIRSTFREESLOT; i <= SPR_LASTFREESLOT; i++)
-	{
-		tempname = sprnames[i];
-		tempname[0] = (char)('0' + (char)((i-SPR_FIRSTFREESLOT+1)/1000));
-		tempname[1] = (char)('0' + (char)(((i-SPR_FIRSTFREESLOT+1)/100)%10));
-		tempname[2] = (char)('0' + (char)(((i-SPR_FIRSTFREESLOT+1)/10)%10));
-		tempname[3] = (char)('0' + (char)((i-SPR_FIRSTFREESLOT+1)%10));
-		tempname[4] = '\0';
-#ifdef HWRENDER
-		t_lspr[i] = &lspr[NOLIGHT];
-#endif
-	}
 	memset(&skincolors[SKINCOLOR_FIRSTFREESLOT], 0, sizeof (skincolor_t) * NUMCOLORFREESLOTS);
 	for (i = SKINCOLOR_FIRSTFREESLOT; i <= SKINCOLOR_LASTFREESLOT; i++) {
 		skincolors[i].accessible = false;
@@ -22742,9 +22731,8 @@ void P_PatchInfoTables(void)
 }
 
 #ifdef ALLOW_RESETDATA
-static char *sprnamesbackup;
 static skincolor_t *skincolorsbackup;
-static size_t sprnamesbackupsize, skincolorsbackupsize;
+static size_t skincolorsbackupsize;
 #endif
 
 UINT32 P_AllocateMobjinfo(const char *name)
@@ -22767,6 +22755,22 @@ UINT32 P_AllocateState(const char *name)
 	return numstates-1;
 }
 
+void R_ResizeSprites(void);
+extern void HWR_AllocateMD2Model(void);
+extern void HWR_AllocateLSpr(void);
+
+UINT32 P_AllocateSpriteinfo(const char *name)
+{
+	spriteinfo = Z_Realloc(spriteinfo, sizeof(*spriteinfo) * ++numspriteinfo, PU_STATIC, NULL);
+	spriteinfo[numspriteinfo-1] = Z_Malloc(sizeof(spriteinfo_t), PU_STATIC, NULL);
+	memset(spriteinfo[numspriteinfo-1], 0, sizeof(spriteinfo_t));
+	strcpy(spriteinfo[numspriteinfo-1]->name, name);
+	R_ResizeSprites();
+	HWR_AllocateMD2Model();
+	HWR_AllocateLSpr();
+	return numspriteinfo-1;
+}
+
 UINT32 P_GetMobjinfoIndex(mobjinfo_t *info)
 {
 	UINT32 i;
@@ -22776,6 +22780,17 @@ UINT32 P_GetMobjinfoIndex(mobjinfo_t *info)
 			return i;
 	}
 	I_Error("Tried to get index of an invalid mobjinfo_t!");
+}
+
+UINT32 P_GetSpriteinfoIndex(spriteinfo_t *info)
+{
+	UINT32 i;
+	for (i = 0; i < numspriteinfo; i++)
+	{
+		if (spriteinfo[i] == info)
+			return i;
+	}
+	I_Error("Tried to get index of an invalid spriteinfo_t!");
 }
 
 void P_InitializeTables(void)
@@ -22797,21 +22812,24 @@ void P_InitializeTables(void)
 		memcpy(states[i], &startstates[i], sizeof(state_t));
 		states[i]->num = i;
 	}
+
+	numspriteinfo = sizeof(sprnames) / sizeof(sprnames[0]);
+	spriteinfo = Z_Malloc(sizeof(*spriteinfo) * numspriteinfo, PU_STATIC, NULL);
+	for (i = 0; i < numspriteinfo; i++)
+	{
+		spriteinfo[i] = Z_Malloc(sizeof(spriteinfo_t), PU_STATIC, NULL);
+		memset(spriteinfo[i], 0, sizeof(spriteinfo_t));
+		strcpy(spriteinfo[i]->name, sprnames[i]);
+	}
+	HWR_AllocateMD2Model();
+	HWR_AllocateLSpr();
 }
 
 void P_BackupTables(void)
 {
 #ifdef ALLOW_RESETDATA
 	// Allocate buffers in size equal to that of the uncompressed data to begin with
-	sprnamesbackup = Z_Malloc(sizeof(sprnames), PU_STATIC, NULL);
 	skincolorsbackup = Z_Malloc(sizeof(skincolors), PU_STATIC, NULL);
-
-	// Sprite names
-	sprnamesbackupsize = lzf_compress(sprnames, sizeof(sprnames), sprnamesbackup, sizeof(sprnames));
-	if (sprnamesbackupsize > 0)
-		sprnamesbackup = Z_Realloc(sprnamesbackup, sprnamesbackupsize, PU_STATIC, NULL);
-	else
-		M_Memcpy(sprnamesbackup, sprnames, sizeof(sprnames));
 
 	//Skincolor info
 	skincolorsbackupsize = lzf_compress(skincolors, sizeof(skincolors), skincolorsbackup, sizeof(skincolors));
@@ -22831,10 +22849,11 @@ void P_ResetData(INT32 flags)
 	UINT32 i;
 	if (flags & 1)
 	{
-		if (sprnamesbackupsize > 0)
-			lzf_decompress(sprnamesbackup, sprnamesbackupsize, sprnames, sizeof(sprnames));
-		else
-			M_Memcpy(sprnames, sprnamesbackup, sizeof(sprnamesbackup));
+		for (i = 0; i < sizeof(sprnames) / sizeof(sprnames[0]); i++)
+		{
+			memset(spriteinfo[numspriteinfo-1], 0, sizeof(spriteinfo_t));
+			strcpy(spriteinfo[i]->name, sprnames[i]);
+		}
 	}
 
 	if (flags & 2)

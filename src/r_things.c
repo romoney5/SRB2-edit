@@ -67,8 +67,6 @@ static lighttable_t **spritelights;
 INT16 negonearray[MAXVIDWIDTH];
 INT16 screenheightarray[MAXVIDWIDTH];
 
-spriteinfo_t spriteinfo[NUMSPRITES];
-
 //
 // INITIALIZATION FUNCTIONS
 //
@@ -118,10 +116,10 @@ static INT32 drawsegs_xrange_count = 0;
 
 spritenum_t R_GetSpriteNumByName(const char *name)
 {
-	for (spritenum_t i = 0; i < NUMSPRITES; i++)
-		if (!strcmp(name, sprnames[i]))
+	for (spritenum_t i = 0; i < numspriteinfo; i++)
+		if (!strcmp(name, spriteinfo[i]->name))
 			return i;
-	return NUMSPRITES;
+	return numspriteinfo;
 }
 
 //
@@ -643,12 +641,12 @@ static void AddShortSpriteDefs(UINT16 wadnum, size_t *ptr_spritesadded, size_t *
 	//
 	for (i = 0; i < numsprites; i++)
 	{
-		if (R_AddSingleSpriteDef(sprnames[i], &sprites[i], wadnum, start, end, false))
+		if (R_AddSingleSpriteDef(spriteinfo[i]->name, &sprites[i], wadnum, start, end, false))
 		{
 			// if a new sprite was added (not just replaced)
 			(*ptr_spritesadded)++;
 #ifndef ZDEBUG
-			CONS_Debug(DBG_SETUP, "sprite %s set in pwad %d\n", sprnames[i], wadnum);
+			CONS_Debug(DBG_SETUP, "sprite %s set in pwad %d\n", spriteinfo[i]->name, wadnum);
 #endif
 		}
 	}
@@ -688,7 +686,7 @@ static void AddLongSpriteDefs(UINT16 wadnum, size_t *ptr_spritesadded, size_t *p
 		strupr(sprname);
 		sprnum = R_GetSpriteNumByName(sprname);
 
-		if (sprnum != NUMSPRITES && R_AddSingleSpriteDef(sprname, &sprites[sprnum], wadnum, folderstart, folderend, true))
+		if (sprnum != numspriteinfo && R_AddSingleSpriteDef(sprname, &sprites[sprnum], wadnum, folderstart, folderend, true))
 		{
 			// A new sprite was added (not just replaced)
 			(*ptr_spritesadded)++;
@@ -732,6 +730,15 @@ UINT32 visspritecount, numvisiblesprites;
 static UINT32 clippedvissprites;
 static vissprite_t *visspritechunks[MAXVISSPRITES >> VISSPRITECHUNKBITS] = {NULL};
 
+extern void R_ResizeSprites(void);  // silence warnings
+
+void R_ResizeSprites(void)
+{
+	sprites = Z_Realloc(sprites, numspriteinfo * sizeof(*sprites), PU_STATIC, NULL);
+	memset(&sprites[numsprites], 0, (numspriteinfo - numsprites) * sizeof(*sprites));
+	numsprites = numspriteinfo;
+}
+
 //
 // R_InitSprites
 // Called at program start.
@@ -759,14 +766,7 @@ void R_InitSprites(void)
 	//
 	// count the number of sprite names, and allocate sprites table
 	//
-	numsprites = 0;
-	for (i = 0; i < NUMSPRITES + 1; i++)
-		if (sprnames[i][0] != '\0') numsprites++;
-
-	if (!numsprites)
-		I_Error("R_AddSpriteDefs: no sprites in namelist\n");
-
-	sprites = Z_Calloc(numsprites * sizeof (*sprites), PU_STATIC, NULL);
+	R_ResizeSprites();
 
 	// find sprites in each -file added pwad
 	for (i = 0; i < numwadfiles; i++)
@@ -1841,7 +1841,7 @@ static void R_ProjectSprite(mobj_t *thing)
 			thing->frame = states[S_UNKNOWN]->frame;
 			sprdef = &sprites[thing->sprite];
 #ifdef ROTSPRITE
-			sprinfo = &spriteinfo[thing->sprite];
+			sprinfo = spriteinfo[thing->sprite];
 #endif
 			frame = thing->frame&FF_FRAMEMASK;
 		}
@@ -1850,13 +1850,13 @@ static void R_ProjectSprite(mobj_t *thing)
 	{
 		sprdef = &sprites[thing->sprite];
 #ifdef ROTSPRITE
-		sprinfo = &spriteinfo[thing->sprite];
+		sprinfo = spriteinfo[thing->sprite];
 #endif
 
 		if (frame >= sprdef->numframes)
 		{
 			CONS_Alert(CONS_ERROR, M_GetText("R_ProjectSprite: invalid sprite frame %s/%s for %s\n"),
-				sizeu1(frame), sizeu2(sprdef->numframes), sprnames[thing->sprite]);
+				sizeu1(frame), sizeu2(sprdef->numframes), spriteinfo[thing->sprite]->name);
 			if (thing->sprite == thing->state->sprite && thing->frame == thing->state->frame)
 			{
 				thing->state->sprite = states[S_UNKNOWN]->sprite;
@@ -1865,7 +1865,7 @@ static void R_ProjectSprite(mobj_t *thing)
 			thing->sprite = states[S_UNKNOWN]->sprite;
 			thing->frame = states[S_UNKNOWN]->frame;
 			sprdef = &sprites[thing->sprite];
-			sprinfo = &spriteinfo[thing->sprite];
+			sprinfo = spriteinfo[thing->sprite];
 			frame = thing->frame&FF_FRAMEMASK;
 		}
 	}
@@ -2559,7 +2559,7 @@ static void R_ProjectPrecipitationSprite(precipmobj_t *thing)
 #ifdef RANGECHECK
 	if ((UINT8)(thing->frame&FF_FRAMEMASK) >= sprdef->numframes)
 		I_Error("R_ProjectPrecipitationSprite: invalid sprite frame %d : %d for %s",
-			thing->sprite, thing->frame, sprnames[thing->sprite]);
+			thing->sprite, thing->frame, spriteinfo[thing->sprite]->name);
 #endif
 
 	sprframe = &sprdef->spriteframes[thing->frame & FF_FRAMEMASK];

@@ -93,17 +93,6 @@ typedef enum
 	ROTAXIS_Z  // Yaw
 } rotaxis_t;
 
-typedef struct
-{
-	INT32 x, y;
-} spriteframepivot_t;
-
-typedef struct
-{
-	spriteframepivot_t pivot[MAXFRAMENUM];
-	boolean available;
-} spriteinfo_t;
-
 // PNG support
 #define PNG_HEADER_SIZE 8
 
@@ -122,7 +111,6 @@ boolean Picture_PNGDimensions(UINT8 *png, INT32 *width, INT32 *height, INT16 *to
 #endif
 
 // SpriteInfo
-extern spriteinfo_t spriteinfo[NUMSPRITES];
 void R_LoadSpriteInfoLumps(UINT16 wadnum, UINT16 numlumps);
 void R_ParseSPRTINFOLump(UINT16 wadNum, UINT16 lumpNum);
 
