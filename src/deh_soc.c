@@ -1069,7 +1069,10 @@ void readspriteinfo(MYFILE *f, INT32 num, boolean sprite2)
 					}
 				}
 				else
+				{
+					info->name = spriteinfo[num]->name;
 					M_Memcpy(spriteinfo[num], info, sizeof(spriteinfo_t));
+				}
 			}
 			else
 			{

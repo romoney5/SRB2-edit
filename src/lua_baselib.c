@@ -3225,8 +3225,8 @@ static int lib_pIsStateSprite2Super(lua_State *L)
 // Not a real function. Who cares? I know I don't.
 static int lib_pGetSuperSprite2(lua_State *L)
 {
-	int animID = luaL_checkinteger(L, 1) & SPR2F_MASK;
-	if (animID < 0 || animID >= numplayersprites)
+	UINT32 animID = luaL_checkinteger(L, 1) & SPR2F_MASK;
+	if (animID >= numplayersprites)
 		return luaL_error(L, "sprite2 %d out of range (0 - %d)", animID, numplayersprites-1);
 
 	lua_pushinteger(L, animID | SPR2F_SUPER);

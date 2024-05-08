@@ -609,10 +609,10 @@ static void R_LoadSkinSprites(UINT16 wadnum, UINT16 *lump, UINT16 *lastlump, ski
 
 	skin->sprites = Z_Realloc(skin->sprites, sizeof(*skin->sprites) * numplayersprites, PU_STATIC, NULL);
 	skin->sprinfo = Z_Realloc(skin->sprinfo, sizeof(*skin->sprinfo) * numplayersprites, PU_STATIC, NULL);
-	memset(&skin->sprinfo[skin->numsprites], 0, sizeof(*skin->sprinfo) * (numplayersprites < skin->numsprites));
+	memset(&skin->sprinfo[skin->numsprites], 0, sizeof(*skin->sprinfo) * (numplayersprites - skin->numsprites));
 	skin->super.sprites = Z_Realloc(skin->super.sprites, sizeof(*skin->super.sprites) * numplayersprites, PU_STATIC, NULL);
 	skin->super.sprinfo = Z_Realloc(skin->super.sprinfo, sizeof(*skin->super.sprinfo) * numplayersprites, PU_STATIC, NULL);
-	memset(&skin->super.sprinfo[skin->numsprites], 0, sizeof(*skin->super.sprinfo) * (numplayersprites < skin->numsprites));
+	memset(&skin->super.sprinfo[skin->numsprites], 0, sizeof(*skin->super.sprinfo) * (numplayersprites - skin->numsprites));
 	skin->numsprites = numplayersprites;
 
 	*lump += 1; // start after S_SKIN

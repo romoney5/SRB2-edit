@@ -1197,7 +1197,7 @@ static boolean HWR_CanInterpolateSprite2(modelspr2frames_t *spr2frame)
 	return spr2frame->interpolate;
 }
 
-static modelspr2frames_t *HWR_GetModelSprite2Frames(md2_t *md2, UINT16 spr2)
+static modelspr2frames_t *HWR_GetModelSprite2Frames(md2_t *md2, UINT32 spr2)
 {
 	if (!md2 || !md2->model)
 		return NULL;
@@ -1222,9 +1222,9 @@ static modelspr2frames_t *HWR_GetModelSprite2Frames(md2_t *md2, UINT16 spr2)
 	return NULL;
 }
 
-static UINT16 HWR_GetModelSprite2Num(md2_t *md2, skin_t *skin, UINT16 spr2, player_t *player)
+static UINT16 HWR_GetModelSprite2Num(md2_t *md2, skin_t *skin, UINT32 spr2, player_t *player)
 {
-	UINT16 super = 0;
+	UINT32 super = 0;
 	UINT8 i = 0;
 
 	if (!md2 || !md2->model || !skin)

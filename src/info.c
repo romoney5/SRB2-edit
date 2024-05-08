@@ -22670,8 +22670,10 @@ UINT32 P_AllocateState(const char *name)
 }
 
 void R_ResizeSprites(void);
+#ifndef NOHW
 extern void HWR_AllocateMD2Model(void);
 extern void HWR_AllocateLSpr(void);
+#endif
 
 UINT32 P_AllocateSpriteinfo(const char *name)
 {
@@ -22680,8 +22682,10 @@ UINT32 P_AllocateSpriteinfo(const char *name)
 	memset(spriteinfo[numspriteinfo-1], 0, sizeof(spriteinfo_t));
 	spriteinfo[numspriteinfo-1]->name = name;
 	R_ResizeSprites();
+#ifndef NOHW
 	HWR_AllocateMD2Model();
 	HWR_AllocateLSpr();
+#endif
 	return numspriteinfo-1;
 }
 
@@ -22744,8 +22748,10 @@ void P_InitializeTables(void)
 		memset(spriteinfo[i], 0, sizeof(spriteinfo_t));
 		spriteinfo[i]->name = sprnames[i];
 	}
+#ifndef NOHW
 	HWR_AllocateMD2Model();
 	HWR_AllocateLSpr();
+#endif
 
 	numplayersprites = sizeof(startplayersprites) / sizeof(startplayersprites[0]);
 	playersprites = Z_Malloc(sizeof(*playersprites) * numplayersprites, PU_STATIC, NULL);
