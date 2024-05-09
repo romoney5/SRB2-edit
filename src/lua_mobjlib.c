@@ -569,8 +569,13 @@ static int mobj_set(lua_State *L)
 		mo->frame = (UINT32)luaL_checkinteger(L, 3);
 		break;
 	case mobj_sprite2:
-		mo->sprite2 = P_GetSkinSprite2(((skin_t *)mo->skin), (UINT16)luaL_checkinteger(L, 3), mo->player);
+	{
+		UINT32 spr2 = luaL_checkinteger(L, 3);
+		if ((spr2 & SPR2F_MASK) >= numplayersprites)
+			return luaL_error(L, "sprite2 %d out of range (0 - %d)", spr2, numplayersprites-1);
+		mo->sprite2 = P_GetSkinSprite2(((skin_t *)mo->skin), spr2, mo->player);
 		break;
+	}
 	case mobj_anim_duration:
 		mo->anim_duration = (UINT16)luaL_checkinteger(L, 3);
 		break;

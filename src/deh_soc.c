@@ -462,7 +462,7 @@ void readfreeslots(MYFILE *f)
 			else if (fastcmp(type, "MT"))
 			{
 				CONS_Printf("MobjType MT_%s allocated.\n",word);
-				P_AllocateMobjinfo(Z_StrDup(va("MT_%s", word)));
+				P_AllocateMobjinfo(Z_StrDup(word));
 			}
 			else if (fastcmp(type, "SKINCOLOR"))
 			{
@@ -4136,7 +4136,8 @@ mobjtype_t get_mobjtype(const char *word)
 	UINT32 i;
 	if (*word >= '0' && *word <= '9')
 		return atoi(word);
-	I_Assert(fastncmp("MT_",word,3));
+	if (fastncmp("MT_",word,3))
+		word += 3; // take off the MT_
 	for (i = 0; i < nummobjinfo; i++)
 	{
 		if (fastcmp(word, mobjinfo[i]->name))

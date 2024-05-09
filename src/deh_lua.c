@@ -80,7 +80,7 @@ static inline int lib_freeslot(lua_State *L)
 		else if (fastcmp(type, "MT"))
 		{
 			CONS_Printf("MobjType MT_%s allocated.\n",word);
-			lua_pushinteger(L, P_AllocateMobjinfo(Z_StrDup(va("MT_%s", word))));
+			lua_pushinteger(L, P_AllocateMobjinfo(Z_StrDup(word)));
 			r++;
 		}
 		else if (fastcmp(type, "SKINCOLOR"))
@@ -393,9 +393,10 @@ static int ScanConstants(lua_State *L, boolean mathlib, const char *word)
 		return luaL_error(L, "state '%s' does not exist.\n", word);
 	}
 	else if (fastncmp("MT_",word,3)) {
+		p = word+3;
 		for (i = 0; (UINT32)i < nummobjinfo; i++)
 		{
-			if (fastcmp(word, mobjinfo[i]->name))
+			if (fastcmp(p, mobjinfo[i]->name))
 			{
 				CacheAndPushConstant(L, word, i);
 				return 1;
