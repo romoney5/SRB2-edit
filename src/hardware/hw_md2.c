@@ -495,15 +495,10 @@ void HWR_InitModels(void)
 
 	md2_nummodels = numspriteinfo;
 	md2_models = Z_Malloc(sizeof(*md2_models) * numspriteinfo, PU_STATIC, NULL);
+	memset(md2_models, 0, sizeof(*md2_models) * numspriteinfo);
 	for (i = 0; i < numspriteinfo; i++)
 	{
 		md2_models[i].scale = -1.0f;
-		md2_models[i].model = NULL;
-		md2_models[i].grpatch = NULL;
-		md2_models[i].notexturefile = false;
-		md2_models[i].noblendfile = false;
-		md2_models[i].found = false;
-		md2_models[i].error = false;
 	}
 
 	if (numsprites && numskins)
@@ -516,15 +511,10 @@ void HWR_AllocateMD2Model(void)
 {
 	UINT32 i;
 	md2_models = Z_Realloc(md2_models, sizeof(*md2_models) * numspriteinfo, PU_STATIC, NULL);
+	memset(&md2_models[md2_nummodels], 0, sizeof(*md2_models) * (numspriteinfo - md2_nummodels));
 	for (i = md2_nummodels; i < numspriteinfo; i++)
 	{
 		md2_models[i].scale = -1.0f;
-		md2_models[i].model = NULL;
-		md2_models[i].grpatch = NULL;
-		md2_models[i].notexturefile = false;
-		md2_models[i].noblendfile = false;
-		md2_models[i].found = false;
-		md2_models[i].error = false;
 	}
 	md2_nummodels = numspriteinfo;
 }
