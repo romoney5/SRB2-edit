@@ -452,9 +452,9 @@ typedef struct precipmobj_s
 	angle_t old_angle, old_pitch, old_roll; // orientation interpolation
 	angle_t old_angle2, old_pitch2, old_roll2;
 	angle_t spriteroll, old_spriteroll, old_spriteroll2;
-	spritenum_t sprite; // used to find patch_t and flip value
+	UINT32 sprite; // used to find patch_t and flip value
 	UINT32 frame; // frame number, plus bits see p_pspr.h
-	UINT16 sprite2; // player sprites
+	UINT32 sprite2; // player sprites
 	UINT16 anim_duration; // for FF_ANIMATE states
 
 	UINT32 renderflags; // render flags
