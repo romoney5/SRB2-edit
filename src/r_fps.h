@@ -69,6 +69,8 @@ typedef struct {
 	fixed_t spriteyscale;
 	fixed_t spritexoffset;
 	fixed_t spriteyoffset;
+	fixed_t spritexpivot;
+	fixed_t spriteypivot;
 	boolean flipped;
 } interpmobjstate_t;
 

@@ -448,13 +448,29 @@ void *Picture_FlatConvert(
 		for (x = 0; x < inwidth; x++)
 		{
 			void *input = NULL;
-			size_t offs = ((y * inwidth) + x);
+			INT32 in_y = y;
+			size_t offs = ((y * inwidth) + x), in_offs;
 
+			if (flags & (PICFLAGS_XFLIP | PICFLAGS_YFLIP))
+			{
+				if (flags & PICFLAGS_YFLIP)
+					in_y = (inheight - in_y) - 1;
+
+				in_offs = in_y * inwidth;
+
+				if (flags & PICFLAGS_XFLIP)
+					in_offs += (inwidth - x) - 1;
+				else
+					in_offs += x;
+			}
+			else
+				in_offs = offs;
+			
 			// Read pixel
 			if (Picture_IsPatchFormat(informat))
-				input = Picture_GetPatchPixel(inpatch, informat, x, y, flags);
+				input = Picture_GetPatchPixel(inpatch, informat, x, in_y, flags);
 			else if (Picture_IsFlatFormat(informat))
-				input = (UINT8 *)picture + (offs * (inbpp / 8));
+				input = (UINT8 *)picture + (in_offs * (inbpp / 8));
 			else
 				I_Error("Picture_FlatConvert: unsupported input format!");
 
@@ -693,7 +709,7 @@ boolean Picture_IsFlatFormat(pictureformat_t format)
 }
 
 /** Returns true if the lump is a valid Doom patch.
-  * PICFMT_DOOMPATCH only.
+  * PICFMT_DOOMPATCH only. Taken from PrBoom (which took this from ZDoom)
   *
   * \param patch Input patch.
   * \param picture Input patch size.
@@ -822,18 +838,16 @@ boolean Picture_IsLumpPNG(const UINT8 *d, size_t s)
 {
 	if (s < 67) // http://garethrees.org/2007/11/14/pngcrush/
 		return false;
+	
 	// Check for PNG file signature using memcmp
 	// As it may be faster on CPUs with slow unaligned memory access
 	// Ref: http://www.libpng.org/pub/png/spec/1.2/PNG-Rationale.html#R.PNG-file-signature
-	return (memcmp(&d[0], "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a", 8) == 0);
+	return !memcmp(d, "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a", 8);
 }
 
 #ifndef NO_PNG_LUMPS
 #ifdef HAVE_PNG
 
-/*#if PNG_LIBPNG_VER_DLLNUM < 14
-typedef PNG_CONST png_byte *png_const_bytep;
-#endif*/
 typedef struct
 {
 	const UINT8 *buffer;
