@@ -93,11 +93,6 @@ static aatree_node_t *M_AATreeRebalance(aatree_node_t *node)
 			node->left = M_AATreeRotateLeft(node->left);
 			return M_AATreeRotateRight(node);
 		}
-
-		if (node->left->left && !node->left->right)
-		{
-			return M_AATreeRotateRight(node);
-		}
 	}
 
 	return node;
@@ -108,6 +103,7 @@ static aatree_node_t *M_AATreeSet_Node(aatree_node_t *node, UINT32 flags, INT32 
 	if (!node)
 	{
 		// Nothing here, so just add where we are
+
 		node = Z_Malloc(sizeof (aatree_node_t), PU_STATIC, NULL);
 		node->key = key;
 		if (value && (flags & AATREE_ZUSER)) Z_SetUser(value, &node->value);
@@ -126,7 +122,7 @@ static aatree_node_t *M_AATreeSet_Node(aatree_node_t *node, UINT32 flags, INT32 
 			else node->value = value;
 		}
 
-		node = M_AATreeRebalance(node);
+        node = M_AATreeRebalance(node);
 	}
 
 	return node;
@@ -158,6 +154,7 @@ void *M_AATreeGet(aatree_t *aatree, INT32 key)
 {
 	return M_AATreeGet_Node(aatree->root, key);
 }
+
 
 static void M_AATreeIterate_Node(aatree_node_t *node, aatree_iter_t callback)
 {
