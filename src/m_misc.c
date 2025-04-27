@@ -45,6 +45,8 @@
 #include "command.h" // cv_execversion
 
 #include "m_anigif.h"
+#include "m_avrecorder.h"
+//#include "m_avrecorder.hpp"
 
 // So that the screenshot menu auto-updates...
 #include "m_menu.h"
@@ -1196,6 +1198,25 @@ static inline moviemode_t M_StartMovieGIF(const char *pathname)
 }
 #endif
 
+static inline moviemode_t M_StartMovieAVRecorder(const char *pathname)
+{
+	const char *ext = M_AVRecorder_GetFileExtension();
+	const char *freename;
+
+	if (!(freename = Newsnapshotfile(pathname, ext)))
+	{
+		CONS_Alert(CONS_ERROR, "Couldn't create %s file: no slots open in %s\n", ext, pathname);
+		return MM_OFF;
+	}
+
+	if (!M_AVRecorder_Open(va(pandf,pathname,freename)))
+	{
+		return MM_OFF;
+	}
+
+	return MM_AVRECORDER;
+}
+
 void M_StartMovie(void)
 {
 #if NUMSCREENS > 2
@@ -1215,7 +1236,9 @@ void M_StartMovie(void)
 
 	if (cv_movie_option.value != 3)
 	{
-		strcat(pathname, PATHSEP"movies"PATHSEP);
+        const char *foldername = cv_moviemode.value == MM_GIF ? "movies" : "videos";
+		//strcat(pathname, PATHSEP "movies" PATHSEP);
+        sprintf(pathname, "%s" PATHSEP "media" PATHSEP "%s" PATHSEP, srb2home, foldername);
 		I_mkdir(pathname, 0755);
 	}
 
@@ -1233,6 +1256,9 @@ void M_StartMovie(void)
 		case MM_SCREENSHOT:
 			moviemode = MM_SCREENSHOT;
 			break;
+        case MM_AVRECORDER:
+            moviemode = M_StartMovieAVRecorder(pathname);
+            break;
 		default: //???
 			return;
 	}
@@ -1243,7 +1269,12 @@ void M_StartMovie(void)
 		CONS_Printf(M_GetText("Movie mode enabled (%s).\n"), "GIF");
 	else if (moviemode == MM_SCREENSHOT)
 		CONS_Printf(M_GetText("Movie mode enabled (%s).\n"), "screenshots");
-
+    else if (moviemode == MM_AVRECORDER)
+    {
+        CONS_Printf(M_GetText("Movie mode enabled (%s).\n"), M_AVRecorder_GetCurrentFormat());
+        M_AVRecorder_PrintCurrentConfiguration();
+    }
+    
 	//singletics = (moviemode != MM_OFF);
 #endif
 }
