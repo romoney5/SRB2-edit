@@ -65,10 +65,6 @@ void I_StartupSound(void);
 */
 void I_ShutdownSound(void);
 
-/** \brief Update instance of AVRecorder for audio capture.
-*/
-void I_UpdateAudioRecorder(void);
-
 /// ------------------------
 ///  SFX I/O
 /// ------------------------

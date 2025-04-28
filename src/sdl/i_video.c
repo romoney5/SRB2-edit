@@ -85,7 +85,6 @@
 #include "hwsym_sdl.h"
 #include "ogl_sdl.h"
 #endif
-#include "../m_avrecorder.h"
 
 // maximum number of windowed modes (see windowedModes[][])
 #define MAXWINMODES (21)
@@ -1128,10 +1127,6 @@ void I_GetEvent(void)
 		event_t event;
 		int wwidth, wheight;
 		SDL_GetWindowSize(window, &wwidth, &wheight);
-        // Okay
-        vid.realwidth = (uint32_t)(wwidth);
-        vid.realheight = (uint32_t)(wheight);    
-
 		//SDL_memset(&event, 0, sizeof(event_t));
 		event.type = ev_mouse;
 		event.key = 0;
@@ -1281,8 +1276,6 @@ void I_FinishUpdate(void)
 
 	if (cv_showping.value && netgame && consoleplayer != serverplayer)
 		SCR_DisplayLocalPing();
-
-    M_AVRecorder_DrawFrameRate();
 
 	if (rendermode == render_soft && screens[0])
 	{

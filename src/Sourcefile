@@ -27,7 +27,6 @@ m_easing.c
 m_fixed.c
 m_menu.c
 m_misc.c
-m_avrecorder.cpp
 m_perfstats.c
 m_random.c
 m_tokenizer.c

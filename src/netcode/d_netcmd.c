@@ -53,7 +53,6 @@
 #include "../m_perfstats.h"
 #include "../u_list.h"
 #include "../lua_custombuild.h"
-#include "../m_avrecorder.h"
 
 #ifdef NETGAME_DEVMODE
 #define CV_RESTRICT CV_NETVAR
@@ -706,8 +705,6 @@ void D_RegisterClientCommands(void)
 	COM_AddCommand("screenshot", M_ScreenShot, COM_LUA);
 	COM_AddCommand("startmovie", Command_StartMovie_f, COM_LUA);
 	COM_AddCommand("stopmovie", Command_StopMovie_f, COM_LUA);
-
-    M_AVRecorder_AddCommands();
 
 	CV_RegisterVar(&cv_screenshot_option);
 	CV_RegisterVar(&cv_screenshot_folder);
