@@ -3021,6 +3021,9 @@ static void HWR_SplitSprite(gl_vissprite_t *spr)
 	fixed_t temp;
 	fixed_t v1x, v1y, v2x, v2y;
 
+    const boolean splat = R_ThingIsFloorSprite(spr->mobj);
+    const boolean papersprite = (R_ThingIsPaperSprite(spr->mobj) && !splat);
+
 	gpatch = spr->gpatch;
 
 	// cache the patch in the graphics card memory
@@ -3068,14 +3071,17 @@ static void HWR_SplitSprite(gl_vissprite_t *spr)
 	HWR_RotateSpritePolyToAim(spr, baseWallVerts, false);
 
 	// push it toward the camera to mitigate floor-clipping sprites
-	float sprdist = sqrtf((spr->x1 - gl_viewx)*(spr->x1 - gl_viewx) + (spr->z1 - gl_viewy)*(spr->z1 - gl_viewy) + (spr->gzt - gl_viewz)*(spr->gzt - gl_viewz));
-	float distfact = ((2.0f*spr->dispoffset) + 20.0f) / sprdist;
-	for (i = 0; i < 4; i++)
-	{
-		baseWallVerts[i].x += (gl_viewx - baseWallVerts[i].x)*distfact;
-		baseWallVerts[i].z += (gl_viewy - baseWallVerts[i].z)*distfact;
-		baseWallVerts[i].y += (gl_viewz - baseWallVerts[i].y)*distfact;
-	}
+    if (!splat && !papersprite)
+    {
+        float sprdist = sqrtf((spr->x1 - gl_viewx)*(spr->x1 - gl_viewx) + (spr->z1 - gl_viewy)*(spr->z1 - gl_viewy) + (spr->gzt - gl_viewz)*(spr->gzt - gl_viewz));
+        float distfact = ((2.0f*spr->dispoffset) + 20.0f) / sprdist;
+        for (i = 0; i < 4; i++)
+        {
+            baseWallVerts[i].x += (gl_viewx - baseWallVerts[i].x)*distfact;
+            baseWallVerts[i].z += (gl_viewy - baseWallVerts[i].z)*distfact;
+            baseWallVerts[i].y += (gl_viewz - baseWallVerts[i].y)*distfact;
+        }
+    }
 
 	realtop = top = baseWallVerts[3].y;
 	realbot = bot = baseWallVerts[0].y;
@@ -3349,6 +3355,7 @@ static void HWR_DrawSprite(gl_vissprite_t *spr)
 	patch_t *gpatch;
 	FSurfaceInfo Surf;
 	const boolean splat = R_ThingIsFloorSprite(spr->mobj);
+    const boolean papersprite = (R_ThingIsPaperSprite(spr->mobj) && !splat);
 
 	if (!spr->mobj)
 		return;
@@ -3525,21 +3532,23 @@ static void HWR_DrawSprite(gl_vissprite_t *spr)
 		wallVerts[0].t = wallVerts[1].t = ((GLPatch_t *)gpatch->hardware)->max_t;
 	}
 
-	if (!splat)
-	{
-		// if it has a dispoffset, push it a little towards the camera
-		if (spr->dispoffset) {
-			float co = -gl_viewcos*(0.05f*spr->dispoffset);
-			float si = -gl_viewsin*(0.05f*spr->dispoffset);
-			wallVerts[0].z = wallVerts[3].z = wallVerts[0].z+si;
-			wallVerts[1].z = wallVerts[2].z = wallVerts[1].z+si;
-			wallVerts[0].x = wallVerts[3].x = wallVerts[0].x+co;
-			wallVerts[1].x = wallVerts[2].x = wallVerts[1].x+co;
-		}
-
+	if (!splat && !papersprite)
+    {
 		// Let dispoffset work first since this adjust each vertex
+        // (poopy part 2)
 		HWR_RotateSpritePolyToAim(spr, wallVerts, false);
-	}
+
+		// push it toward the camera to mitigate floor-clipping sprites
+		float sprdist = sqrtf((spr->x1 - gl_viewx)*(spr->x1 - gl_viewx) + (spr->z1 - gl_viewy)*(spr->z1 - gl_viewy) + (spr->gzt - gl_viewz)*(spr->gzt - gl_viewz));
+		float distfact = ((2.0f*spr->dispoffset) + 20.0f) / sprdist;
+		size_t i;
+		for (i = 0; i < 4; i++)
+		{
+            wallVerts[i].x += (gl_viewx - wallVerts[i].x)*distfact;
+            wallVerts[i].z += (gl_viewy - wallVerts[i].z)*distfact;
+            wallVerts[i].y += (gl_viewz - wallVerts[i].y)*distfact;
+        }
+    }
 
 	// This needs to be AFTER the shadows so that the regular sprites aren't drawn completely black.
 	// sprite lighting by modulating the RGB components
