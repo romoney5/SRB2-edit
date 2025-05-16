@@ -3,16 +3,36 @@
 - CEchos/CSays print message into console
 - Skin change at any time
 - renderhitbox in multiplayer
-- Hud interpolation from SRB2K Saturn (v.interpolate(bool/int) in lua)
-- Joining netgame shows progress bar on "checking files" (TODO: 2.2.14 broke it)
+- Lua HUD interpolation from SRB2K Saturn
+- Joining netgame shows progress bar on "checking files" ([Lugent's PR](https://git.do.srb2.org/STJr/SRB2/-/merge_requests/2446) [Lugent's PR](https://git.do.srb2.org/STJr/SRB2/-/merge_requests/2556))
 - Adjustable gif size cap, toggable too! (gif_maxsize, "Max GIF Size (MB)")
     - ^ When gif is capped, gif_rolling allows for another gif to immediately start! (gif_rolling, "Keep recording when capped")
 - Draw gif information to hud
 - Crosshairs can invert pixels behind, to improve their visibility
-- Addfilelocal!
+- Addfilelocal! (use "addfilelocal" command or press SHIFT in the addons menu)
 - Thin captions and thin FPS! (tinyfontfix.pk3 needed for captions)
 - Ring-Racers-styled screen quakes! ("rr_quakes" in console)
-  
+- M_Random* functions for client side randomness!
+- Countdown beep isn't ear piercingly loud!
+- "freezelevel" debug command (Do not use when clients are connected)
+- Snake download game background fixed!
+- HUD camera struct updates position in first person! (credits [Jiskster](https://git.do.srb2.org/STJr/SRB2/-/merge_requests/2629))
+
+# Lua Additions
+- "takis_custombuild" : (Read only) (boolean) Global to detect if the client is using this build
+- "takis_complexlocaladdons" : (Read only) (boolean) Global to detect if the client has loaded local addons with lua in them
+- "takis_locallyloading" : (Read only) (boolean) Only set during script loading, detects whether the script is being loaded locally
+  Example:
+  ```lua
+  if (takis_locallyloading) then
+    --do local stuff here
+    return
+  end
+  --normal, gameplay editing code
+  ```
+- P_GetLocalAiming(player_t player) : Returns the angle_t `aiming` of `player` if they are a local player. Returns 0 otherwise.
+- P_GetLocalAngle(player_t player) : Returns the angle_t `angle` of `player` if they are a local player. Returns 0 otherwise.
+- v.interpolate(boolean/int) : See [SRB2K Saturn's documentation](https://github.com/Indev450/SRB2Kart-Saturn/blob/Saturn/LUASTUFF.md)
 # Sonic Robo Blast 2
 [![latest release](https://badgen.net/github/release/STJr/SRB2/stable)](https://github.com/STJr/SRB2/releases/latest)
 
