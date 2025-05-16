@@ -45,6 +45,8 @@
 #include "../d_main.h"
 #include "../p_slopes.h"
 
+static const float DISP_OFFSET = 0.25f;
+
 // ==========================================================================
 // the hardware driver object
 // ==========================================================================
@@ -3074,7 +3076,8 @@ static void HWR_SplitSprite(gl_vissprite_t *spr)
     if (!splat && !papersprite)
     {
         float sprdist = sqrtf((spr->x1 - gl_viewx)*(spr->x1 - gl_viewx) + (spr->z1 - gl_viewy)*(spr->z1 - gl_viewy) + (spr->gzt - gl_viewz)*(spr->gzt - gl_viewz));
-        float distfact = ((2.0f*spr->dispoffset) + 20.0f) / sprdist;
+        float distfact = ((DISP_OFFSET * spr->dispoffset) + 20.0f) / sprdist;
+
         for (i = 0; i < 4; i++)
         {
             baseWallVerts[i].x += (gl_viewx - baseWallVerts[i].x)*distfact;
@@ -3540,7 +3543,8 @@ static void HWR_DrawSprite(gl_vissprite_t *spr)
 
 		// push it toward the camera to mitigate floor-clipping sprites
 		float sprdist = sqrtf((spr->x1 - gl_viewx)*(spr->x1 - gl_viewx) + (spr->z1 - gl_viewy)*(spr->z1 - gl_viewy) + (spr->gzt - gl_viewz)*(spr->gzt - gl_viewz));
-		float distfact = ((2.0f*spr->dispoffset) + 20.0f) / sprdist;
+		float distfact = ((DISP_OFFSET*spr->dispoffset) + 20.0f) / sprdist;
+	
 		size_t i;
 		for (i = 0; i < 4; i++)
 		{
