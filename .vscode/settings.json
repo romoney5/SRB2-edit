@@ -16,6 +16,7 @@
         "p_polyobj.h": "c",
         "p_slopes.h": "c",
         "xutility": "c",
-        "deh_tables.h": "c"
+        "deh_tables.h": "c",
+        "d_main.h": "c"
     }
 }
