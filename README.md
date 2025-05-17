@@ -17,6 +17,7 @@
 - Snake download game background fixed!
 - HUD camera struct updates position in first person! (credits [Jiskster](https://git.do.srb2.org/STJr/SRB2/-/merge_requests/2629))
 - Built in sprite clipping fix (gr_clipfix)
+- Master Server list background for better readability!
 
 # Lua Additions
 - "takis_custombuild" : (Read only) (boolean) Global to detect if the client is using this build
