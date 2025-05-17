@@ -46,7 +46,7 @@
 #include "../p_slopes.h"
 #include "../deh_tables.h" // debugging
 
-static const float DISP_OFFSET = 0.3f;
+static const float DISP_OFFSET = 0.4f;
 
 // ==========================================================================
 // the hardware driver object
