@@ -35,6 +35,21 @@
 - P_GetLocalAngle(player_t player) : Returns the angle_t `angle` of `player` if they are a local player. Returns 0 otherwise.
 - v.interpolate/v.interpLatch(boolean/int) : See [SRB2K Saturn's documentation](https://github.com/Indev450/SRB2Kart-Saturn/blob/Saturn/LUASTUFF.md)
 - M_Random* : Same as v.Random* functions, except also client-sided and not limited to HUD hooks.
+- mobj.pitch/roll : Now rotates mobjs in 3D space, including models
+Example that tilts your character in their 3D direction:
+```lua
+addHook("PlayerThink",function(p)
+    local me = p.mo
+    if not (me and me.valid) then return end
+
+    local angle = R_PointToAngle2(0,0, me.momx,me.momy)
+    local mang = R_PointToAngle2(0,0, FixedHypot(me.momx, me.momy), me.momz)
+    mang = InvAngle($)
+
+    me.roll = FixedMul(mang, sin(angle))
+    me.pitch = FixedMul(mang, cos(angle))
+end)
+```
 
 # Sonic Robo Blast 2
 [![latest release](https://badgen.net/github/release/STJr/SRB2/stable)](https://github.com/STJr/SRB2/releases/latest)
