@@ -3000,6 +3000,20 @@ static inline void HWR_ApplyDispoffset(gl_vissprite_t *spr, FOutVector *baseWall
 	const boolean splat,
 	const boolean papersprite
 ) {
+	if (!cv_clipfix.value)
+	{
+		// if it has a dispoffset, push it a little towards the camera
+		if (spr->dispoffset) {
+			float co = -gl_viewcos*(0.05f*spr->dispoffset);
+			float si = -gl_viewsin*(0.05f*spr->dispoffset);
+			baseWallVerts[0].z = baseWallVerts[3].z = baseWallVerts[0].z+si;
+			baseWallVerts[1].z = baseWallVerts[2].z = baseWallVerts[1].z+si;
+			baseWallVerts[0].x = baseWallVerts[3].x = baseWallVerts[0].x+co;
+			baseWallVerts[1].x = baseWallVerts[2].x = baseWallVerts[1].x+co;
+		}
+		HWR_RotateSpritePolyToAim(spr, baseWallVerts, false);
+		return;
+	}
 
 	// push it toward the camera to mitigate floor-clipping sprites
 	if (!splat && !papersprite)
@@ -5702,6 +5716,7 @@ consvar_t cv_glmodellighting = CVAR_INIT ("gr_modellighting", "Off", CV_SAVE|CV_
 
 consvar_t cv_glshearing = CVAR_INIT ("gr_shearing", "Off", CV_SAVE, glshearing_cons_t, NULL);
 consvar_t cv_glspritebillboarding = CVAR_INIT ("gr_spritebillboarding", "Off", CV_SAVE, CV_OnOff, NULL);
+consvar_t cv_clipfix = CVAR_INIT ("gr_clipfix", "On", CV_SAVE, CV_OnOff, NULL);
 consvar_t cv_glskydome = CVAR_INIT ("gr_skydome", "On", CV_SAVE, CV_OnOff, NULL);
 consvar_t cv_glfakecontrast = CVAR_INIT ("gr_fakecontrast", "Smooth", CV_SAVE, glfakecontrast_cons_t, NULL);
 consvar_t cv_glslopecontrast = CVAR_INIT ("gr_slopecontrast", "Off", CV_SAVE, CV_OnOff, NULL);
@@ -5786,6 +5801,7 @@ void HWR_AddCommands(void)
 
 	CV_RegisterVar(&cv_glskydome);
 	CV_RegisterVar(&cv_glspritebillboarding);
+	CV_RegisterVar(&cv_clipfix);
 	CV_RegisterVar(&cv_glfakecontrast);
 	CV_RegisterVar(&cv_glslopecontrast);
 	CV_RegisterVar(&cv_glshearing);
