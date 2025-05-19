@@ -34,6 +34,7 @@
 - P_GetLocalAiming(player_t player) : Returns the angle_t `aiming` of `player` if they are a local player. Returns 0 otherwise.
 - P_GetLocalAngle(player_t player) : Returns the angle_t `angle` of `player` if they are a local player. Returns 0 otherwise.
 - v.interpolate/v.interpLatch(boolean/int) : See [SRB2K Saturn's documentation](https://github.com/Indev450/SRB2Kart-Saturn/blob/Saturn/LUASTUFF.md)
+- v.drawFixedFill : Same as v.drawFill, but x, y, width, and height arguments are all in fixed point scale.
 - M_Random* : Same as v.Random* functions, except also client-sided and not limited to HUD hooks.
 - mobj.pitch/roll : Now rotates mobjs in 3D space, including models
 Example that tilts your character in their 3D direction:
