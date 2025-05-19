@@ -17,6 +17,7 @@
         "p_slopes.h": "c",
         "xutility": "c",
         "deh_tables.h": "c",
-        "d_main.h": "c"
+        "d_main.h": "c",
+        "xiosbase": "c"
     }
 }
