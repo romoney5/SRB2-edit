@@ -901,8 +901,8 @@ static int libd_drawFixedFill(lua_State *L)
 	huddrawlist_h list;
 	INT32 x = luaL_optinteger(L, 1, 0);
 	INT32 y = luaL_optinteger(L, 2, 0);
-	INT32 w = luaL_optinteger(L, 3, BASEVIDWIDTH);
-	INT32 h = luaL_optinteger(L, 4, BASEVIDHEIGHT);
+	INT32 w = luaL_optinteger(L, 3, BASEVIDWIDTH << FRACBITS);
+	INT32 h = luaL_optinteger(L, 4, BASEVIDHEIGHT << FRACBITS);
 	INT32 c = luaL_optinteger(L, 5, 31);
 
 	HUDONLY
