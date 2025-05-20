@@ -351,22 +351,13 @@ static int camera_get(lua_State *L)
 			lua_pushinteger(L, cam->aiming);
 		break;
 	case camera_x:
-        if (r_viewmobj != NULL)
-            lua_pushinteger(L, r_viewmobj->x);
-        else
-		    lua_pushinteger(L, cam->x);
+	    lua_pushinteger(L, cam->x);
 		break;
 	case camera_y:
-        if (r_viewmobj != NULL)
-            lua_pushinteger(L, r_viewmobj->y);
-        else
-		    lua_pushinteger(L, cam->y);
+	    lua_pushinteger(L, cam->y);
 		break;
 	case camera_z:
-        if (r_viewmobj != NULL)
-            lua_pushinteger(L, r_viewmobj->z + 20*FRACUNIT);
-        else
-		    lua_pushinteger(L, cam->z);
+	    lua_pushinteger(L, cam->z);
 		break;
 	case camera_reset:
 		lua_pushboolean(L, cam->reset);
