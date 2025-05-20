@@ -1,4 +1,4 @@
-# Major edits
+# Changes
 - Toggable mobj pitch/roll functional (3d rotation for models on slopes, like DRRR). Option located in Video Settings -> Level -> "Pitch/Roll Rotation"
 - CEchos/CSays print message into console
 - Skin change at any time
@@ -9,13 +9,13 @@
     - ^ When gif is capped, gif_rolling allows for another gif to immediately start! (gif_rolling, "Keep recording when capped")
 - Draw gif information to hud
 - Crosshairs can invert pixels behind, to improve their visibility
-- Addfilelocal! (use "addfilelocal" command or press SHIFT in the addons menu)
+- Addfilelocal from SRB2K Saturn! (use "addfilelocal" command or press SHIFT in the addons menu)
 - Thin captions and thin FPS! (tinyfontfix.pk3 needed for captions)
 - Ring-Racers-styled screen quakes! ("rr_quakes" in console)
 - Countdown beep isn't ear piercingly loud!
 - "freezelevel" debug command (Do not use when clients are connected)
 - Snake download game background fixed!
-- HUD camera struct updates position in first person! (credits [Jiskster](https://git.do.srb2.org/STJr/SRB2/-/merge_requests/2629))
+- HUD camera struct updates position in first person! (credits [Jiskster](https://git.do.srb2.org/STJr/SRB2/-/merge_requests/2629) & Hanicef)
 - Built in sprite clipping fix (gr_clipfix)
 - Master Server list background for better readability!
 
