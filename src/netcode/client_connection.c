@@ -334,10 +334,10 @@ static void CL_DrawConnectionStatus(void)
 							}
 
 							V_DrawRightAlignedThinString(x + 292,
-								y, V_YELLOWMAP,
+								y, V_YELLOWMAP|V_ALLOWLOWERCASE,
 								// "~" since its approx this size, we mightve lost some
 								// accuracy from only having 4 bytes carry the size
-								va("(~%.1f%s)", file_size, size_mode == 0 ? "b" : (size_mode == 2 ? "KB" : "MB"))
+								va("(~%.1f%s)", file_size, size_mode == 0 ? "b" : (size_mode == 2 ? "kb" : "mb"))
 							);
 						}
 					}
