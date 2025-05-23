@@ -317,13 +317,29 @@ static void CL_DrawConnectionStatus(void)
 
 						// make sure we have the space
 						if (fileneedednum < 11)
+						{
+							float file_size = ((float)addon_file.totalsize);
+							INT8 size_mode = 0; // regular bytes
+							//in megabytes
+							if (file_size >= (1024.0f * 1024.0f))
+							{
+								size_mode = 1;
+								file_size /= (1024.0f * 1024.0f);
+							}
+							// KB
+							else if (file_size >= 1024.0f)
+							{
+								size_mode = 2;
+								file_size /= 1024.0f;
+							}
+
 							V_DrawRightAlignedThinString(x + 292,
 								y, V_YELLOWMAP,
 								// "~" since its approx this size, we mightve lost some
 								// accuracy from only having 4 bytes carry the size
-								va("(~%.1fmb)", ((float)addon_file.totalsize) / (1024.0f * 1024.0f))
+								va("(~%.1f%s)", file_size, size_mode == 0 ? "b" : (size_mode == 2 ? "KB" : "MB"))
 							);
-						
+						}
 					}
 
 					y += 9;
@@ -376,7 +392,7 @@ static void CL_DrawConnectionStatus(void)
 			V_DrawFill(8, BASEVIDHEIGHT - 14, BASEVIDWIDTH - 16, 13, 159);
 			V_DrawThinString(
 				16, BASEVIDHEIGHT - 11,
-				V_ALLOWLOWERCASE, "[""\x82""ESC""\x80""] = Return"
+				V_ALLOWLOWERCASE, "[""\x82""ESC""\x80""] = Back to MS"
 			);
 			V_DrawCenteredThinString(
 				BASEVIDWIDTH/2, BASEVIDHEIGHT - 11,
