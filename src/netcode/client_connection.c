@@ -130,7 +130,13 @@ static void CL_DrawConnectionStatus(void)
 	// Draw background fade
 	V_DrawFadeScreen(0xFF00, 16); // force default
 
-	if (cl_mode != CL_DOWNLOADFILES && cl_mode != CL_DOWNLOADHTTPFILES && cl_mode != CL_LOADFILES && cl_mode != CL_VIEWSERVER && cl_mode != CL_ASKFULLFILELIST)
+	if (cl_mode != CL_DOWNLOADFILES
+		&& cl_mode != CL_DOWNLOADHTTPFILES
+		&& cl_mode != CL_LOADFILES
+		&& cl_mode != CL_VIEWSERVER
+		&& cl_mode != CL_ASKFULLFILELIST
+		&& cl_mode != CL_CHECKFILES
+	)
 	{
 		INT32 animtime = ((ccstime / 4) & 15) + 16;
 		UINT8 palstart;
@@ -210,7 +216,7 @@ static void CL_DrawConnectionStatus(void)
 			M_DrawTextBox(BASEVIDWIDTH/2-128-8, BASEVIDHEIGHT-16-8, 32, 1);
 			V_DrawFill(BASEVIDWIDTH/2-128, BASEVIDHEIGHT-16, 256, 8, 111);
 			V_DrawFill(BASEVIDWIDTH/2-128, BASEVIDHEIGHT-16, totalfileslength, 8, 96);
-			V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT-16, V_20TRANS|V_MONOSPACE,
+			V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT-16, V_20TRANS|V_MONOSPACE|V_ALLOWLOWERCASE,
 				va(" %2u/%2u files",loadcompletednum,fileneedednum));
 		}
 		else if (cl_mode == CL_VIEWSERVER)
@@ -367,6 +373,31 @@ static void CL_DrawConnectionStatus(void)
 					READMEM(p, fileneeded[i].md5sum, 16); // The last 16 bytes are the file checksum
 					*/
 				}
+
+				// reiterate again!!! Yes!!! Yay!!!
+				UINT32 totalsize = 0;
+				for (INT32 j = 0; j < fileneedednum; j++)
+					totalsize += fileneeded[j].totalsize;
+				totalsize = (float)totalsize;
+
+				INT8 size_mode = 0; // regular bytes
+				//in megabytes
+				if (totalsize >= (1024.0f * 1024.0f))
+				{
+					size_mode = 1;
+					totalsize /= (1024.0f * 1024.0f);
+				}
+				// KB
+				else if (totalsize >= 1024.0f)
+				{
+					size_mode = 2;
+					totalsize /= 1024.0f;
+				}
+				
+				V_DrawRightAlignedThinString(BASEVIDWIDTH - 22, 74,
+					V_ALLOWLOWERCASE|V_YELLOWMAP,
+					va("~%.1f%s total", (float)totalsize, size_mode == 0 ? "b" : (size_mode == 2 ? "kb" : "mb"))
+				);
 
 				// draw the little arrows
 				if (fileneedednum >= 22)
