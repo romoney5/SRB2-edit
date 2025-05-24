@@ -325,7 +325,7 @@ static void CL_DrawConnectionStatus(void)
 						if (fileneedednum < 11)
 						{
 							float file_size = ((float)addon_file.totalsize);
-							INT8 size_mode = 0; // regular bytes
+							UINT8 size_mode = 0; // regular bytes
 							//in megabytes
 							if (file_size >= (1024.0f * 1024.0f))
 							{
@@ -380,7 +380,7 @@ static void CL_DrawConnectionStatus(void)
 					totalsize += fileneeded[j].totalsize;
 				totalsize = (float)totalsize;
 
-				INT8 size_mode = 0; // regular bytes
+				UINT8 size_mode = 0; // regular bytes
 				//in megabytes
 				if (totalsize >= (1024.0f * 1024.0f))
 				{
