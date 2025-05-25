@@ -298,6 +298,7 @@ static void CL_DrawConnectionStatus(void)
 				INT32 count = 0;
 				INT32 x = 14;
 				INT32 y = 84;
+				boolean small_mode = fileneedednum <= 11;
 				char file_name[MAX_WADPATH+1];
 #define maxcharlen (20 + 3) // 3 for the 3 dots
 #define charsonside 10
@@ -305,13 +306,13 @@ static void CL_DrawConnectionStatus(void)
 				{
 					if (i & 1)
 						V_DrawFill(x,y-1,
-							(fileneedednum < 11) ? 292 : 146, 9,
+							(small_mode) ? 292 : 146, 9,
 							156
 						);
 					
 					fileneeded_t addon_file = fileneeded[i];
 					strncpy(file_name, addon_file.filename, MAX_WADPATH);
-					if ((UINT8)(strlen(file_name)+1) > maxcharlen && fileneedednum >= 11)
+					if ((UINT8)(strlen(file_name)+1) > maxcharlen && !small_mode)
 						V_DrawThinString(x, y, V_ALLOWLOWERCASE|V_6WIDTHSPACE,
 							va("\x82[#%d]\x80: %.*s...%s",i+1, charsonside, file_name, file_name+strlen(file_name)-((charsonside+1)))
 						);
@@ -322,7 +323,7 @@ static void CL_DrawConnectionStatus(void)
 						);
 
 						// make sure we have the space
-						if (fileneedednum < 11)
+						if (small_mode)
 						{
 							float file_size = ((float)addon_file.totalsize);
 							UINT8 size_mode = 0; // regular bytes
