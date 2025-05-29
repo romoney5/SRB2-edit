@@ -285,6 +285,7 @@ static void CL_DrawConnectionStatus(void)
 						if (playerinfo[i].num < 255)
 						{
 							strncpy(player_name, playerinfo[i].name, MAXPLAYERNAME);
+							player_name[MAXPLAYERNAME] = '\0';
 							V_DrawThinString(x + 10, y, V_ALLOWLOWERCASE|V_6WIDTHSPACE, player_name);
 							
 							if (playerinfo[i].team == 0) { statuscolor = 112; } // playing
