@@ -840,7 +840,10 @@ static boolean UseDirectDownloader(void)
 static void DoLoadFiles(void)
 {
 	Snake_Free(&snake);
-
+	if (S_MusicExists(servmus_3,false,true))
+		ChangeServMusic(servmus_3, true,true);
+	else
+		ChangeServMusic(servmus_2, false,false);
 	cl_mode = CL_LOADFILES;
 }
 
@@ -1094,7 +1097,7 @@ static boolean CL_FinishedFileList(void)
 			curfadevalue = 0;
 		}
 		else
-			cl_mode = CL_LOADFILES;
+			DoLoadFiles();
 	}
 	else
 	{
