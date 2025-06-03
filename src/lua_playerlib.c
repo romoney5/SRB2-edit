@@ -17,8 +17,8 @@
 #include "g_game.h"
 #include "p_local.h"
 
-#include "netcode\i_net.h"
-#include "netcode\d_clisrv.h"
+#include "netcode/i_net.h"
+#include "netcode/d_clisrv.h"
 
 #include "lua_script.h"
 #include "lua_libs.h"
