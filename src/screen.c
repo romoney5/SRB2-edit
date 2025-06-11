@@ -485,7 +485,6 @@ void SCR_DisplayLocalPing(void)
 	}
 }
 
-// TODO: interp toggle (same for console)
 void SCR_ClosedCaptions(void)
 {
 	UINT8 i;

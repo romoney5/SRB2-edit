@@ -19,6 +19,8 @@
 
 #include "netcode/i_net.h"
 #include "netcode/d_clisrv.h"
+#include "m_fixed.h"
+#include "hu_stuff.h"
 
 #include "lua_script.h"
 #include "lua_libs.h"
@@ -230,6 +232,7 @@ enum player_e
 	player_quittime,
 	player_lastinputtime,
 	player_ping,
+	player_delay,
 	player_fovadd
 };
 
@@ -379,6 +382,7 @@ static const char *const player_opt[] = {
 	"quittime",
 	"lastinputtime",
 	"ping",
+	"delay",
 	"fovadd",
 	NULL,
 };
@@ -853,6 +857,9 @@ static int player_get(lua_State *L)
 		break;
 	case player_ping:
 		lua_pushinteger(L, playerpingtable[plr - players]);
+		break;
+	case player_delay:
+		lua_pushfixed(L, FLOAT_TO_FIXED(HU_pingMSToDelay(playerpingtable[plr - players])));
 		break;
 	case player_fovadd:
 		lua_pushfixed(L, plr->fovadd);

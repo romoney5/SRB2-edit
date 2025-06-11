@@ -1862,6 +1862,11 @@ void HU_Drawer(void)
 #define supercheckdef (!(players[tab[i].num].charflags & SF_NOSUPERSPRITES) && ((players[tab[i].num].powers[pw_super] && players[tab[i].num].mo && (players[tab[i].num].mo->state < &states[S_PLAY_SUPER_TRANS1] || players[tab[i].num].mo->state >= &states[S_PLAY_SUPER_TRANS6])) || (players[tab[i].num].powers[pw_carry] == CR_NIGHTSMODE && skins[players[tab[i].num].skin]->flags & SF_SUPER)))
 #define greycheckdef (players[tab[i].num].spectator || players[tab[i].num].playerstate == PST_DEAD || (G_IsSpecialStage(gamemap) && players[tab[i].num].exiting))
 
+float HU_pingMSToDelay(UINT32 ping)
+{
+	return ((float)ping * (1.0f / TICRATE));
+}
+
 //
 // HU_drawPing
 //
@@ -1895,7 +1900,7 @@ void HU_drawPing(INT32 x, INT32 y, UINT32 ping, boolean notext, INT32 flags)
 		else
 		{
 			// ping to frame delay (ring racer)
-			float lag = ((float)ping * (1.0f / TICRATE));
+			float lag = HU_pingMSToDelay(ping);
 			V_DrawCenteredSmallString(x, y+4, V_ALLOWLOWERCASE|flags, va("%.1fd", lag));
 		}	
 	}
