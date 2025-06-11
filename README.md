@@ -22,6 +22,7 @@ You can compile the source code normally (see "Compiling") and put the binary in
 - Built in sprite clipping fix (gr_clipfix)
 - Master Server list background for better readability!
 - Server Menu before joining! (Code from [SRB2Classic](https://git.do.srb2.org/Hanicef/SRB2Classic))
+- See your ping in frame delay instead of milliseconds! (cv_pingmeasurement)
 
 # Lua Additions
 
