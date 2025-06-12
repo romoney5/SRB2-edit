@@ -67,8 +67,7 @@ end)
 ```
 
 ## player_t
-- player.delay (fixed_t) : Fetches frame delay of this player, similar to player.ping
-- player.ipaddress (string) : For use in moderation addons, this only returns a string for the server of the players IP address. Clients _cannot_ see other clients' IP addresses.
+- player.ipaddress (string) : For use in moderation addons, this only returns a string for the server of the players IP address. Clients _cannot_ see other clients' IP addresses. The only way for other clients to know is if the server sends a command with them or something :p
 
 # Sonic Robo Blast 2
 [![latest release](https://badgen.net/github/release/STJr/SRB2/stable)](https://github.com/STJr/SRB2/releases/latest)
