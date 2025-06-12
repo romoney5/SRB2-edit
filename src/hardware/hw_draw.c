@@ -16,6 +16,10 @@
 
 #include "../doomdef.h"
 
+#ifndef HWRENDER
+#define HWRENDER
+#endif
+
 #ifdef HWRENDER
 #include "hw_main.h"
 #include "hw_glob.h"
@@ -30,6 +34,9 @@
 #include "../p_local.h" // stplyr
 #include "../g_game.h" // players
 #include "../f_finale.h" // fade color factors
+
+#include "../doomstat.h"
+#include "../r_fps.h"
 
 #include <fcntl.h>
 #include "../i_video.h"
@@ -258,14 +265,18 @@ void HWR_DrawStretchyFixedPatch(patch_t *gpatch, fixed_t x, fixed_t y, fixed_t p
 		fwidth = (float)(gpatch->width) * dup;
 		fheight = (float)(gpatch->height) * dup;
 	}
+	float o_wdt = fwidth;
+	float o_cx = cx;
 
 	// positions of the cx, cy, are between 0 and vid.width/vid.height now, we need them to be between -1 and 1
-	cx = -1.0f + (cx / (vid.width / 2.0f));
-	cy = 1.0f - (cy / (vid.height / 2.0f));
+	float cwdup = (vid.width / 2.0f);
+	float chdup = (vid.height / 2.0f);
+	cx = -1.0f + (cx / cwdup);
+	cy = 1.0f - (cy / chdup);
 
 	// fwidth and fheight are similar
-	fwidth /= vid.width / 2;
-	fheight /= vid.height / 2;
+	fwidth /= cwdup;
+	fheight /= chdup;
 
 	// set the polygon vertices to the right positions
 	v[0].x = v[3].x = cx;
@@ -274,7 +285,40 @@ void HWR_DrawStretchyFixedPatch(patch_t *gpatch, fixed_t x, fixed_t y, fixed_t p
 	v[0].y = v[1].y = cy;
 	v[2].y = v[3].y = cy - fheight;
 
-	v[0].z = v[1].z = v[2].z = v[3].z = 1.0f;
+	v[0].z = v[1].z = v[2].z = v[3].z = 1.0;
+
+	if (gamestate == GS_LEVEL && stplyr != NULL && stplyr->mo != NULL)
+	{
+		mobj_t *mo = stplyr->mo;
+
+		interpmobjstate_t interp = {0};
+		if (R_UsingFrameInterpolation() && !paused)
+		{
+			R_InterpolateMobjState(mo, rendertimefrac, &interp);
+		}
+		else
+		{
+			R_InterpolateMobjState(mo, FRACUNIT, &interp);
+		}
+
+		angle_t angle = (viewangle - interp.angle) + ANGLE_90;
+		float ludsin = FixedToFloat(FINECOSINE(aimingangle>>ANGLETOFINESHIFT));
+
+		float rightsin = FIXED_TO_FLOAT(FINESINE((angle)>>ANGLETOFINESHIFT));
+		
+		cwdup = (vid.width / 2.0f / rightsin);
+		
+		cx = -1.0f*rightsin + (o_cx / cwdup);
+		fwidth = o_wdt / cwdup;
+
+		v[0].x = v[3].x = cx;
+		v[2].x = v[1].x = (cx + fwidth);
+
+		v[0].y = v[1].y = cy * ludsin;
+		v[2].y = v[3].y = (cy - fheight) * ludsin;
+
+		v[0].z = v[1].z = v[2].z = v[3].z = 1.0 + FIXED_TO_FLOAT(R_PointToDist(interp.x,interp.y)) / 155.0f;
+	}
 
 	if (option & V_FLIP)
 	{
