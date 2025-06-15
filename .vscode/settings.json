@@ -19,6 +19,7 @@
         "deh_tables.h": "c",
         "d_main.h": "c",
         "xiosbase": "c",
-        "net_command.h": "c"
+        "net_command.h": "c",
+        "cmath": "c"
     }
 }
