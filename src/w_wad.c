@@ -858,7 +858,7 @@ UINT16 W_InitFile(const char *filename, boolean mainfile, boolean startup, boole
 	restype_t type;
 	UINT16 numlumps = 0;
 #ifndef NOMD5
-	size_t i;
+	//size_t i;
 #endif
 	UINT8 md5sum[16];
 	int important;
