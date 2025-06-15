@@ -24,6 +24,7 @@ You can compile the source code normally (see "Compiling") and put the binary in
 - Server Menu before joining! (Code from [SRB2Classic](https://git.do.srb2.org/Hanicef/SRB2Classic))
 - See your ping in frame delay instead of milliseconds! (cv_pingmeasurement)
 - Tics per second counter! (showtps) (Code from [SRB2Classic](https://git.do.srb2.org/Hanicef/SRB2Classic))
+- Improved startup times! (Code from [SRB2Classic](https://git.do.srb2.org/Hanicef/SRB2Classic))
 
 # Lua Additions
 
