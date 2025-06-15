@@ -21,10 +21,10 @@ You can compile the source code normally (see "Compiling") and put the binary in
 - HUD camera struct updates position in first person! (credits [Jiskster](https://git.do.srb2.org/STJr/SRB2/-/merge_requests/2629) & [Hanicef](https://git.do.srb2.org/Hanicef/SRB2Classic/-/commit/681bd160f5be3925a97d798d00e67b32a8c1df71))
 - Built in sprite clipping fix (gr_clipfix)
 - Master Server list background for better readability!
-- Server Menu before joining! (Code from [SRB2Classic](https://git.do.srb2.org/Hanicef/SRB2Classic))
+- Server Menu before joining! (Code from [SRB2Classic](https://codeberg.org/srb2classic/srb2classic))
 - See your ping in frame delay instead of milliseconds! (cv_pingmeasurement)
-- Tics per second counter! (showtps) (Code from [SRB2Classic](https://git.do.srb2.org/Hanicef/SRB2Classic))
-- Improved startup times! (Code from [SRB2Classic](https://git.do.srb2.org/Hanicef/SRB2Classic))
+- Tics per second counter! (showtps) (Code from [SRB2Classic](https://codeberg.org/srb2classic/srb2classic))
+- Improved startup times! (Code from [SRB2Classic](https://codeberg.org/srb2classic/srb2classic))
 
 # Lua Additions
 
