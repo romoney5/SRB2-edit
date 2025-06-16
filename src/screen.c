@@ -546,7 +546,7 @@ void SCR_DisplayLocalPing(void)
 		if (cv_tpscounter.value)
 			dispy -= 9;
 		
-		HU_drawPing(307, dispy, ping, true, V_SNAPTORIGHT | V_SNAPTOBOTTOM);
+		HU_drawPing(307, dispy, ping, true, V_SNAPTORIGHT | V_SNAPTOBOTTOM, consoleplayer);
 	}
 }
 
