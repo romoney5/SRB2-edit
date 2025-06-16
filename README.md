@@ -26,6 +26,7 @@ You can compile the source code normally (see "Compiling") and put the binary in
 - Tics per second counter! (showtps) (Code from [SRB2Classic](https://codeberg.org/srb2classic/srb2classic))
 - Improved startup times! (Code from [SRB2Classic](https://codeberg.org/srb2classic/srb2classic))
 - Minimum input delay & "Gentleman's Delay" option from SRB2Kart Saturn/Ring Racers! (mindelay and gentlemensdelay respectively)
+
 # Lua Additions
 
 ## Global variables
