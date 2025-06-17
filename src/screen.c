@@ -436,7 +436,8 @@ void SCR_DisplayTicRate(void)
 	//tps code from srb2classic
 	INT32 vstep = (cv_ticrate.value ? -8 : 0);
 	tic_t i;
-	tic_t ontic = I_GetTime();
+	// ideally this can measure the tps of the server sending you the packets but oh well
+	tic_t ontic = I_GetTime(); // gametic + (neededtic - gametic);
 	tic_t totaltics = 0;
 
 	if (gamestate == GS_NULL)
