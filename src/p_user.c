@@ -9994,7 +9994,9 @@ boolean P_MoveChaseCamera(player_t *player, camera_t *thiscam, boolean resetcall
 			// set the values to the player's values so they can still be used
 			thiscam->x = player->mo->x;
 			thiscam->y = player->mo->y;
-			thiscam->z = player->mo->z;
+			// unsure if this should be viewz for bobbing or just viewheight
+			// whatever i dont play with bobbing lol
+			thiscam->z = player->viewheight;
 			thiscam->momx = player->mo->momx;
 			thiscam->momy = player->mo->momy;
 			thiscam->momz = player->mo->momz;

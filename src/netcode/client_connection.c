@@ -1525,7 +1525,9 @@ static boolean CL_ServerConnectionTicker(const char *tmpsave, tic_t *oldtic, tic
 			}
 			else if (!(cl_vs_showaddons && fileneedednum > 22))
 				cl_vs_sa_tapped = false;
-
+			
+			// i never said my C code was GOOD...
+			// maybe some macros could clean this up
 			if (cl_vs_showaddons && fileneedednum > 22)
 			{
 				if (gamekeydown[KEY_DOWNARROW])
