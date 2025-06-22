@@ -1,4 +1,4 @@
-If you want to use code from my repo, please contact me beforehand. 
+If you want to use code from my repo, please contact me beforehand. (because most of it isnt mine Lul!!!)
 
 # Installation:
 You can compile the source code normally (see "Compiling") and put the binary in your SRB2 directory. No additional assets required, it works right out the bag!
