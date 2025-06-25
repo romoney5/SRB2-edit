@@ -78,7 +78,7 @@ static boolean IsDownloadingFile(void)
 static void DrawConnectionStatusBox(void)
 {
 	M_DrawTextBox(BASEVIDWIDTH/2-128-8, BASEVIDHEIGHT-16-8, 32, 1);
-	if (filedownload.current != -1)
+	if (filedownload.current != -1 && cl_mode != CL_DOWNLOADSAVEGAME)
 		M_DrawTextBox(BASEVIDWIDTH/2-128-8, BASEVIDHEIGHT-46-8, 32, 1);
     
 	if (cl_mode == CL_CONFIRMCONNECT || IsDownloadingFile())
@@ -503,7 +503,7 @@ static void CL_DrawConnectionStatus(void)
 			V_DrawFill(BASEVIDWIDTH/2-128, BASEVIDHEIGHT-16, 256, 8, 111);
 			V_DrawFill(BASEVIDWIDTH/2-128, BASEVIDHEIGHT-16, totalfileslength, 8, 96);
 			V_DrawCenteredString(BASEVIDWIDTH/2, BASEVIDHEIGHT-16, V_20TRANS|V_MONOSPACE|V_ALLOWLOWERCASE,
-				va(" %2u/%2u Files",checkcompletednum,fileneedednum));
+				va(" %2u/%2u files",checkcompletednum,fileneedednum));
         }
 		else if (filedownload.current != -1)
 		{
