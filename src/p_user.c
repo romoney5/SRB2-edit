@@ -9989,25 +9989,32 @@ boolean P_MoveChaseCamera(player_t *player, camera_t *thiscam, boolean resetcall
 
 	if (!(player->climbing || (player->powers[pw_carry] == CR_NIGHTSMODE) || player->playerstate == PST_DEAD || tutorialmode))
 	{
-		if (player->spectator || (!cv_chasecam.value && thiscam == &camera) || (!cv_chasecam2.value && thiscam == &camera2))
+		if (player->spectator || !thiscam->chase)
 		{
 			// set the values to the player's values so they can still be used
 			thiscam->x = player->mo->x;
 			thiscam->y = player->mo->y;
-			// unsure if this should be viewz for bobbing or just viewheight
-			// whatever i dont play with bobbing lol
 			thiscam->z = player->viewz;
 			thiscam->momx = player->mo->momx;
 			thiscam->momy = player->mo->momy;
 			thiscam->momz = player->mo->momz;
-			
-			if (player == &players[consoleplayer])
+
+			if (thiscam == &camera)
 			{
-				thiscam->angle = localangle;
-				thiscam->aiming = localaiming;
+				// when not spectating, use local angles
+				if (&players[displayplayer] == &players[consoleplayer]) {
+					thiscam->angle = localangle;
+					thiscam->aiming = localaiming;
+				}
+				else
+				{
+					thiscam->angle = players[displayplayer].cmd.angleturn << 16;
+					thiscam->aiming = players[displayplayer].cmd.aiming << 16;
+				}
 			} 
-			else if (player == &players[secondarydisplayplayer])
+			else if (thiscam == &camera2)
 			{
+				// i dont think secondarydisplayplayer changes, so we should be fine.
 				thiscam->angle = localangle2;
 				thiscam->aiming = localaiming2;
 			}
