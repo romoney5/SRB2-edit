@@ -1502,7 +1502,7 @@ static UINT32 V_GetHWConsBackColor(void)
 	switch (cons_backcolor.value)
 	{
 		case 0:		r = 0xff; g = 0xff; b = 0xff;	break; 	// White
-		case 1:		r = 0x80; g = 0x80; b = 0x80;	break; 	// Black
+		case 1:		r = 0x01; g = 0x01; b = 0x01;	break; 	// Black
 		case 2:		r = 0xde; g = 0xb8; b = 0x87;	break;	// Sepia
 		case 3:		r = 0x40; g = 0x20; b = 0x10;	break; 	// Brown
 		case 4:		r = 0xfa; g = 0x80; b = 0x72;	break; 	// Pink
