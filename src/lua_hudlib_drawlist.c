@@ -150,6 +150,10 @@ void LUA_HUD_ClearDrawList(huddrawlist_h list)
 		list->strbuf[0] = 0;
 	}
 	list->strbuf_len = 0;
+
+	// We have no use for these yet
+	hud_interpolate = false;
+	hud_interptag = 0;
 }
 
 void LUA_HUD_DestroyDrawList(huddrawlist_h list)
