@@ -430,6 +430,7 @@ void SCR_CalculateFPS(void)
 #endif
 }
 
+#define COMPACTTPS_NUDGE (35) // 27 from "XXX.XX" + 8 for spacing
 void SCR_DisplayTicRate(void)
 {
 	INT32 fpscntcolor = 0, ticcntcolor = 0;
@@ -480,7 +481,7 @@ void SCR_DisplayTicRate(void)
 		if (cv_ticrate.value)
 		{
 			const char *fpsstr = va("%04.2f", averageFPS);
-			fpsnudge = max(V_ThinStringWidth(fpsstr,0) - 28, 0);
+			fpsnudge = max(V_ThinStringWidth(fpsstr,0) - COMPACTTPS_NUDGE + 2, 0);
 			V_DrawRightAlignedThinString(
 				x,
 				BASEVIDHEIGHT - 8,
@@ -493,7 +494,7 @@ void SCR_DisplayTicRate(void)
 		{
 			const char *tpsstr = va("%d", totaltics);
 			V_DrawRightAlignedThinString(
-				x - 30 - fpsnudge,
+				x - COMPACTTPS_NUDGE - fpsnudge,
 				BASEVIDHEIGHT - 8,
 				ticcntcolor |V_USERHUDTRANS|V_SNAPTORIGHT|V_SNAPTOBOTTOM,
 				tpsstr
