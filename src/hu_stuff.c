@@ -1877,12 +1877,13 @@ float HU_pingMSToDelay(UINT32 ping)
 //
 // HU_drawPing
 //
-void HU_drawPing(INT32 x, INT32 y, UINT32 ping, boolean notext, INT32 flags, INT32 pnum)
+INT32 HU_drawPing(INT32 x, INT32 y, UINT32 ping, boolean notext, INT32 flags, INT32 pnum, boolean returnwidth)
 {
 	UINT8 numbars = 0; // how many ping bars do we draw?
 	UINT8 barcolor = 31; // color we use for the bars (green, yellow, red or black)
 	SINT8 i = 0;
 	SINT8 yoffset = 6;
+	INT32 nudge = 0;
 
 	const boolean gentleman = (cv_mindelay.value && (ping < G_TicsToMilliseconds((tic_t)simulated_lag))) && (pnum == consoleplayer || pnum == secondarydisplayplayer);
 	if (gentleman)
@@ -1909,26 +1910,42 @@ void HU_drawPing(INT32 x, INT32 y, UINT32 ping, boolean notext, INT32 flags, INT
 	if (ping < UINT32_MAX && (!notext || vid.width >= 640)) // how sad, we're using a shit resolution.
 	{
 		if (!cv_pingmeasurement.value)
-			V_DrawCenteredSmallString(x, y+4, V_ALLOWLOWERCASE|flags, va("%dms", ping));
+		{
+			const char *pingstr = va("%dms", ping);
+			if (returnwidth)
+				V_DrawRightAlignedSmallString(x, y+4, V_ALLOWLOWERCASE|flags, pingstr);
+			else
+				V_DrawCenteredSmallString(x, y+4, V_ALLOWLOWERCASE|flags, pingstr);
+			nudge += V_SmallStringWidth(pingstr,0);
+		}
 		else
 		{
 			// ping to frame delay (ring racer)
 			float lag = HU_pingMSToDelay(ping);
-			V_DrawCenteredSmallString(x, y+4, V_ALLOWLOWERCASE|flags, va("%.1fd", lag));
-		}	
+			const char *lagstr = va("%.1fd", lag);
+			if (returnwidth)
+				V_DrawRightAlignedSmallString(x, y+4, V_ALLOWLOWERCASE|flags, lagstr);
+			else
+				V_DrawCenteredSmallString(x, y+4, V_ALLOWLOWERCASE|flags, lagstr);
+			nudge += V_SmallStringWidth(lagstr,0);
+		}
 	}
 
+	INT32 bar_x = (returnwidth ? x - 8 : x);
 	for (i=0; (i<3); i++) // Draw the ping bar
 	{
-		V_DrawFill(x+2 *(i-1), y+yoffset-4, 2, 8-yoffset, 31|flags);
+		V_DrawFill(bar_x+2 *(i-1), y+yoffset-4, 2, 8-yoffset, 31|flags);
 		if (i < numbars)
-			V_DrawFill(x+2 *(i-1), y+yoffset-3, 1, 8-yoffset-1, barcolor|flags);
+			V_DrawFill(bar_x+2 *(i-1), y+yoffset-3, 1, 8-yoffset-1, barcolor|flags);
 
 		yoffset -= 2;
 	}
+	nudge = max(nudge, 6);
 
 	if (ping == UINT32_MAX)
 		V_DrawSmallScaledPatch(x + 4 - nopingicon->width/2, y + 9 - nopingicon->height/2, 0, nopingicon);
+	
+	return returnwidth ? nudge : 0;
 }
 
 //
@@ -1956,7 +1973,7 @@ void HU_DrawTabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scorelines, I
 		if (!splitscreen) // don't draw it on splitscreen,
 		{
 			if (tab[i].num != serverplayer)
-				HU_drawPing(x + 253, y, players[tab[i].num].quittime ? UINT32_MAX : playerpingtable[tab[i].num], false, 0, tab[i].num);
+				HU_drawPing(x + 253, y, players[tab[i].num].quittime ? UINT32_MAX : playerpingtable[tab[i].num], false, 0, tab[i].num, false);
 			//else
 			//	V_DrawSmallString(x+ 246, y+4, V_YELLOWMAP, "SERVER");
 		}
@@ -2157,7 +2174,7 @@ static void HU_Draw32TeamTabRankings(playersort_t *tab, INT32 whiteplayer)
 		if (!splitscreen)
 		{
 			if (tab[i].num != serverplayer)
-				HU_drawPing(x + 135, y+1, players[tab[i].num].quittime ? UINT32_MAX : playerpingtable[tab[i].num], true, 0, tab[i].num);
+				HU_drawPing(x + 135, y+1, players[tab[i].num].quittime ? UINT32_MAX : playerpingtable[tab[i].num], true, 0, tab[i].num, false);
 			//else
 				//V_DrawSmallString(x+ 129, y+4, V_YELLOWMAP, "HOST");
 		}
@@ -2282,7 +2299,7 @@ void HU_DrawTeamTabRankings(playersort_t *tab, INT32 whiteplayer)
 		if (!splitscreen)
 		{
 			if (tab[i].num != serverplayer)
-				HU_drawPing(x+ 113, y, players[tab[i].num].quittime ? UINT32_MAX : playerpingtable[tab[i].num], false, 0, tab[i].num);
+				HU_drawPing(x+ 113, y, players[tab[i].num].quittime ? UINT32_MAX : playerpingtable[tab[i].num], false, 0, tab[i].num, false);
 			//else
 			//	V_DrawSmallString(x+ 94, y+4, V_YELLOWMAP, "SERVER");
 		}
@@ -2313,7 +2330,7 @@ void HU_DrawDualTabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scoreline
 
 		strlcpy(name, tab[i].name, 7);
 		if (tab[i].num != serverplayer)
-			HU_drawPing(x+ 113, y, players[tab[i].num].quittime ? UINT32_MAX : playerpingtable[tab[i].num], false, 0, tab[i].num);
+			HU_drawPing(x+ 113, y, players[tab[i].num].quittime ? UINT32_MAX : playerpingtable[tab[i].num], false, 0, tab[i].num, false);
 		//else
 		//	V_DrawSmallString(x+ 94, y+4, V_YELLOWMAP, "SERVER");
 
@@ -2422,7 +2439,7 @@ static void HU_Draw32TabRankings(INT32 x, INT32 y, playersort_t *tab, INT32 scor
 		if (!splitscreen) // don't draw it on splitscreen,
 		{
 			if (tab[i].num != serverplayer)
-				HU_drawPing(x+ 135, y+1, players[tab[i].num].quittime ? UINT32_MAX : playerpingtable[tab[i].num], true, 0, tab[i].num);
+				HU_drawPing(x+ 135, y+1, players[tab[i].num].quittime ? UINT32_MAX : playerpingtable[tab[i].num], true, 0, tab[i].num, false);
 			//else
 			//	V_DrawSmallString(x+ 129, y+4, V_YELLOWMAP, "HOST");
 		}

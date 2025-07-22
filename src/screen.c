@@ -46,6 +46,8 @@
 
 #include "lua_hud.h" // LUA_HudEnabled
 
+static INT32 hu_pingdraw_nudge = 0;
+
 // --------------------------------------------
 // assembly or c drawer routines for 8bpp/16bpp
 // --------------------------------------------
@@ -213,6 +215,7 @@ void SCR_Startup(void)
 
 	CV_RegisterVar(&cv_ticrate);
 	CV_RegisterVar(&cv_tpscounter);
+	CV_RegisterVar(&cv_compactinfo);
 	CV_RegisterVar(&cv_constextsize);
 
 	V_SetPalette(0);
@@ -469,6 +472,38 @@ void SCR_DisplayTicRate(void)
 	else if (totaltics >= TICRATE)
 		ticcntcolor = V_SKYMAP;
 
+	if (cv_compactinfo.value)
+	{
+		INT32 x = BASEVIDWIDTH - hu_pingdraw_nudge;
+
+		INT32 fpsnudge = 0;
+		if (cv_ticrate.value)
+		{
+			const char *fpsstr = va("%04.2f", averageFPS);
+			fpsnudge = max(V_ThinStringWidth(fpsstr,0) - 28, 0);
+			V_DrawRightAlignedThinString(
+				x,
+				BASEVIDHEIGHT - 8,
+				fpscntcolor |V_USERHUDTRANS|V_SNAPTORIGHT|V_SNAPTOBOTTOM,
+				fpsstr
+			);
+		}
+
+		if (cv_tpscounter.value)
+		{
+			const char *tpsstr = va("%d", totaltics);
+			V_DrawRightAlignedThinString(
+				x - 30 - fpsnudge,
+				BASEVIDHEIGHT - 8,
+				ticcntcolor |V_USERHUDTRANS|V_SNAPTORIGHT|V_SNAPTOBOTTOM,
+				tpsstr
+			);
+		}
+		hu_pingdraw_nudge = 0;
+		lasttic = ontic;
+		return;
+	}
+
 	//cv_ticrate is actually fps lul
  	if (cv_ticrate.value == 3) // thin compact counter
 	{
@@ -532,23 +567,30 @@ void SCR_DisplayTicRate(void)
 		V_DrawString(vid.width - width, h + (vstep*vid.dup),
 			ticcntcolor|V_NOSCALESTART|V_USERHUDTRANS, drawnstr);
 	}
+	hu_pingdraw_nudge = 0;
 	lasttic = ontic;
 }
 
 void SCR_DisplayLocalPing(void)
 {
+	hu_pingdraw_nudge = 0;
 	UINT32 ping = playerpingtable[consoleplayer];	// consoleplayer's ping is everyone's ping in a splitnetgame :P
 	if (cv_showping.value == 1 || (cv_showping.value == 2 && servermaxping && ping > servermaxping))	// only show 2 (warning) if our ping is at a bad level
 	{
 		INT32 dispy = 189;
-		if (cv_ticrate.value)
-			dispy -= 9;
-		
-		// this is way too close to the captions for my liking but its whatever :p
-		if (cv_tpscounter.value)
-			dispy -= 9;
-		
-		HU_drawPing(307, dispy, ping, true, V_SNAPTORIGHT | V_SNAPTOBOTTOM, consoleplayer);
+		if (!cv_compactinfo.value)
+		{
+			if (cv_ticrate.value)
+				dispy -= 9;
+			
+			// this is way too close to the captions for my liking but its whatever :p
+			if (cv_tpscounter.value)
+				dispy -= 9;
+
+			HU_drawPing(307, dispy, ping, true, V_SNAPTORIGHT | V_SNAPTOBOTTOM, consoleplayer, false);
+		}
+		else
+			hu_pingdraw_nudge = HU_drawPing(BASEVIDWIDTH-1, dispy + 2, ping, true, V_SNAPTORIGHT | V_SNAPTOBOTTOM, consoleplayer, true) + 3;
 	}
 }
 
