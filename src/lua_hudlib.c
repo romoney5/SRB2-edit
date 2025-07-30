@@ -348,13 +348,13 @@ static int camera_get(lua_State *L)
 		lua_pushangle(L, cam->aiming);
 		break;
 	case camera_x:
-	    lua_pushinteger(L, cam->x);
+	    lua_pushinteger(L, cam->x + quake.x);
 		break;
 	case camera_y:
-	    lua_pushinteger(L, cam->y);
+	    lua_pushinteger(L, cam->y + quake.y);
 		break;
 	case camera_z:
-	    lua_pushinteger(L, cam->z);
+	    lua_pushinteger(L, cam->z + quake.z);
 		break;
 	case camera_reset:
 		lua_pushboolean(L, cam->reset);
