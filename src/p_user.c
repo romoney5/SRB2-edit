@@ -3657,7 +3657,7 @@ static void P_DoClimbing(player_t *player)
 
 			for (think = thlist[THINK_MAIN].next; think != &thlist[THINK_MAIN]; think = think->next)
 			{
-				if (think->function.acp1 != (actionf_p1)T_Scroll)
+				if (think->function != (actionf_p1)T_Scroll)
 					continue;
 
 				scroller = (scroll_t *)think;
@@ -5792,7 +5792,7 @@ static void P_DoJumpStuff(player_t *player, ticcmd_t *cmd)
 INT32 P_GetPlayerControlDirection(player_t *player)
 {
 	if (player == NULL) return 0;
-	if (&player->cmd == NULL) return 0;
+	// if (&player->cmd == NULL) return 0;
 	ticcmd_t *cmd = &player->cmd;
 	angle_t controllerdirection, controlplayerdirection;
 	angle_t dangle;
