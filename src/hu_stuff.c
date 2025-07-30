@@ -1885,7 +1885,7 @@ INT32 HU_drawPing(INT32 x, INT32 y, UINT32 ping, boolean notext, INT32 flags, IN
 	SINT8 yoffset = 6;
 	INT32 nudge = 0;
 
-	const boolean gentleman = (cv_mindelay.value && (ping < G_TicsToMilliseconds((tic_t)simulated_lag))) && (pnum == consoleplayer || pnum == secondarydisplayplayer);
+	const boolean gentleman = (cv_mindelay.value && (ping < (UINT32)G_TicsToMilliseconds((tic_t)simulated_lag))) && (pnum == consoleplayer || pnum == secondarydisplayplayer);
 	if (gentleman)
 		ping = G_TicsToMilliseconds((tic_t)simulated_lag);
 
