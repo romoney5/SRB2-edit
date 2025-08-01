@@ -5791,7 +5791,6 @@ static void P_DoJumpStuff(player_t *player, ticcmd_t *cmd)
 //
 INT32 P_GetPlayerControlDirection(player_t *player)
 {
-	if (player == NULL) return 0;
 	ticcmd_t *cmd = &player->cmd;
 	angle_t controllerdirection, controlplayerdirection;
 	angle_t dangle;
