@@ -188,7 +188,7 @@ static inline int lib_freeslot(lua_State *L)
 // Arguments: mobj_t actor, int var1, int var2
 static int action_call(lua_State *L)
 {
-	actionf_p1 *action = *((actionf_p1 **)luaL_checkudata(L, 1, META_ACTION));
+	actionf_t *action = *((actionf_t **)luaL_checkudata(L, 1, META_ACTION));
 	mobj_t *actor = *((mobj_t **)luaL_checkudata(L, 2, META_MOBJ));
 
 	var1 = (INT32)luaL_optinteger(L, 3, 0);
@@ -199,7 +199,7 @@ static int action_call(lua_State *L)
 		return LUA_ErrInvalid(L, "mobj_t");
 	}
 
-	(*action)(actor);
+	action->acp1(actor);
 	return 0;
 }
 
@@ -632,7 +632,7 @@ FUNCINLINE static ATTRINLINE int getEnum(lua_State *L, boolean mathlib, const ch
 		{
 			if (fasticmp(word, actionpointers[i].name))
 			{
-				// We push the actionf_p1* itself as userdata!
+				// We push the actionf_t* itself as userdata!
 				LUA_PushUserdata(L, &actionpointers[i].action, META_ACTION);
 				return 1;
 			}
@@ -770,7 +770,7 @@ static int lib_getActionName(lua_State *L)
 {
 	if (lua_isuserdata(L, 1)) // arg 1 is built-in action, expect action userdata
 	{
-		actionf_p1 *action = *((actionf_p1 **)luaL_checkudata(L, 1, META_ACTION));
+		actionf_t *action = *((actionf_t **)luaL_checkudata(L, 1, META_ACTION));
 		const char *name = NULL;
 		if (!action)
 			return luaL_error(L, "not a valid action?");
@@ -840,11 +840,11 @@ int LUA_SOCLib(lua_State *L)
 
 const char *LUA_GetActionName(void *action)
 {
-	actionf_p1 *act = (actionf_p1 *)action;
+	actionf_t *act = (actionf_t *)action;
 	size_t z;
 	for (z = 0; actionpointers[z].name; z++)
 	{
-		if (actionpointers[z].action == *act)
+		if (actionpointers[z].action.acv == act->acv)
 			return actionpointers[z].name;
 	}
 	return NULL;
@@ -859,6 +859,8 @@ void LUA_SetActionByName(void *state, const char *actiontocompare)
 		if (fasticmp(actiontocompare, actionpointers[z].name))
 		{
 			st->action = actionpointers[z].action;
+			st->action.acv = actionpointers[z].action.acv; // assign
+			st->action.acp1 = actionpointers[z].action.acp1;
 			return;
 		}
 	}
