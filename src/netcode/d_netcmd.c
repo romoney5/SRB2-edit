@@ -5091,7 +5091,7 @@ static void Color2_OnChange(void)
 	}
 	else
 	{
-		if (!P_PlayerMoving(secondarydisplayplayer) && skincolors[players[secondarydisplayplayer].skincolor].accessible == true)
+		if (skincolors[players[secondarydisplayplayer].skincolor].accessible == true)
 		{
 			// Color change menu scrolling fix is no longer necessary
 			SendNameAndColor2();
