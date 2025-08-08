@@ -47,6 +47,10 @@ consvar_t cv_ticrate = CVAR_INIT ("showfps", "No", CV_SAVE, ticrate_cons_t, NULL
 consvar_t cv_tpscounter = CVAR_INIT ("showtps", "No", CV_SAVE, ticrate_cons_t, NULL);
 consvar_t cv_compactinfo = CVAR_INIT ("compactinfo", "No", CV_SAVE, CV_YesNo, NULL);
 
+//this is for the server connection screen Lul
+consvar_t cv_compactaddonlist = CVAR_INIT ("compactaddons", "Yes", CV_SAVE, CV_YesNo, NULL);
+
+
 static void CV_palette_OnChange(void);
 
 static CV_PossibleValue_t gamma_cons_t[] = {{-15, "MIN"}, {5, "MAX"}, {0, NULL}};
