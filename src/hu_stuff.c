@@ -504,11 +504,6 @@ static void DoSayCommand(SINT8 target, size_t usedargs, UINT8 flags)
 		strlcpy(msg, newmsg, HU_MAXMSGLEN + 1);
 	}
 
-	if (flags & HU_CSAY)
-	{
-		CONS_Printf(M_GetText("CSAY: %s \n"), msg);
-	}
-	
 	SendNetXCmd(XD_SAY, buf, strlen(msg) + 1 + msg-buf);
 }
 
@@ -706,6 +701,8 @@ static void Got_Saycmd(UINT8 **p, INT32 playernum)
 	{
 		HU_SetCEchoDuration(5);
 		I_OutputMsg("Server message: ");
+		if (cv_showcsays.value)
+			CONS_Printf("CSAY: %s\n", msg);
 		HU_DoCEcho(msg);
 		return;
 	}
@@ -2803,7 +2800,6 @@ void HU_DoCEcho(const char *msg)
 {
 	I_OutputMsg("%s\n", msg); // print to log
 
-	CONS_Printf(M_GetText("CSAY: %s \n"), msg);
 	strncpy(cechotext, msg, sizeof(cechotext)-1);
 	strncat(cechotext, "\\", sizeof(cechotext) - strlen(cechotext) - 1);
 	cechotext[sizeof(cechotext) - 1] = '\0';
