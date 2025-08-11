@@ -878,7 +878,10 @@ static void AbortConnection(void)
 	D_QuitNetGame();
 	CL_Reset();
 	D_StartTitle();
-	M_ConnectMenu(-1);
+	if (attemptingrejoin)
+		M_RejoinMenu(-1);
+	else
+		M_ConnectMenu(-1);
 
 	// Will be reset by caller. Signals refusal.
 	cl_mode = CL_ABORTED;
@@ -1710,17 +1713,20 @@ void CL_ConnectToServer(void)
 	displayplayer = consoleplayer;
 
 	// At this point we've succesfully joined the server, if we joined by IP (ie: a valid joinedIP string), save it!
-	CONS_Printf("cv_servername: %s\n",cv_servername.string);
-
 	strcpy(tmpsave, cv_servername.string);
 	tmpsave[255] = '\0';
+
+	// No IP? Try to find it then!
+	if (I_GetNodeAddress && !joinedIP[0])
+	{
+		const char* address = I_GetNodeAddress(servernode);
+		strcpy(joinedIP, address);
+	}
+
 	if (joinedIP[0])	// false if we have "" which is \0
 	{
-		CONS_Printf("joinedIP[0]: %d\n",joinedIP[0]);
 		M_AddToJoinedIPs(joinedIP, tmpsave);
 	}
-	else
-		CONS_Printf("No joinedIP\n");
 
 	joinedIP[0] = '\0';	// And empty this for good measure regardless of whether or not we actually used it.
 }
