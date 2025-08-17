@@ -3025,6 +3025,10 @@ static void HWR_RotateSpritePolyToAim(gl_vissprite_t *spr, FOutVector *wallVerts
 		}
 		lowy = wallVerts[0].y;
 
+		// 3---2
+		// |   |
+		// 0---1
+
 		// Rotate sprites to fully billboard with the camera
 		// X, Y, AND Z need to be manipulated for the polys to rotate around the
 		// origin, because of how the origin setting works I believe that should
@@ -3040,7 +3044,7 @@ static void HWR_RotateSpritePolyToAim(gl_vissprite_t *spr, FOutVector *wallVerts
 
 		wallVerts[3].z += ((spr->gzt - basey) * gl_viewludcos) * gl_viewsin;
 		wallVerts[2].z += ((spr->gzt - basey) * gl_viewludcos) * gl_viewsin;
-
+		
 		wallVerts[0].z += ((lowy - basey) * gl_viewludcos) * gl_viewsin;
 		wallVerts[1].z += ((lowy - basey) * gl_viewludcos) * gl_viewsin;
 	}
@@ -3436,6 +3440,30 @@ static void HWR_DrawSprite(gl_vissprite_t *spr)
 	//  |/ |
 	//  0--1
 
+	// cache the patch in the graphics card memory
+	//12/12/99: Hurdler: same comment as above (for md2)
+	//Hurdler: 25/04/2000: now support colormap in hardware mode
+	HWR_GetMappedPatch(gpatch, spr->colormap);
+
+	if (spr->flip)
+	{
+		wallVerts[0].s = wallVerts[3].s = ((GLPatch_t *)gpatch->hardware)->max_s;
+		wallVerts[2].s = wallVerts[1].s = 0;
+	}else{
+		wallVerts[0].s = wallVerts[3].s = 0;
+		wallVerts[2].s = wallVerts[1].s = ((GLPatch_t *)gpatch->hardware)->max_s;
+	}
+
+	// flip the texture coords (look familiar?)
+	if (spr->vflip)
+	{
+		wallVerts[3].t = wallVerts[2].t = ((GLPatch_t *)gpatch->hardware)->max_t;
+		wallVerts[0].t = wallVerts[1].t = 0;
+	}else{
+		wallVerts[3].t = wallVerts[2].t = 0;
+		wallVerts[0].t = wallVerts[1].t = ((GLPatch_t *)gpatch->hardware)->max_t;
+	}
+
 	if (splat)
 	{
 		F2DCoord verts[4];
@@ -3542,6 +3570,24 @@ static void HWR_DrawSprite(gl_vissprite_t *spr)
 	}
 	else
 	{
+		float ca, sa;
+		INT32 i;
+		float offsetx, offsety;
+		interpmobjstate_t interp = {0};
+
+		// do interpolation
+		if (R_UsingFrameInterpolation() && !paused)
+		{
+			R_InterpolateMobjState(spr->mobj, rendertimefrac, &interp);
+		}
+		else
+		{
+			R_InterpolateMobjState(spr->mobj, FRACUNIT, &interp);
+		}
+
+		offsetx = FIXED_TO_FLOAT(interp.x);
+		offsety = FIXED_TO_FLOAT(interp.z);
+
 		// these were already scaled in HWR_ProjectSprite
 		wallVerts[0].x = wallVerts[3].x = spr->x1;
 		wallVerts[2].x = wallVerts[1].x = spr->x2;
@@ -3552,30 +3598,24 @@ static void HWR_DrawSprite(gl_vissprite_t *spr)
 		// and the 2d map coords of start/end vertices
 		wallVerts[0].z = wallVerts[3].z = spr->z1;
 		wallVerts[1].z = wallVerts[2].z = spr->z2;
-	}
 
-	// cache the patch in the graphics card memory
-	//12/12/99: Hurdler: same comment as above (for md2)
-	//Hurdler: 25/04/2000: now support colormap in hardware mode
-	HWR_GetMappedPatch(gpatch, spr->colormap);
+		angle_t rollangle = FixedAngle(((leveltime*FRACUNIT)+rendertimefrac)*4); //spr->mobj->spriteroll;
+		// rollangle = -(rollangle + viewangle)+ANGLE_90;
+		ca = FIXED_TO_FLOAT(FINECOSINE((-rollangle)>>ANGLETOFINESHIFT));
+		sa = FIXED_TO_FLOAT(FINESINE((-rollangle)>>ANGLETOFINESHIFT));
+		
+		// Rotate
+		for (i = 0; i < 4; i++)
+		{
+			float temp_x = wallVerts[i].x - offsetx;
+			float temp_y = wallVerts[i].y - offsety;
 
-	if (spr->flip)
-	{
-		wallVerts[0].s = wallVerts[3].s = ((GLPatch_t *)gpatch->hardware)->max_s;
-		wallVerts[2].s = wallVerts[1].s = 0;
-	}else{
-		wallVerts[0].s = wallVerts[3].s = 0;
-		wallVerts[2].s = wallVerts[1].s = ((GLPatch_t *)gpatch->hardware)->max_s;
-	}
+			float rotated_x = (temp_x * ca) - (temp_y * sa);
+			float rotated_y = (temp_x * sa) + (temp_y * ca);
 
-	// flip the texture coords (look familiar?)
-	if (spr->vflip)
-	{
-		wallVerts[3].t = wallVerts[2].t = ((GLPatch_t *)gpatch->hardware)->max_t;
-		wallVerts[0].t = wallVerts[1].t = 0;
-	}else{
-		wallVerts[3].t = wallVerts[2].t = 0;
-		wallVerts[0].t = wallVerts[1].t = ((GLPatch_t *)gpatch->hardware)->max_t;
+			wallVerts[i].x = rotated_x + offsetx;
+			wallVerts[i].y = rotated_y + offsety;
+		}
 	}
 
 	if (!splat)
@@ -3591,7 +3631,7 @@ static void HWR_DrawSprite(gl_vissprite_t *spr)
 		}
 
 		// Let dispoffset work first since this adjust each vertex
-		HWR_RotateSpritePolyToAim(spr, wallVerts, false);
+		// HWR_RotateSpritePolyToAim(spr, wallVerts, false);
 	}
 
 	// This needs to be AFTER the shadows so that the regular sprites aren't drawn completely black.
@@ -4214,7 +4254,7 @@ static void HWR_DrawSprites(void)
 {
 	UINT32 i;
 	boolean skipshadow = false; // skip shadow if it was drawn already for a linkdraw sprite encountered earlier in the list
-	HWD.pfnSetSpecialState(HWD_SET_MODEL_LIGHTING, cv_glmodellighting.value);
+	//HWD.pfnSetSpecialState(HWD_SET_MODEL_LIGHTING, cv_glmodellighting.value);
 	for (i = 0; i < gl_visspritecount; i++)
 	{
 		gl_vissprite_t *spr = gl_vsprorder[i];
@@ -4253,7 +4293,9 @@ static void HWR_DrawSprites(void)
 			if (spr->mobj && spr->mobj->skin && spr->mobj->sprite == SPR_PLAY)
 			{
 				if (!cv_glmodels.value || !md2_playermodels[((skin_t*)spr->mobj->skin)->skinnum].found || md2_playermodels[((skin_t*)spr->mobj->skin)->skinnum].scale < 0.0f)
+				{
 					HWR_DrawSprite(spr);
+				}
 				else
 				{
 					if (!HWR_DrawModel(spr))
@@ -4594,8 +4636,8 @@ static void HWR_ProjectSprite(mobj_t *thing)
 		}
 
 		rotsprite = Patch_GetRotatedSprite(sprframe, (thing->frame & FF_FRAMEMASK), rot, flip, sprinfo, rollangle);
-
-		if (rotsprite != NULL)
+		
+		if (rotsprite != NULL && false)
 		{
 			spr_width = rotsprite->width << FRACBITS;
 			spr_height = rotsprite->height << FRACBITS;
@@ -4606,6 +4648,7 @@ static void HWR_ProjectSprite(mobj_t *thing)
 			// flip -> rotate, not rotate -> flip
 			flip = 0;
 		}
+
 	}
 #endif
 
@@ -4818,12 +4861,12 @@ static void HWR_ProjectSprite(mobj_t *thing)
 #ifdef ROTSPRITE
 	if (rotsprite)
 	{
-		vis->gpatch = (patch_t *)rotsprite;
+		// vis->gpatch = (patch_t *)rotsprite;
 		vis->rotated = true;
 	}
-	else
+	//else
 #endif
-		vis->gpatch = (patch_t *)W_CachePatchNum(sprframe->lumppat[rot], PU_SPRITE);
+	vis->gpatch = (patch_t *)W_CachePatchNum(sprframe->lumppat[rot], PU_SPRITE);
 
 	vis->mobj = thing;
 
