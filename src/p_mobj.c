@@ -10217,7 +10217,7 @@ void P_MobjThinker(mobj_t *mobj)
 	}
 
 	// Bad place to put this i feel
-	if (cv_pitchroll_easing.value && !P_IsObjectOnGround(mobj))
+	if (cv_pitchroll_easing.value && !P_IsObjectOnGround(mobj) && (((mobj->flags & MF_NOGRAVITY)|(mobj->eflags & MFE_NOPITCHROLLEASING)) == 0))
 	{
 		boolean canease = true; //(mobj->momz * P_MobjFlip(mobj) >= FixedMul(-3*FRACUNIT, mobj->scale));
 		
@@ -10238,6 +10238,7 @@ void P_MobjThinker(mobj_t *mobj)
 			mobj->roll = P_AngleLerp(lerpfrac, mobj->roll, 0);
 		}
 	}
+	mobj->eflags &= ~MFE_NOPITCHROLLEASING;
 
 	// Special thinker for scenery objects
 	if (mobj->flags & MF_SCENERY)
