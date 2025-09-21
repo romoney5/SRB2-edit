@@ -3200,7 +3200,7 @@ static void HWR_SplitSprite(gl_vissprite_t *spr)
 	// if sprite has PF_ALWAYSONTOP, draw on top of everything.
 	if (spr->mobj->renderflags & RF_ALWAYSONTOP)
 		blend |= PF_NoDepthTest;
-	
+
 	alpha = Surf.PolyColor.s.alpha;
 
 	// Start with the lightlevel and colormap from the top of the sprite
@@ -4338,6 +4338,12 @@ static void HWR_AddSprites(sector_t *sec)
 	// If a limit exists, handle things a tiny bit different
 	for (thing = sec->thinglist; thing; thing = thing->snext)
 	{
+		// do not render in skybox
+		if ((thing->renderflags & RF_HIDEINSKYBOX) && r_inskybox)
+		{
+			continue;
+		}
+
 		if (R_ThingWithinDist(thing, limit_dist, hoop_limit_dist))
 		{
 			if (R_ThingVisible(thing))
@@ -5578,8 +5584,10 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 		HWD.pfnClearBuffer(true, false, &ClearColor); // Clear the Color Buffer, stops HOMs. Also seems to fix the skybox issue on Intel GPUs.
 
 	PS_START_TIMING(ps_hw_skyboxtime);
+	r_inskybox = skybox;
 	if (skybox && drawsky) // If there's a skybox and we should be drawing the sky, draw the skybox
 		HWR_RenderSkyboxView(viewnumber, player); // This is drawn before everything else so it is placed behind
+	r_inskybox = false;
 	PS_STOP_TIMING(ps_hw_skyboxtime);
 
 	HWR_SetupView(player, viewnumber, fpov, false);
