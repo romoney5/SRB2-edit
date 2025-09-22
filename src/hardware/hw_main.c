@@ -5454,9 +5454,9 @@ static void HWR_SetupView(player_t *player, INT32 viewnumber, float fpov, boolea
 
 	atransform.fovxangle = fpov; // Tails
 	atransform.fovyangle = fpov; // Tails
-	if (player->viewrollangle != 0)
+	if (viewroll != 0)
 	{
-		fixed_t rol = AngleFixed(player->viewrollangle);
+		fixed_t rol = AngleFixed(viewroll);
 		atransform.rollangle = FixedToFloat(rol);
 		atransform.roll = true;
 		atransform.rollx = 1.0f;
