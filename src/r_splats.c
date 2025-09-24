@@ -147,8 +147,8 @@ static void TransformTriangle(vector3_t *triangle, vissprite_t *spr, floorsplat_
 		fixed_t tr_y = v3d->y - spr->viewpoint.y;
 
 		// rotation around vertical y axis
-		transformed[i].x = FixedToDouble(FixedMul(tr_x, sa) - FixedMul(tr_y, ca));
-		transformed[i].y = FixedToDouble(FixedMul(tr_x, ca) + FixedMul(tr_y, sa));
+		transformed[i].x = FixedToDouble(FixedMul(tr_x - x, sa) - FixedMul(tr_y - y, ca));
+		transformed[i].y = FixedToDouble(FixedMul(tr_x - x, ca) + FixedMul(tr_y - y, sa));
 		transformed[i].z = FixedToDouble(v3d->z - spr->viewpoint.z);
 
 		// Store which vertices are behind or in front of the camera, for clipping
@@ -250,7 +250,7 @@ boolean R_AddFloorSplat(vissprite_t *spr)
 		splatscale = FixedMul(splatscale, ((skin_t *)mobj->skin)->highresscale);
 
 	if (spr->rotateflags & SRF_3D || renderflags & RF_NOSPLATBILLBOARD)
-		splatangle = spr->centerangle;
+		splatangle = mobj->angle;
 	else
 		splatangle = spr->viewpoint.angle;
 
@@ -274,8 +274,8 @@ boolean R_AddFloorSplat(vissprite_t *spr)
 	xoffset = FixedMul(leftoffset, splat->xscale);
 	yoffset = FixedMul(topoffset, splat->yscale);
 
-	x = spr->gx;
-	y = spr->gy;
+	x = mobj->x;
+	y = mobj->y;
 	w = spr->patch->width * splat->xscale;
 	h = spr->patch->height * splat->yscale;
 
@@ -328,8 +328,8 @@ boolean R_AddFloorSplat(vissprite_t *spr)
 	// Translate
 	for (i = 0; i < 4; i++)
 	{
-		tr_x = rotated[i].x + x;
-		tr_y = rotated[i].y + y;
+		tr_x = rotated[i].x + mobj->x;
+		tr_y = rotated[i].y + mobj->y;
 
 		if (splat->slope)
 			splat->verts[i].z = P_GetSlopeZAt(splat->slope, tr_x, tr_y);
