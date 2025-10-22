@@ -43,6 +43,7 @@
 #include "m_argv.h"
 #include "i_system.h"
 #include "command.h" // cv_execversion
+#include "console.h" // for cv_streamermode
 
 #include "m_anigif.h"
 
@@ -1820,17 +1821,18 @@ void M_DoScreenShot(void)
 	}
 
 failure:
+	const char *path = cv_streamermode.value ? "screenshots"PATHSEP : pathname;
 	if (ret)
 	{
 		if (moviemode != MM_SCREENSHOT)
-			CONS_Printf(M_GetText("Screen shot %s saved in %s\n"), freename, pathname);
+			CONS_Printf(M_GetText("Screen shot %s saved in %s\n"), freename, path);
 	}
 	else
 	{
 		if (freename)
-			CONS_Alert(CONS_ERROR, M_GetText("Couldn't create screen shot %s in %s\n"), freename, pathname);
+			CONS_Alert(CONS_ERROR, M_GetText("Couldn't create screen shot %s in %s\n"), freename, path);
 		else
-			CONS_Alert(CONS_ERROR, M_GetText("Couldn't create screen shot in %s (all 10000 slots used!)\n"), pathname);
+			CONS_Alert(CONS_ERROR, M_GetText("Couldn't create screen shot in %s (all 10000 slots used!)\n"), path);
 
 		if (moviemode == MM_SCREENSHOT)
 			M_StopMovie();

@@ -153,6 +153,8 @@ static CV_PossibleValue_t backcolor_cons_t[] = {{0, "White"}, 		{1, "Black"},		{
 
 consvar_t cons_backcolor = CVAR_INIT ("con_backcolor", "Green", CV_CALL|CV_SAVE, backcolor_cons_t, CONS_backcolor_Change);
 
+consvar_t cv_streamermode = CVAR_INIT ("streamermode", "Off", CV_SAVE, CV_OnOff, NULL);
+
 static void CON_Print(char *msg);
 
 // Change the console height on demand
@@ -504,6 +506,7 @@ void CON_Init(void)
 		CV_RegisterVar(&cons_height);
 		CV_RegisterVar(&cons_backpic);
 		CV_RegisterVar(&cons_backcolor);
+		CV_RegisterVar(&cv_streamermode);
 		COM_AddCommand("bind", CONS_Bind_f, 0);
 	}
 	else
