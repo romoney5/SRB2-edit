@@ -98,7 +98,8 @@ enum patch {
 	patch_width,
 	patch_height,
 	patch_leftoffset,
-	patch_topoffset
+	patch_topoffset,
+	patch_pixels
 };
 static const char *const patch_opt[] = {
 	"valid",
@@ -106,6 +107,7 @@ static const char *const patch_opt[] = {
 	"height",
 	"leftoffset",
 	"topoffset",
+	"pixels",
 	NULL};
 
 static int patch_fields_ref = LUA_NOREF;
@@ -322,6 +324,9 @@ static int patch_get(lua_State *L)
 	case patch_topoffset:
 		lua_pushinteger(L, patch->topoffset);
 		break;
+	case patch_pixels:
+		LUA_PushUserdata(L, patch->pixels, META_PATCHPIXELS);
+		break;
 	}
 	return 1;
 }
@@ -329,6 +334,23 @@ static int patch_get(lua_State *L)
 static int patch_set(lua_State *L)
 {
 	return luaL_error(L, LUA_QL("patch_t") " struct cannot be edited by Lua.");
+}
+
+static int patchpixel_get(lua_State *L)
+{
+	UINT8 *pixels = *((UINT8 **)luaL_checkudata(L, 1, META_PATCHPIXELS));
+	UINT32 p = luaL_checkinteger(L, 2);
+	// INT16 width, height;
+	// if (p >= NUMPOWERS)
+	// 	return luaL_error(L, LUA_QL("patch_t.pixels") " cannot be %d", (INT16)p);
+	// numofverts = *(INT16)FIELDFROM (patch_t, width, vertices,/* -> */pixels);
+	lua_pushinteger(L, pixels[p]);
+	return 1;
+}
+
+static int patchpixel_set(lua_State *L)
+{
+	return luaL_error(L, LUA_QL("patch_t.pixels") " struct cannot be edited by Lua.");
 }
 
 static int camera_get(lua_State *L)
@@ -1615,6 +1637,7 @@ int LUA_HudLib(lua_State *L)
 	LUA_RegisterUserdataMetatable(L, META_HUDINFO, hudinfo_get, hudinfo_set, hudinfo_num);
 	LUA_RegisterUserdataMetatable(L, META_COLORMAP, colormap_get, NULL, NULL);
 	LUA_RegisterUserdataMetatable(L, META_PATCH, patch_get, patch_set, NULL);
+	LUA_RegisterUserdataMetatable(L, META_PATCHPIXELS, patchpixel_get, patchpixel_set, NULL);
 	LUA_RegisterUserdataMetatable(L, META_CAMERA, camera_get, camera_set, NULL);
 
 	patch_fields_ref = Lua_CreateFieldTable(L, patch_opt);

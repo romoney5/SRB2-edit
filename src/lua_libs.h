@@ -85,6 +85,7 @@ extern boolean ignoregameinputs;
 
 #define META_HUDINFO "HUDINFO_T*"
 #define META_PATCH "PATCH_T*"
+#define META_PATCHPIXELS "PATCH_T.PIXELS*"
 #define META_COLORMAP "COLORMAP"
 #define META_EXTRACOLORMAP "EXTRACOLORMAP_T*"
 #define META_CAMERA "CAMERA_T*"

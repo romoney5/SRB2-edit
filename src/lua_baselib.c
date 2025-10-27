@@ -229,6 +229,7 @@ static const struct {
 
 	{META_HUDINFO,      "hudinfo_t"},
 	{META_PATCH,        "patch_t"},
+	{META_PATCHPIXELS,  "patch_t.pixels"},
 	{META_COLORMAP,     "colormap"},
 	{META_EXTRACOLORMAP,"extracolormap_t"},
 	{META_CAMERA,       "camera_t"},
