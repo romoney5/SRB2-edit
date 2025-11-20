@@ -1598,7 +1598,7 @@ static void Command_Recorddemo_f(void)
 {
 	if (demorecording) // literally just G_CheckDemoStatus but manual
 	{
-		G_StopDemoRecording();
+		G_StopReplayRecording();
 		return;
 	}
 
@@ -1617,7 +1617,7 @@ static void Command_Recorddemo_f(void)
 	{
 		if (!netgame || (netgame && cv_mpdemo.value))
 		{
-			G_RecordDemo(((G_BuildMapName(gamemap)))); // why does this only accept mapname...
+			G_RecordReplay(((G_BuildMapName(gamemap)))); // why does this only accept mapname...
 			G_BeginRecording();
 			CONS_Printf("Recording started.\n\x84NOTE: Please rename the demo after it's done to something else!\n");
 		}

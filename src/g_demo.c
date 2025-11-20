@@ -1429,6 +1429,24 @@ void G_RecordDemo(const char *name)
 	demorecording = true;
 }
 
+void G_RecordReplay(const char *name)
+{
+	INT32 maxsize;
+
+	strcpy(demoname, name);
+	strcat(demoname, ".rpl");
+	maxsize = 1024*1024;
+	if (M_CheckParm("-maxdemo") && M_IsNextParm())
+		maxsize = atoi(M_GetNextParm()) * 1024;
+//	if (demobuffer)
+//		free(demobuffer);
+	demo_p = NULL;
+	demobuffer = malloc(maxsize);
+	demoend = demobuffer + maxsize;
+
+	demorecording = true;
+}
+
 void G_RecordMetal(void)
 {
 	INT32 maxsize;
@@ -2768,7 +2786,7 @@ static void WriteDemoChecksum(void)
 }
 
 // Stops recording a demo.
-void G_StopDemoRecording(void)
+static void G_StopDemoRecording(void)
 {
 	boolean saved = false;
 	if (demo_p)
@@ -2786,6 +2804,27 @@ void G_StopDemoRecording(void)
 			CONS_Printf(M_GetText("Demo %s recorded\n"), demoname);
 		else
 			CONS_Alert(CONS_WARNING, M_GetText("Demo %s not saved\n"), demoname);
+	}
+}
+
+void G_StopReplayRecording(void)
+{
+	boolean saved = false;
+	if (demo_p)
+	{
+		WRITEUINT8(demo_p, DEMOMARKER); // add the demo end marker
+		WriteDemoChecksum();
+		saved = FIL_WriteFile(va(pandf, srb2home, demoname), demobuffer, demo_p - demobuffer); // finally output the file.
+	}
+	free(demobuffer);
+	demorecording = false;
+
+	if (modeattacking != ATTACKING_RECORD)
+	{
+		if (saved)
+			CONS_Printf(M_GetText("Replay %s recorded\n"), demoname);
+		else
+			CONS_Alert(CONS_WARNING, M_GetText("Replay %s not saved\n"), demoname);
 	}
 }
 
