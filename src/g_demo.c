@@ -2768,7 +2768,7 @@ static void WriteDemoChecksum(void)
 }
 
 // Stops recording a demo.
-static void G_StopDemoRecording(void)
+void G_StopDemoRecording(void)
 {
 	boolean saved = false;
 	if (demo_p)
@@ -2787,10 +2787,6 @@ static void G_StopDemoRecording(void)
 		else
 			CONS_Alert(CONS_WARNING, M_GetText("Demo %s not saved\n"), demoname);
 	}
-}
-
-void G_StopDemoRecording2(void) {
-	G_StopDemoRecording(); // not sure if i should make G_StopDemoRecording non-static. Wrapping it instead.
 }
 
 // Stops metal sonic's demo. Separate from other functions because metal + replays can coexist

@@ -1596,26 +1596,33 @@ static void Command_ResetCamera_f(void)
 
 static void Command_Recorddemo_f(void)
 {
-	if (demorecording) { // literally just G_CheckDemoStatus but manual
-		G_StopDemoRecording2();
+	if (demorecording) // literally just G_CheckDemoStatus but manual
+	{
+		G_StopDemoRecording();
 		return;
 	}
 
-	if (gamestate != GS_LEVEL) {
+	if (gamestate != GS_LEVEL)
+	{
 		CONS_Printf("You must be in a level to use this command.\n");
 		return;
 	}
 
-	if (!demo_start) {
+	if (!demo_start)
+	{
 		CONS_Printf("Please wait until the level loads.\n");
 		return;
-	} else { // level ready
-	if (!netgame || (netgame && cv_mpdemo.value)) {
-		G_RecordDemo(((G_BuildMapName(gamemap)))); // why does this only accept mapname...
-		G_BeginRecording();
-		CONS_Printf("Recording started.\n\x84NOTE: Please rename the demo after it's done to something else!\n");
 	}
-		else if (!cv_mpdemo.value) {
+	else // level ready
+	{
+		if (!netgame || (netgame && cv_mpdemo.value))
+		{
+			G_RecordDemo(((G_BuildMapName(gamemap)))); // why does this only accept mapname...
+			G_BeginRecording();
+			CONS_Printf("Recording started.\n\x84NOTE: Please rename the demo after it's done to something else!\n");
+		}
+		else if (!cv_mpdemo.value)
+		{
 			CONS_Alert(CONS_WARNING, "This is very unstable. If you're sure, do \"mpdemo 1\" and execute this again.\n");
 			return;
 		}
