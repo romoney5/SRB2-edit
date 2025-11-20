@@ -1536,12 +1536,43 @@ void G_BeginRecording(void)
 	WRITEUINT32(demo_p,P_GetInitSeed());
 
 	if (demoflags & DF_MULTIPLAYER) {
-		// Net replays don't store player info here! Just skip to the netvars and return out.
+		// Netvars first :)
 		savebuffer.buf = demo_p;
 		savebuffer.size = demoend - demo_p;
 		savebuffer.pos = 0;
 		CV_SaveDemoVars(&savebuffer);
 		demo_p = &savebuffer.buf[savebuffer.pos];
+		// Now store a SIMPLIFIED data struct for each in-game player
+		for (p = 0; p < MAXPLAYERS; p++) {
+			if (playeringame[p] && !players[p].spectator) {
+				player = players[p];
+
+				WRITEUINT8(demo_p, p);
+
+				// Name
+				memset(name, 0, 16);
+				strncpy(name, player_names[p], 16);
+				M_Memcpy(demo_p,name,16);
+				demo_p += 16;
+
+				// Skin
+				memset(name, 0, 16);
+				strncpy(name, skins[player->skin].name, 16);
+				M_Memcpy(demo_p,name,16);
+				demo_p += 16;
+
+				// Color
+				memset(name, 0, 16);
+				strncpy(name, COLOR_ENUMS[player->skincolor], 16);
+				M_Memcpy(demo_p,name,16);
+				demo_p += 16;
+
+				// Score, since Kart uses this to determine where you start on the map
+				WRITEUINT32(demo_p, player->score);
+			}
+		}
+
+		WRITEUINT8(demo_p, 0xFF); // Denote the end of the player listing
 		return;
 	}
 
