@@ -108,6 +108,7 @@ demoghost *ghosts = NULL;
 #define DF_NIGHTSATTACK 0x04 // This demo is from NiGHTS attack and contains its time left, score, and mares!
 #define DF_ATTACKMASK   0x06 // This demo is from ??? attack and contains ???
 #define DF_ATTACKSHIFT  1
+#define DF_MULTIPLAYER  0x80 // This demo contains a dynamic number of players!
 
 // For demos
 #define ZT_FWD     0x01
@@ -1475,7 +1476,7 @@ void G_BeginRecording(void)
 	memset(name,0,sizeof(name));
 
 	demo_p = demobuffer;
-	demoflags = DF_GHOST|(modeattacking<<DF_ATTACKSHIFT);
+	demoflags = DF_GHOST | (multiplayer ? DF_MULTIPLAYER : (modeattacking<<DF_ATTACKSHIFT));
 	demorecording = true; // i think we need this here for Command_Recorddemo_f... not sure
 
 	// Setup header.
@@ -1533,6 +1534,16 @@ void G_BeginRecording(void)
 	}
 
 	WRITEUINT32(demo_p,P_GetInitSeed());
+
+	if (demoflags & DF_MULTIPLAYER) {
+		// Net replays don't store player info here! Just skip to the netvars and return out.
+		savebuffer.buf = demo_p;
+		savebuffer.size = demoend - demo_p;
+		savebuffer.pos = 0;
+		CV_SaveDemoVars(&savebuffer);
+		demo_p = &savebuffer.buf[savebuffer.pos];
+		return;
+	}
 
 	// Name
 	for (i = 0; i < 16 && cv_playername.string[i]; i++)
@@ -2182,6 +2193,7 @@ void G_DoPlayDemo(char *defdemoname)
 	}
 
 	modeattacking = (demoflags & DF_ATTACKMASK)>>DF_ATTACKSHIFT;
+	multiplayer = !!(demoflags & DF_MULTIPLAYER);
 	CON_ToggleOff();
 
 	hu_demoscore = 0;
@@ -2209,34 +2221,37 @@ void G_DoPlayDemo(char *defdemoname)
 	// Random seed
 	randseed = READUINT32(demo_p);
 
-	// Player name
-	M_Memcpy(player_names[0],demo_p,16);
-	demo_p += 16;
+	if (!multiplayer)
+	{
+		// Player name
+		M_Memcpy(player_names[0],demo_p,16);
+		demo_p += 16;
 
-	// Skin
-	M_Memcpy(skin,demo_p,16);
-	demo_p += 16;
+		// Skin
+		M_Memcpy(skin,demo_p,16);
+		demo_p += 16;
 
-	// Color
-	M_Memcpy(color, demo_p, (demoversion < 0x000d) ? 16 : MAXCOLORNAME);
-	demo_p += (demoversion < 0x000d) ? 16 : MAXCOLORNAME;
+		// Color
+		M_Memcpy(color, demo_p, (demoversion < 0x000d) ? 16 : MAXCOLORNAME);
+		demo_p += (demoversion < 0x000d) ? 16 : MAXCOLORNAME;
 
-	charability = READUINT8(demo_p);
-	charability2 = READUINT8(demo_p);
-	actionspd = (demoversion < 0x0010) ? (fixed_t)READUINT8(demo_p)<<FRACBITS : READFIXED(demo_p);
-	mindash = (demoversion < 0x0010) ? (fixed_t)READUINT8(demo_p)<<FRACBITS : READFIXED(demo_p);
-	maxdash = (demoversion < 0x0010) ? (fixed_t)READUINT8(demo_p)<<FRACBITS : READFIXED(demo_p);
-	normalspeed = (demoversion < 0x0010) ? (fixed_t)READUINT8(demo_p)<<FRACBITS : READFIXED(demo_p);
-	runspeed = (demoversion < 0x0010) ? (fixed_t)READUINT8(demo_p)<<FRACBITS : READFIXED(demo_p);
-	thrustfactor = READUINT8(demo_p);
-	accelstart = READUINT8(demo_p);
-	acceleration = READUINT8(demo_p);
-	height = (demoversion < 0x000e) ? (fixed_t)READUINT8(demo_p)<<FRACBITS : READFIXED(demo_p);
-	spinheight = (demoversion < 0x000e) ? (fixed_t)READUINT8(demo_p)<<FRACBITS : READFIXED(demo_p);
-	camerascale = (demoversion < 0x0010) ? (fixed_t)READUINT8(demo_p)<<FRACBITS : READFIXED(demo_p);
-	shieldscale = (demoversion < 0x0010) ? (fixed_t)READUINT8(demo_p)<<FRACBITS : READFIXED(demo_p);
-	jumpfactor = READFIXED(demo_p);
-	followitem = READUINT32(demo_p);
+		charability = READUINT8(demo_p);
+		charability2 = READUINT8(demo_p);
+		actionspd = (demoversion < 0x0010) ? (fixed_t)READUINT8(demo_p)<<FRACBITS : READFIXED(demo_p);
+		mindash = (demoversion < 0x0010) ? (fixed_t)READUINT8(demo_p)<<FRACBITS : READFIXED(demo_p);
+		maxdash = (demoversion < 0x0010) ? (fixed_t)READUINT8(demo_p)<<FRACBITS : READFIXED(demo_p);
+		normalspeed = (demoversion < 0x0010) ? (fixed_t)READUINT8(demo_p)<<FRACBITS : READFIXED(demo_p);
+		runspeed = (demoversion < 0x0010) ? (fixed_t)READUINT8(demo_p)<<FRACBITS : READFIXED(demo_p);
+		thrustfactor = READUINT8(demo_p);
+		accelstart = READUINT8(demo_p);
+		acceleration = READUINT8(demo_p);
+		height = (demoversion < 0x000e) ? (fixed_t)READUINT8(demo_p)<<FRACBITS : READFIXED(demo_p);
+		spinheight = (demoversion < 0x000e) ? (fixed_t)READUINT8(demo_p)<<FRACBITS : READFIXED(demo_p);
+		camerascale = (demoversion < 0x0010) ? (fixed_t)READUINT8(demo_p)<<FRACBITS : READFIXED(demo_p);
+		shieldscale = (demoversion < 0x0010) ? (fixed_t)READUINT8(demo_p)<<FRACBITS : READFIXED(demo_p);
+		jumpfactor = READFIXED(demo_p);
+		followitem = READUINT32(demo_p);
+	}
 
 	// pflag data
 	{
@@ -2299,52 +2314,55 @@ void G_DoPlayDemo(char *defdemoname)
 	// didn't start recording right away.
 	demo_start = false;
 
-	// Set skin
-	SetPlayerSkin(0, skin);
-
-	LUA_HookInt(gamemap, HOOK(MapChange));
-	displayplayer = consoleplayer = 0;
-	memset(playeringame,0,sizeof(playeringame));
-	playeringame[0] = true;
-	P_SetRandSeed(randseed);
-	G_InitNew(false, G_BuildMapName(gamemap), true, true, false);
-
-	// Set color
-	players[0].skincolor = skins[players[0].skin]->prefcolor;
-	for (i = 0; i < numskincolors; i++)
-		if (!stricmp(skincolors[i].name,color))
-		{
-			players[0].skincolor = i;
-			break;
-		}
-	if (players[0].mo)
+	if (!multiplayer)
 	{
-		players[0].mo->color = players[0].skincolor;
-		oldghost.x = players[0].mo->x;
-		oldghost.y = players[0].mo->y;
-		oldghost.z = players[0].mo->z;
-	}
+		// Set skin
+		SetPlayerSkin(0, skin);
 
-	// Set saved attribute values
-	// No cheat checking here, because even if they ARE wrong...
-	// it would only break the replay if we clipped them.
-	players[0].camerascale = camerascale;
-	players[0].shieldscale = shieldscale;
-	players[0].charability = charability;
-	players[0].charability2 = charability2;
-	players[0].actionspd = actionspd;
-	players[0].mindash = mindash;
-	players[0].maxdash = maxdash;
-	players[0].normalspeed = normalspeed;
-	players[0].runspeed = runspeed;
-	players[0].thrustfactor = thrustfactor;
-	players[0].accelstart = accelstart;
-	players[0].acceleration = acceleration;
-	players[0].height = height;
-	players[0].spinheight = spinheight;
-	players[0].jumpfactor = jumpfactor;
-	players[0].followitem = followitem;
-	players[0].pflags = pflags;
+		LUA_HookInt(gamemap, HOOK(MapChange));
+		displayplayer = consoleplayer = 0;
+		memset(playeringame,0,sizeof(playeringame));
+		playeringame[0] = !multiplayer;
+		P_SetRandSeed(randseed);
+		G_InitNew(false, G_BuildMapName(gamemap), true, true, false);
+
+		// Set color
+		players[0].skincolor = skins[players[0].skin]->prefcolor;
+		for (i = 0; i < numskincolors; i++)
+			if (!stricmp(skincolors[i].name,color))
+			{
+				players[0].skincolor = i;
+				break;
+			}
+		if (players[0].mo)
+		{
+			players[0].mo->color = players[0].skincolor;
+			oldghost.x = players[0].mo->x;
+			oldghost.y = players[0].mo->y;
+			oldghost.z = players[0].mo->z;
+		}
+
+		// Set saved attribute values
+		// No cheat checking here, because even if they ARE wrong...
+		// it would only break the replay if we clipped them.
+		players[0].camerascale = camerascale;
+		players[0].shieldscale = shieldscale;
+		players[0].charability = charability;
+		players[0].charability2 = charability2;
+		players[0].actionspd = actionspd;
+		players[0].mindash = mindash;
+		players[0].maxdash = maxdash;
+		players[0].normalspeed = normalspeed;
+		players[0].runspeed = runspeed;
+		players[0].thrustfactor = thrustfactor;
+		players[0].accelstart = accelstart;
+		players[0].acceleration = acceleration;
+		players[0].height = height;
+		players[0].spinheight = spinheight;
+		players[0].jumpfactor = jumpfactor;
+		players[0].followitem = followitem;
+		players[0].pflags = pflags;
+	}
 
 	demo_start = true;
 }
