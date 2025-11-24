@@ -329,11 +329,11 @@ static void DEH_LoadDehackedFile(MYFILE *f, boolean mainfile)
 				{
 					if (i == 0 && word2[0] != '0') // If word2 isn't a number
 						i = get_sprite2(word2); // find a sprite by name
-					if (i < (INT32)free_spr2 && i >= (INT32)SPR2_FIRSTFREESLOT)
+					if (i < (INT32)numplayersprites && i >= 0)
 						readsprite2(f, i);
 					else
 					{
-						deh_warning("Sprite2 number %d out of range (%d - %d)", i, SPR2_FIRSTFREESLOT, free_spr2-1);
+						deh_warning("Sprite2 number %d out of range (1 - %d)", i, numplayersprites-1);
 						ignorelines(f);
 					}
 				}
@@ -366,11 +366,11 @@ static void DEH_LoadDehackedFile(MYFILE *f, boolean mainfile)
 				{
 					if (i == 0 && word2[0] != '0') // If word2 isn't a number
 						i = get_sprite2(word2); // find a sprite by name
-					if (i < NUMPLAYERSPRITES && i >= 0)
+					if ((UINT32)i < numplayersprites && i >= 0)
 						readspriteinfo(f, i, true);
 					else
 					{
-						deh_warning("Sprite2 number %d out of range (0 - %d)", i, NUMPLAYERSPRITES-1);
+						deh_warning("Sprite2 number %d out of range (0 - %d)", i, numplayersprites-1);
 						ignorelines(f);
 					}
 				}

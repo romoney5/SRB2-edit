@@ -536,183 +536,97 @@ static const char sprnames[][MAXSPRITENAME + 1] =
 UINT32 numspriteinfo;
 spriteinfo_t **spriteinfo;
 
-char spr2names[NUMPLAYERSPRITES][MAXSPRITENAME + 1] =
+static const sprite2_t startplayersprites[] =
 {
-	"STND",
-	"WAIT",
-	"WALK",
-	"SKID",
-	"RUN_",
-	"DASH",
-	"PAIN",
-	"STUN",
-	"DEAD",
-	"DRWN",
-	"ROLL",
-	"GASP",
-	"JUMP",
-	"SPNG",
-	"FALL",
-	"EDGE",
-	"RIDE",
+	{"STND", 0}, 
+	{"WAIT", 0}, 
+	{"WALK", 0}, 
+	{"SKID", SPR2_WALK}, 
+	{"RUN", SPR2_WALK},
+	{"DASH", SPR2_FRUN}, 
+	{"PAIN", 0}, 
+	{"STUN", SPR2_PAIN}, 
+	{"DEAD", SPR2_PAIN}, 
+	{"DRWN", SPR2_DEAD}, 
+	{"ROLL", 0}, 
+	{"GASP", SPR2_SPNG}, 
+	{"JUMP", 0}, // (conditional, will never be referenced)
+	{"SPNG", SPR2_FALL}, 
+	{"FALL", SPR2_WALK}, 
+	{"EDGE", 0}, 
+	{"RIDE", SPR2_FALL}, 
 
-	"SPIN",
+	{"SPIN", SPR2_ROLL}, 
 
-	"FLY_",
-	"SWIM",
-	"TIRE",
+	{"FLY", SPR2_SPNG},
+	{"SWIM", SPR2_FLY}, 
+	{"TIRE", 0}, // (conditional, will never be referenced)
 
-	"GLID",
-	"LAND",
-	"CLNG",
-	"CLMB",
+	{"GLID", SPR2_FLY} , 
+	{"LAND", SPR2_ROLL}, 
+	{"CLNG", SPR2_CLMB}, 
+	{"CLMB", SPR2_ROLL}, 
 
-	"FLT_",
-	"FRUN",
+	{"FLT", SPR2_WALK},
+	{"FRUN", SPR2_RUN}, 
 
-	"BNCE",
+	{"BNCE", SPR2_FALL}, 
 
-	"FIRE",
+	{"FIRE", 0}, 
 
-	"TWIN",
+	{"TWIN", SPR2_ROLL}, 
 
-	"MLEE",
-	"MLEL",
+	{"MLEE", SPR2_TWIN}, 
+	{"MLEL", 0}, 
 
-	"TRNS",
+	{"TRNS", 0}, 
 
-	"NSTD",
-	"NFLT",
-	"NFLY",
-	"NDRL",
-	"NSTN",
-	"NPUL",
-	"NATK",
+	{"NSTD", SPR2_STND}, 
+	{"NFLT", SPR2_FALL}, 
+	{"NFLY", 0}, // (will never be referenced unless skin 0 lacks this)
+	{"NDRL", SPR2_NFLY}, 
+	{"NSTN", SPR2_STUN}, 
+	{"NPUL", SPR2_NSTN}, 
+	{"NATK", SPR2_ROLL}, 
 
-	"TAL0",
-	"TAL1",
-	"TAL2",
-	"TAL3",
-	"TAL4",
-	"TAL5",
-	"TAL6",
-	"TAL7",
-	"TAL8",
-	"TAL9",
-	"TALA",
-	"TALB",
-	"TALC",
+	{"TAL0", 0}, // (this will look mighty stupid but oh well)
+	{"TAL1", SPR2_TAL0}, 
+	{"TAL2", SPR2_TAL1}, 
+	{"TAL3", SPR2_TAL2}, 
+	{"TAL4", SPR2_TAL1}, 
+	{"TAL5", SPR2_TAL4}, 
+	{"TAL6", SPR2_TAL0}, 
+	{"TAL7", SPR2_TAL3}, 
+	{"TAL8", SPR2_TAL7}, 
+	{"TAL9", SPR2_TAL0}, 
+	{"TALA", SPR2_TAL9}, 
+	{"TALB", SPR2_TAL0}, 
+	{"TALC", SPR2_TAL6}, 
 
-	"MSC0",
-	"MSC1",
-	"MSC2",
-	"MSC3",
-	"MSC4",
-	"MSC5",
-	"MSC6",
-	"MSC7",
-	"MSC8",
-	"MSC9",
+	{"MSC0", 0},
+	{"MSC1", 0},
+	{"MSC2", 0},
+	{"MSC3", 0},
+	{"MSC4", 0},
+	{"MSC5", 0},
+	{"MSC6", 0},
+	{"MSC7", 0},
+	{"MSC8", 0},
+	{"MSC9", 0},
 
-	"CNT1",
-	"CNT2",
-	"CNT3",
-	"CNT4",
+	{"CNT1", SPR2_WAIT}, 
+	{"CNT2", SPR2_FALL}, 
+	{"CNT3", SPR2_SPNG}, 
+	{"CNT4", SPR2_CNT1}, 
 
-	"SIGN",
-	"LIFE",
+	{"SIGN", 0}, 
+	{"LIFE", 0}, 
 
-	"XTRA",
+	{"XTRA", 0}, // (should never be referenced)
 };
-playersprite_t free_spr2 = SPR2_FIRSTFREESLOT;
 
-playersprite_t spr2defaults[NUMPLAYERSPRITES] = {
-	0, // SPR2_STND,
-	0, // SPR2_WAIT,
-	0, // SPR2_WALK,
-	SPR2_WALK, // SPR2_SKID,
-	SPR2_WALK, // SPR2_RUN ,
-	SPR2_FRUN, // SPR2_DASH,
-	0, // SPR2_PAIN,
-	SPR2_PAIN, // SPR2_STUN,
-	SPR2_PAIN, // SPR2_DEAD,
-	SPR2_DEAD, // SPR2_DRWN,
-	0, // SPR2_ROLL,
-	SPR2_SPNG, // SPR2_GASP,
-	0, // SPR2_JUMP, (conditional, will never be referenced)
-	SPR2_FALL, // SPR2_SPNG,
-	SPR2_WALK, // SPR2_FALL,
-	0, // SPR2_EDGE,
-	SPR2_FALL, // SPR2_RIDE,
-
-	SPR2_ROLL, // SPR2_SPIN,
-
-	SPR2_SPNG, // SPR2_FLY ,
-	SPR2_FLY , // SPR2_SWIM,
-	0, // SPR2_TIRE, (conditional, will never be referenced)
-
-	SPR2_FLY , // SPR2_GLID,
-	SPR2_ROLL, // SPR2_LAND,
-	SPR2_CLMB, // SPR2_CLNG,
-	SPR2_ROLL, // SPR2_CLMB,
-
-	SPR2_WALK, // SPR2_FLT ,
-	SPR2_RUN , // SPR2_FRUN,
-
-	SPR2_FALL, // SPR2_BNCE,
-
-	0, // SPR2_FIRE,
-
-	SPR2_ROLL, // SPR2_TWIN,
-
-	SPR2_TWIN, // SPR2_MLEE,
-	0, // SPR2_MLEL,
-
-	0, // SPR2_TRNS,
-
-	SPR2_STND, // SPR2_NSTD,
-	SPR2_FALL, // SPR2_NFLT,
-	0, // SPR2_NFLY, (will never be referenced unless skin 0 lacks this)
-	SPR2_NFLY, // SPR2_NDRL,
-	SPR2_STUN, // SPR2_NSTN,
-	SPR2_NSTN, // SPR2_NPUL,
-	SPR2_ROLL, // SPR2_NATK,
-
-	0, // SPR2_TAL0, (this will look mighty stupid but oh well)
-	SPR2_TAL0, // SPR2_TAL1,
-	SPR2_TAL1, // SPR2_TAL2,
-	SPR2_TAL2, // SPR2_TAL3,
-	SPR2_TAL1, // SPR2_TAL4,
-	SPR2_TAL4, // SPR2_TAL5,
-	SPR2_TAL0, // SPR2_TAL6,
-	SPR2_TAL3, // SPR2_TAL7,
-	SPR2_TAL7, // SPR2_TAL8,
-	SPR2_TAL0, // SPR2_TAL9,
-	SPR2_TAL9, // SPR2_TALA,
-	SPR2_TAL0, // SPR2_TALB,
-	SPR2_TAL6, // SPR2_TALC,
-
-	0, // SPR2_MSC0,
-	0, // SPR2_MSC1,
-	0, // SPR2_MSC2,
-	0, // SPR2_MSC3,
-	0, // SPR2_MSC4,
-	0, // SPR2_MSC5,
-	0, // SPR2_MSC6,
-	0, // SPR2_MSC7,
-	0, // SPR2_MSC8,
-	0, // SPR2_MSC9,
-
-	SPR2_WAIT, // SPR2_CNT1,
-	SPR2_FALL, // SPR2_CNT2,
-	SPR2_SPNG, // SPR2_CNT3,
-	SPR2_CNT1, // SPR2_CNT4,
-
-	0, // SPR2_SIGN,
-	0, // SPR2_LIFE,
-
-	0, // SPR2_XTRA (should never be referenced)
-};
+UINT32 numplayersprites;
+sprite2_t **playersprites;
 
 // Doesn't work with g++, needs actionf_p1 (don't modify this comment)
 static const state_t startstates[] =
@@ -22764,11 +22678,20 @@ UINT32 P_AllocateSpriteinfo(const char *name)
 	spriteinfo = Z_Realloc(spriteinfo, sizeof(*spriteinfo) * ++numspriteinfo, PU_STATIC, NULL);
 	spriteinfo[numspriteinfo-1] = Z_Malloc(sizeof(spriteinfo_t), PU_STATIC, NULL);
 	memset(spriteinfo[numspriteinfo-1], 0, sizeof(spriteinfo_t));
-	strcpy(spriteinfo[numspriteinfo-1]->name, name);
+	spriteinfo[numspriteinfo-1]->name = name;
 	R_ResizeSprites();
 	HWR_AllocateMD2Model();
 	HWR_AllocateLSpr();
 	return numspriteinfo-1;
+}
+
+UINT32 P_AllocatePlayersprite(const char *name)
+{
+	playersprites = Z_Realloc(playersprites, sizeof(*playersprites) * ++numplayersprites, PU_STATIC, NULL);
+	playersprites[numplayersprites-1] = Z_Malloc(sizeof(playersprite_t), PU_STATIC, NULL);
+	memset(playersprites[numplayersprites-1], 0, sizeof(playersprite_t));
+	playersprites[numplayersprites-1]->name = name;
+	return numplayersprites-1;
 }
 
 UINT32 P_GetMobjinfoIndex(mobjinfo_t *info)
@@ -22819,10 +22742,18 @@ void P_InitializeTables(void)
 	{
 		spriteinfo[i] = Z_Malloc(sizeof(spriteinfo_t), PU_STATIC, NULL);
 		memset(spriteinfo[i], 0, sizeof(spriteinfo_t));
-		strcpy(spriteinfo[i]->name, sprnames[i]);
+		spriteinfo[i]->name = sprnames[i];
 	}
 	HWR_AllocateMD2Model();
 	HWR_AllocateLSpr();
+
+	numplayersprites = sizeof(startplayersprites) / sizeof(startplayersprites[0]);
+	playersprites = Z_Malloc(sizeof(*playersprites) * numplayersprites, PU_STATIC, NULL);
+	for (i = 0; i < numplayersprites; i++)
+	{
+		playersprites[i] = Z_Malloc(sizeof(sprite2_t), PU_STATIC, NULL);
+		memcpy(playersprites[i], &startplayersprites[i], sizeof(sprite2_t));
+	}
 }
 
 void P_BackupTables(void)
@@ -22852,7 +22783,7 @@ void P_ResetData(INT32 flags)
 		for (i = 0; i < sizeof(sprnames) / sizeof(sprnames[0]); i++)
 		{
 			memset(spriteinfo[numspriteinfo-1], 0, sizeof(spriteinfo_t));
-			strcpy(spriteinfo[i]->name, sprnames[i]);
+			spriteinfo[i]->name = sprnames[i];
 		}
 	}
 

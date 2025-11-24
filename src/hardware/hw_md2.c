@@ -1206,7 +1206,7 @@ static modelspr2frames_t *HWR_GetModelSprite2Frames(md2_t *md2, UINT16 spr2)
 
 	spr2 &= SPR2F_MASK;
 
-	if (spr2 >= free_spr2)
+	if (spr2 >= numplayersprites)
 		return NULL;
 
 	if (is_super)
@@ -1258,7 +1258,7 @@ static UINT16 HWR_GetModelSprite2Num(md2_t *md2, skin_t *skin, UINT16 spr2, play
 			break;
 		// Use the handy list, that's what it's there for!
 		default:
-			spr2 = spr2defaults[spr2];
+			spr2 = playersprites[spr2]->defaults;
 			break;
 		}
 

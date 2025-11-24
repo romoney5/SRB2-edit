@@ -65,10 +65,8 @@ static inline int lib_freeslot(lua_State *L)
 		else if (fastcmp(type, "SPR"))
 		{
 			spritenum_t j;
-			if (strlen(word) > MAXSPRITENAME)
-				I_Error("Sprite name is longer than %d characters\n", MAXSPRITENAME);
 			CONS_Printf("Sprite SPR_%s allocated.\n",word);
-			j = P_AllocateSpriteinfo(word);
+			j = P_AllocateSpriteinfo(Z_StrDup(word));
 			LUA_UpdateSprName(word, j);
 			lua_pushinteger(L, j);
 			r++;
@@ -105,21 +103,15 @@ static inline int lib_freeslot(lua_State *L)
 		{
 			// Search if we already have an SPR2 by that name...
 			playersprite_t i;
-			for (i = SPR2_FIRSTFREESLOT; i < free_spr2; i++)
-				if (memcmp(spr2names[i],word,4) == 0)
+			for (i = 0; i < numplayersprites; i++)
+				if (memcmp(playersprites[i]->name,word,4) == 0)
 					break;
-			// We don't, so allocate a new one.
-			if (i >= free_spr2) {
-				if (free_spr2 < NUMPLAYERSPRITES)
-				{
-					CONS_Printf("Sprite SPR2_%s allocated.\n",word);
-					strncpy(spr2names[free_spr2],word,4);
-					spr2defaults[free_spr2] = 0;
-					lua_pushinteger(L, free_spr2);
-					r++;
-					spr2names[free_spr2++][4] = 0;
-				} else
-					CONS_Alert(CONS_WARNING, "Ran out of free SPR2 slots!\n");
+			if (i >= numplayersprites)
+			{
+				// We don't, so allocate a new one.
+				CONS_Printf("Sprite SPR2_%s allocated.\n",word);
+				lua_pushinteger(L, P_AllocatePlayersprite(Z_StrDup(word)));
+				r++;
 			}
 		}
 		else if (fastcmp(type, "TOL"))
@@ -430,18 +422,20 @@ static int ScanConstants(lua_State *L, boolean mathlib, const char *word)
 	}
 	else if (fastncmp("SPR2_",word,5)) {
 		p = word+5;
-		for (i = 0; i < (fixed_t)free_spr2; i++)
-			if (!spr2names[i][4])
+		for (i = 0; i < (fixed_t)numplayersprites; i++)
+			if (!playersprites[i]->name[4])
 			{
 				// special 3-char cases, e.g. SPR2_RUN
-				// the spr2names entry will have "_" on the end, as in "RUN_"
-				if (spr2names[i][3] == '_' && !p[3]) {
-					if (fastncmp(p,spr2names[i],3)) {
+				// the playersprites entry will have "_" on the end, as in "RUN_"
+				if (playersprites[i]->name[3] == '_' && !p[3])
+				{
+					if (fastncmp(p,playersprites[i]->name,3))
+					{
 						CacheAndPushConstant(L, word, i);
 						return 1;
 					}
 				}
-				else if (fastncmp(p,spr2names[i],4)) {
+				else if (fastncmp(p,playersprites[i]->name,4)) {
 					CacheAndPushConstant(L, word, i);
 					return 1;
 				}

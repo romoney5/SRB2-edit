@@ -36,7 +36,7 @@ INT32 numskins = 0;
 skin_t **skins = NULL;
 
 // Gets the animation ID of a state
-UINT16 P_GetStateSprite2(state_t *state)
+UINT32 P_GetStateSprite2(state_t *state)
 {
 	if (state->sprite2)
 		return state->sprite2;
@@ -53,7 +53,7 @@ UINT16 P_GetStateSprite2(state_t *state)
 }
 
 // Gets the starting frame of an animation
-UINT16 P_GetSprite2StateFrame(state_t *state)
+UINT32 P_GetSprite2StateFrame(state_t *state)
 {
 	if (state->sprite2)
 		return state->frame & FF_FRAMEMASK;
@@ -76,7 +76,7 @@ boolean P_IsStateSprite2Super(state_t *state)
 }
 
 // Applies SPR2F_SUPER to an animation based on the actor's state
-UINT16 P_ApplySuperFlagToSprite2(UINT16 spr2, mobj_t *mobj)
+UINT32 P_ApplySuperFlagToSprite2(UINT32 spr2, mobj_t *mobj)
 {
 	if (mobj->player)
 	{
@@ -99,9 +99,9 @@ UINT16 P_ApplySuperFlagToSprite2(UINT16 spr2, mobj_t *mobj)
 
 // For non-super players, this tries each sprite2's immediate predecessor until it finds one with a number of frames or ends up at standing.
 // For super players, does the same as above - but tries the super equivalent for each sprite2 before the non-super version.
-UINT16 P_GetSkinSprite2(skin_t *skin, UINT16 spr2, player_t *player)
+UINT32 P_GetSkinSprite2(skin_t *skin, UINT32 spr2, player_t *player)
 {
-	UINT16 super = 0;
+	UINT32 super = 0;
 	UINT8 i = 0;
 
 	if (!skin)
@@ -135,7 +135,7 @@ UINT16 P_GetSkinSprite2(skin_t *skin, UINT16 spr2, player_t *player)
 			break;
 		// Use the handy list, that's what it's there for!
 		default:
-			spr2 = spr2defaults[spr2];
+			spr2 = playersprites[spr2]->defaults;
 			break;
 		}
 
@@ -149,7 +149,7 @@ UINT16 P_GetSkinSprite2(skin_t *skin, UINT16 spr2, player_t *player)
 }
 
 // Gets the spritedef of a skin animation
-spritedef_t *P_GetSkinSpritedef(skin_t *skin, UINT16 spr2)
+spritedef_t *P_GetSkinSpritedef(skin_t *skin, UINT32 spr2)
 {
 	if (!skin)
 		return NULL;
@@ -158,7 +158,7 @@ spritedef_t *P_GetSkinSpritedef(skin_t *skin, UINT16 spr2)
 
 	spr2 &= SPR2F_MASK;
 
-	if (spr2 >= free_spr2)
+	if (spr2 >= numplayersprites)
 		return NULL;
 
 	if (is_super)
@@ -168,7 +168,7 @@ spritedef_t *P_GetSkinSpritedef(skin_t *skin, UINT16 spr2)
 }
 
 // Gets the spriteinfo of a skin animation
-spriteinfo_t *P_GetSkinSpriteInfo(skin_t *skin, UINT16 spr2)
+spriteinfo_t *P_GetSkinSpriteInfo(skin_t *skin, UINT32 spr2)
 {
 	if (!skin)
 		return NULL;
@@ -177,7 +177,7 @@ spriteinfo_t *P_GetSkinSpriteInfo(skin_t *skin, UINT16 spr2)
 
 	spr2 &= SPR2F_MASK;
 
-	if (spr2 >= free_spr2)
+	if (spr2 >= numplayersprites)
 		return NULL;
 
 	if (is_super)
@@ -187,7 +187,7 @@ spriteinfo_t *P_GetSkinSpriteInfo(skin_t *skin, UINT16 spr2)
 }
 
 // Checks if a skin animation is valid
-boolean P_IsValidSprite2(skin_t *skin, UINT16 spr2)
+boolean P_IsValidSprite2(skin_t *skin, UINT32 spr2)
 {
 	spritedef_t *sprdef = P_GetSkinSpritedef(skin, spr2);
 	return sprdef && sprdef->numframes;
@@ -601,10 +601,19 @@ static UINT16 W_CheckForPatchSkinMarkerInPwad(UINT16 wadid, UINT16 startlump)
 	return INT16_MAX; // not found
 }
 
-static void R_LoadSkinSprites(UINT16 wadnum, UINT16 *lump, UINT16 *lastlump, skin_t *skin, UINT16 start_spr2)
+static void R_LoadSkinSprites(UINT16 wadnum, UINT16 *lump, UINT16 *lastlump, skin_t *skin, UINT32 start_spr2)
 {
 	UINT16 newlastlump;
-	UINT16 sprite2;
+	UINT32 sprite2;
+	UINT32 free_spr2 = numplayersprites;
+
+	skin->sprites = Z_Realloc(skin->sprites, sizeof(*skin->sprites) * numplayersprites, PU_STATIC, NULL);
+	skin->sprinfo = Z_Realloc(skin->sprinfo, sizeof(*skin->sprinfo) * numplayersprites, PU_STATIC, NULL);
+	memset(&skin->sprinfo[skin->numsprites], 0, sizeof(*skin->sprinfo) * (numplayersprites < skin->numsprites));
+	skin->super.sprites = Z_Realloc(skin->super.sprites, sizeof(*skin->super.sprites) * numplayersprites, PU_STATIC, NULL);
+	skin->super.sprinfo = Z_Realloc(skin->super.sprinfo, sizeof(*skin->super.sprinfo) * numplayersprites, PU_STATIC, NULL);
+	memset(&skin->super.sprinfo[skin->numsprites], 0, sizeof(*skin->super.sprinfo) * (numplayersprites < skin->numsprites));
+	skin->numsprites = numplayersprites;
 
 	*lump += 1; // start after S_SKIN
 	*lastlump = W_CheckNumForNamePwad("S_END",wadnum,*lump); // stop at S_END
@@ -623,25 +632,30 @@ static void R_LoadSkinSprites(UINT16 wadnum, UINT16 *lump, UINT16 *lastlump, ski
 	{
 		newlastlump++;
 		// load all sprite sets we are aware of... for super!
-		for (sprite2 = start_spr2; sprite2 < free_spr2; sprite2++)
-			R_AddSingleSpriteDef(spr2names[sprite2], &skin->super.sprites[sprite2], wadnum, newlastlump, *lastlump, false);
+		for (sprite2 = start_spr2; sprite2 < numplayersprites; sprite2++)
+			R_AddSingleSpriteDef(playersprites[sprite2]->name, &skin->super.sprites[sprite2], wadnum, newlastlump, *lastlump, false);
 
 		newlastlump--;
 		*lastlump = newlastlump; // okay, make the normal sprite set loading end there
 	}
 
 	// load all sprite sets we are aware of... for normal stuff.
-	for (sprite2 = start_spr2; sprite2 < free_spr2; sprite2++)
-		R_AddSingleSpriteDef(spr2names[sprite2], &skin->sprites[sprite2], wadnum, *lump, *lastlump, false);
+	for (sprite2 = start_spr2; sprite2 < numplayersprites; sprite2++)
+		R_AddSingleSpriteDef(playersprites[sprite2]->name, &skin->sprites[sprite2], wadnum, *lump, *lastlump, false);
 
 	if (skin->sprites[0].numframes == 0)
-		CONS_Alert(CONS_ERROR, M_GetText("No frames found for sprite SPR2_%s\n"), spr2names[0]);
+		CONS_Alert(CONS_ERROR, M_GetText("No frames found for sprite SPR2_%s\n"), playersprites[0]->name);
 
 	// TODO: 2.3: Delete
+	if (free_spr2 > NUMPLAYERSPRITES_COMPAT)
+	{
+		free_spr2 = NUMPLAYERSPRITES_COMPAT;
+		CONS_Alert(CONS_WARNING, "Compat sprite2 limits has been hit (%u out of a possible %d allocated)! Backwards compatibility is no longer guaranteed!\n", numplayersprites, NUMPLAYERSPRITES_COMPAT);
+	}
 	memcpy(&skin->sprites_compat[start_spr2],
 		&skin->sprites[start_spr2],
 		sizeof(spritedef_t) * (free_spr2 - start_spr2));
-	memcpy(&skin->sprites_compat[start_spr2 + NUMPLAYERSPRITES],
+	memcpy(&skin->sprites_compat[start_spr2 + NUMPLAYERSPRITES_COMPAT],
 		&skin->super.sprites[start_spr2],
 		sizeof(spritedef_t) * (free_spr2 - start_spr2));
 }
@@ -1180,13 +1194,13 @@ next_token:
 			continue;
 		}
 
-		// Update sprites, in the range of (start_spr2 - free_spr2-1)
+		// Update sprites, in the range of (start_spr2 - numplayersprites-1)
 		R_LoadSkinSprites(wadnum, &lump, &lastlump, skin, start_spr2);
 		//R_FlushTranslationColormapCache(); // I don't think this is needed for what we're doing?
 	}
 }
 
-static playersprite_t old_spr2 = SPR2_FIRSTFREESLOT;
+static playersprite_t old_spr2 = 0;
 void R_RefreshSprite2(void)
 {
 	// Sprite2s being defined by custom wads can create situations where
@@ -1201,17 +1215,17 @@ void R_RefreshSprite2(void)
 
 	INT32 i;
 
-	if (old_spr2 > free_spr2)
+	if (old_spr2 > numplayersprites)
 	{
 #ifdef PARANOIA
-		I_Error("R_RefreshSprite2: old_spr2 is too high?! (old_spr2: %d, free_spr2: %d)\n", old_spr2, free_spr2);
+		I_Error("R_RefreshSprite2: old_spr2 is too high?! (old_spr2: %d, numplayersprites: %d)\n", old_spr2, numplayersprites);
 #else
 		// Just silently fix
-		old_spr2 = free_spr2;
+		old_spr2 = numplayersprites;
 #endif
 	}
 
-	if (old_spr2 == free_spr2)
+	if (old_spr2 == numplayersprites)
 	{
 		// No sprite2s were added since the last time we did freeslots.
 		return;
@@ -1223,5 +1237,5 @@ void R_RefreshSprite2(void)
 	}
 
 	// Update previous value.
-	old_spr2 = free_spr2;
+	old_spr2 = numplayersprites;
 }

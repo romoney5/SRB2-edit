@@ -349,8 +349,8 @@ static int lib_getSkinSprite(lua_State *L)
 	spritedef_t *sksprites = *(spritedef_t **)luaL_checkudata(L, 1, META_SKINSPRITES);
 	playersprite_t i = luaL_checkinteger(L, 2);
 
-	if (i < 0 || i >= NUMPLAYERSPRITES)
-		return luaL_error(L, "skin sprites index %d out of range (0 - %d)", i, NUMPLAYERSPRITES-1);
+	if (i < 0 || i >= numplayersprites)
+		return luaL_error(L, "skin sprites index %d out of range (0 - %d)", i, numplayersprites-1);
 
 	LUA_PushUserdata(L, &sksprites[i], META_SKINSPRITESLIST);
 	return 1;
@@ -359,7 +359,7 @@ static int lib_getSkinSprite(lua_State *L)
 // #skin.skinsprites -> NUMPLAYERSPRITES
 static int lib_numSkinsSprites(lua_State *L)
 {
-	lua_pushinteger(L, NUMPLAYERSPRITES);
+	lua_pushinteger(L, numplayersprites);
 	return 1;
 }
 
@@ -371,10 +371,10 @@ static int lib_getSkinSpriteCompat(lua_State *L)
 	INT32 i = luaL_checkinteger(L, 2) & (SPR2F_MASK | SPR2F_SUPER);
 
 	if (i & SPR2F_SUPER)
-		i = (i & ~SPR2F_SUPER) + NUMPLAYERSPRITES;
+		i = (i & ~SPR2F_SUPER) + NUMPLAYERSPRITES_COMPAT;
 
-	if (i < 0 || i >= NUMPLAYERSPRITES*2)
-		return luaL_error(L, "skin sprites index %d out of range (0 - %d)", i, (NUMPLAYERSPRITES*2)-1);
+	if (i < 0 || i >= NUMPLAYERSPRITES_COMPAT*2)
+		return luaL_error(L, "skin sprites index %d out of range (0 - %d)", i, (NUMPLAYERSPRITES_COMPAT*2)-1);
 
 	LUA_PushUserdata(L, &sksprites[i], META_SKINSPRITESLIST);
 	return 1;
@@ -384,7 +384,7 @@ static int lib_getSkinSpriteCompat(lua_State *L)
 // #skin.sprites -> NUMPLAYERSPRITES*2
 static int lib_numSkinsSpritesCompat(lua_State *L)
 {
-	lua_pushinteger(L, NUMPLAYERSPRITES*2);
+	lua_pushinteger(L, NUMPLAYERSPRITES_COMPAT*2);
 	return 1;
 }
 

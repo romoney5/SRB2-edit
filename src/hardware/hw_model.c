@@ -334,19 +334,19 @@ void LoadModelSprite2(model_t *model)
 			if ((super = (!memcmp(prefix, "SUPER", 5))) || (!memcmp(prefix, "SPR2_", 5)))
 			{
 				spr2idx = 0;
-				while (spr2idx < free_spr2)
+				while (spr2idx < numplayersprites)
 				{
 					modelspr2frames_t *frames = NULL;
-					if (!memcmp(spr2names[spr2idx], name, 4))
+					if (!memcmp(playersprites[spr2idx]->name, name, 4))
 					{
 						if (!spr2frames)
-							spr2frames = (modelspr2frames_t*)Z_Calloc(sizeof(modelspr2frames_t)*NUMPLAYERSPRITES, PU_STATIC, NULL);
+							spr2frames = (modelspr2frames_t*)Z_Calloc(sizeof(modelspr2frames_t)*numplayersprites, PU_STATIC, NULL);
 						frames = spr2frames;
 
 						if (super)
 						{
 							if (!superspr2frames)
-								superspr2frames = (modelspr2frames_t*)Z_Calloc(sizeof(modelspr2frames_t)*NUMPLAYERSPRITES, PU_STATIC, NULL);
+								superspr2frames = (modelspr2frames_t*)Z_Calloc(sizeof(modelspr2frames_t)*numplayersprites, PU_STATIC, NULL);
 							frames = superspr2frames;
 						}
 

@@ -1836,7 +1836,7 @@ static void R_ProjectSprite(mobj_t *thing)
 
 		if (frame >= sprdef->numframes)
 		{
-			CONS_Alert(CONS_ERROR, M_GetText("R_ProjectSprite: invalid skins[\"%s\"].sprites[SPR2_%s] %sframe %s\n"), ((skin_t *)thing->skin)->name, spr2names[thing->sprite2 & SPR2F_MASK], (thing->sprite2 & SPR2F_SUPER) ? "super ": "", sizeu5(frame));
+			CONS_Alert(CONS_ERROR, M_GetText("R_ProjectSprite: invalid skins[\"%s\"].sprites[SPR2_%s] %sframe %s\n"), ((skin_t *)thing->skin)->name, playersprites[thing->sprite2 & SPR2F_MASK]->name, (thing->sprite2 & SPR2F_SUPER) ? "super ": "", sizeu5(frame));
 			thing->sprite = states[S_UNKNOWN]->sprite;
 			thing->frame = states[S_UNKNOWN]->frame;
 			sprdef = &sprites[thing->sprite];

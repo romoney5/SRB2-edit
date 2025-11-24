@@ -451,7 +451,7 @@ void readfreeslots(MYFILE *f)
 					I_Error("Sprite name is longer than %d characters\n", MAXSPRITENAME);
 
 				CONS_Printf("Sprite SPR_%s allocated.\n",word);
-				i = P_AllocateSpriteinfo(word);
+				i = P_AllocateSpriteinfo(Z_StrDup(word));
 				LUA_UpdateSprName(word, i);
 			}
 			else if (fastcmp(type, "S"))
@@ -477,19 +477,14 @@ void readfreeslots(MYFILE *f)
 			else if (fastcmp(type, "SPR2"))
 			{
 				// Search if we already have an SPR2 by that name...
-				for (i = SPR2_FIRSTFREESLOT; i < (int)free_spr2; i++)
-					if (memcmp(spr2names[i],word,4) == 0)
+				for (i = 0; i < (int)numplayersprites; i++)
+					if (memcmp(playersprites[i]->name,word,4) == 0)
 						break;
 				// We found it? (Two mods using the same SPR2 name?) Then don't allocate another one.
-				if (i < (int)free_spr2)
+				if (i < (int)numplayersprites)
 					continue;
-				// Copy in the spr2 name and increment free_spr2.
-				if (free_spr2 < NUMPLAYERSPRITES) {
-					strncpy(spr2names[free_spr2],word,4);
-					spr2defaults[free_spr2] = 0;
-					spr2names[free_spr2++][4] = 0;
-				} else
-					deh_warning("Ran out of free SPR2 slots!\n");
+				CONS_Printf("Sprite SPR2_%s allocated.\n",word);
+				P_AllocatePlayersprite(Z_StrDup(word));
 			}
 			else if (fastcmp(type, "TOL"))
 			{
@@ -994,7 +989,7 @@ void readspriteinfo(MYFILE *f, INT32 num, boolean sprite2)
 			if (fastcmp(word, "LIGHTTYPE"))
 			{
 				if (sprite2)
-					deh_warning("Sprite2 %s: invalid word '%s'", spr2names[num], word);
+					deh_warning("Sprite2 %s: invalid word '%s'", playersprites[num]->name, word);
 				else
 				{
 					INT32 oldvar;
@@ -1010,7 +1005,7 @@ void readspriteinfo(MYFILE *f, INT32 num, boolean sprite2)
 				INT32 skinnum = -1;
 				if (!sprite2)
 				{
-					deh_warning("Sprite %s: %s keyword found outside of SPRITE2INFO block, ignoring", spr2names[num], word);
+					deh_warning("Sprite %s: %s keyword found outside of SPRITE2INFO block, ignoring", playersprites[num]->name, word);
 					continue;
 				}
 
@@ -1019,7 +1014,7 @@ void readspriteinfo(MYFILE *f, INT32 num, boolean sprite2)
 				skinnum = R_SkinAvailable(word2);
 				if (skinnum == -1)
 				{
-					deh_warning("Sprite2 %s: unknown skin %s", spr2names[num], word2);
+					deh_warning("Sprite2 %s: unknown skin %s", playersprites[num]->name, word2);
 					break;
 				}
 
@@ -1032,14 +1027,14 @@ void readspriteinfo(MYFILE *f, INT32 num, boolean sprite2)
 			{
 				if (!sprite2)
 				{
-					deh_warning("Sprite %s: %s keyword found outside of SPRITE2INFO block, ignoring", spr2names[num], word);
+					deh_warning("Sprite %s: %s keyword found outside of SPRITE2INFO block, ignoring", playersprites[num]->name, word);
 					continue;
 				}
-				if (num < (INT32)free_spr2 && num >= (INT32)SPR2_FIRSTFREESLOT)
-					spr2defaults[num] = get_number(word2);
+				if (num > 0 && num < (INT32)numplayersprites)
+					playersprites[num]->defaults = get_number(word2);
 				else
 				{
-					deh_warning("Sprite2 %s: out of range (%d - %d), ignoring", spr2names[num], SPR2_FIRSTFREESLOT, free_spr2-1);
+					deh_warning("Sprite2 %s: out of range (1 - %d), ignoring", playersprites[num]->name, numplayersprites-1);
 					continue;
 				}
 			}
@@ -1050,7 +1045,7 @@ void readspriteinfo(MYFILE *f, INT32 num, boolean sprite2)
 				if (frame >= 64)
 				{
 					if (sprite2)
-						deh_warning("Sprite2 %s: invalid frame %s", spr2names[num], word2);
+						deh_warning("Sprite2 %s: invalid frame %s", playersprites[num]->name, word2);
 					else
 						deh_warning("Sprite %s: invalid frame %s", spriteinfo[num]->name, word2);
 					break;
@@ -1063,7 +1058,7 @@ void readspriteinfo(MYFILE *f, INT32 num, boolean sprite2)
 					INT32 i;
 					if (!foundskins)
 					{
-						deh_warning("Sprite2 %s: no skins specified", spr2names[num]);
+						deh_warning("Sprite2 %s: no skins specified", playersprites[num]->name);
 						break;
 					}
 					for (i = 0; i < foundskins; i++)
@@ -1125,9 +1120,9 @@ void readsprite2(MYFILE *f, INT32 num)
 				word2[strlen(word2)-1] = '\0';
 
 			if (fastcmp(word, "DEFAULT"))
-				spr2defaults[num] = get_number(word2);
+				playersprites[num]->defaults = get_number(word2);
 			else
-				deh_warning("Sprite2 %s: unknown word '%s'", spr2names[num], word);
+				deh_warning("Sprite2 %s: unknown word '%s'", playersprites[num]->name, word);
 		}
 	} while (!myfeof(f)); // finish when the line is empty
 
@@ -4205,8 +4200,8 @@ playersprite_t get_sprite2(const char *word)
 		return atoi(word);
 	if (fastncmp("SPR2_",word,5))
 		word += 5; // take off the SPR2_
-	for (i = 0; i < NUMPLAYERSPRITES; i++)
-		if (!spr2names[i][4] && memcmp(word,spr2names[i],4)==0)
+	for (i = 0; i < numplayersprites; i++)
+		if (!playersprites[i]->name[4] && memcmp(word,playersprites[i]->name,4)==0)
 			return i;
 	deh_warning("Couldn't find sprite named 'SPR2_%s'",word);
 	return SPR2_STND;

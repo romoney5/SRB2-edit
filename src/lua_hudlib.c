@@ -612,17 +612,17 @@ static int libd_getSprite2Patch(lua_State *L)
 			j &= ~SPR2F_SUPER; // remove flag so the next check doesn't fail
 		}
 
-		if (j >= free_spr2)
+		if (j >= numplayersprites)
 			return 0;
 	}
 	else if (lua_isstring(L, 1)) // sprite prefix name given, e.g. "STND"
 	{
 		const char *name = lua_tostring(L, 1);
-		for (j = 0; j < free_spr2; j++)
-			if (fastcmp(name, spr2names[j]))
+		for (j = 0; j < numplayersprites; j++)
+			if (fastcmp(name, playersprites[j]->name))
 				break;
 		// if you want super flags you'll have to use the optional boolean following this
-		if (j >= free_spr2)
+		if (j >= numplayersprites)
 			return 0;
 	}
 	else

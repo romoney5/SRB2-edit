@@ -1172,11 +1172,10 @@ typedef enum playersprite
 	SPR2_LIFE, // life monitor icon
 
 	SPR2_XTRA, // stuff that isn't in-map - "would this ever need an md2 or variable length animation?"
-
-	SPR2_FIRSTFREESLOT,
-	SPR2_LASTFREESLOT = 1024, // Do not make higher than SPR2F_MASK (currently 0x3FF) plus one
-	NUMPLAYERSPRITES
 } playersprite_t;
+
+// TODO: remove in 2.3
+#define NUMPLAYERSPRITES_COMPAT 1025
 
 #define MAXFRAMENUM 256
 
@@ -1185,9 +1184,11 @@ typedef struct
 	INT32 x, y;
 } spriteframepivot_t;
 
+#define SPRINFO_DEFAULT_FRAME (MAXFRAMENUM)
+
 typedef struct
 {
-	char name[MAXSPRITENAME+1];
+	const char *name;
 	spriteframepivot_t pivot[MAXFRAMENUM];
 	boolean available;
 } spriteinfo_t;
@@ -1197,6 +1198,15 @@ typedef struct
 
 extern UINT32 numspriteinfo;
 extern spriteinfo_t **spriteinfo;
+
+typedef struct
+{
+	const char *name;
+	playersprite_t defaults;
+} sprite2_t;
+
+extern UINT32 numplayersprites;
+extern sprite2_t **playersprites;
 
 enum
 {
@@ -4432,11 +4442,7 @@ typedef struct
 
 extern state_t **states;
 extern UINT32 numstates;
-
-extern char spr2names[NUMPLAYERSPRITES][MAXSPRITENAME + 1];
-extern playersprite_t spr2defaults[NUMPLAYERSPRITES];
 extern state_t *astate;
-extern playersprite_t free_spr2;
 
 typedef enum mobj_type
 {
@@ -5257,6 +5263,7 @@ extern UINT32 nummobjinfo;
 UINT32 P_AllocateMobjinfo(const char *name);
 UINT32 P_AllocateState(const char *name);
 UINT32 P_AllocateSpriteinfo(const char *name);
+UINT32 P_AllocatePlayersprite(const char *name);
 UINT32 P_GetMobjinfoIndex(mobjinfo_t *info);
 UINT32 P_GetSpriteinfoIndex(spriteinfo_t *info);
 void P_InitializeTables(void);
