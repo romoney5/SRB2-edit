@@ -1199,8 +1199,6 @@ static int mobjinfo_get(lua_State *L)
 
 	I_Assert(info != NULL);
 
-	mobjtype_t id = info-mobjinfo;
-
 	switch (field)
 	{
 	case mobjinfo_doomednum:
@@ -1276,19 +1274,7 @@ static int mobjinfo_get(lua_State *L)
 		lua_pushinteger(L, info->raisestate);
 		break;
 	case mobjinfo_typename:
-		if (id < MT_FIRSTFREESLOT)
-		{
-			lua_pushstring(L, MOBJTYPE_LIST[id]+3);
-			return 1;
-		}
-
-		id -= MT_FIRSTFREESLOT;
-		if (id < NUMMOBJFREESLOTS && FREE_MOBJS[id])
-		{
-			lua_pushstring(L, FREE_MOBJS[id]);
-			return 1;
-		}
-
+		lua_pushstring(L, info->name);
 		return 0;
 	default:
 		lua_getfield(L, LUA_REGISTRYINDEX, LREG_EXTVARS);

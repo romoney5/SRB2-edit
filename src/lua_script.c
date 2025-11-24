@@ -1220,7 +1220,7 @@ static UINT8 ArchiveValue(save_t *save_p, int TABLESINDEX, int myindex)
 		{
 			mobjinfo_t *info = *((mobjinfo_t **)lua_touserdata(gL, myindex));
 			P_WriteUINT8(save_p, ARCH_MOBJINFO);
-			P_WriteUINT16(save_p, info - mobjinfo);
+			P_WriteUINT16(save_p, P_GetMobjinfoIndex(info));
 			break;
 		}
 		case ARCH_STATE:

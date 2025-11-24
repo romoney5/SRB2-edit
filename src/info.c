@@ -22495,7 +22495,8 @@ static mobjinfo_t startmobjinfo[] =
 		S_NULL          // raisestate
 	},
 
-	{			// MT_OLDK
+	{
+		"MT_OLDK",
 		666,            // doomednum
 		S_OLDK_STND,	// spawnstate
 		1,              // spawnhealth

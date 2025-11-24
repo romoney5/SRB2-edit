@@ -1119,9 +1119,9 @@ static mapthing_t *OP_CreateNewMapThing(player_t *player, UINT16 type, boolean c
 	mt->pitch = mt->roll = 0;
 
 	// Ignore offsets
-	if (mt->type == mobjinfo[MT_EMBLEM].doomednum)
+	if (mt->type == mobjinfo[MT_EMBLEM]->doomednum)
 		mt->args[1] = 1;
-	else if (!(mt->type == mobjinfo[MT_METALSONIC_RACE].doomednum || mt->type == mobjinfo[MT_ROSY].doomednum))
+	else if (!(mt->type == mobjinfo[MT_METALSONIC_RACE]->doomednum || mt->type == mobjinfo[MT_ROSY]->doomednum))
 		mt->args[0] = 1;
 
 	return mt;
