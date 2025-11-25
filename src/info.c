@@ -542,7 +542,7 @@ static const sprite2_t startplayersprites[] =
 	{"WAIT", 0}, 
 	{"WALK", 0}, 
 	{"SKID", SPR2_WALK}, 
-	{"RUN", SPR2_WALK},
+	{"RUN_", SPR2_WALK},
 	{"DASH", SPR2_FRUN}, 
 	{"PAIN", 0}, 
 	{"STUN", SPR2_PAIN}, 
@@ -558,7 +558,7 @@ static const sprite2_t startplayersprites[] =
 
 	{"SPIN", SPR2_ROLL}, 
 
-	{"FLY", SPR2_SPNG},
+	{"FLY_", SPR2_SPNG},
 	{"SWIM", SPR2_FLY}, 
 	{"TIRE", 0}, // (conditional, will never be referenced)
 
@@ -567,7 +567,7 @@ static const sprite2_t startplayersprites[] =
 	{"CLNG", SPR2_CLMB}, 
 	{"CLMB", SPR2_ROLL}, 
 
-	{"FLT", SPR2_WALK},
+	{"FLT_", SPR2_WALK},
 	{"FRUN", SPR2_RUN}, 
 
 	{"BNCE", SPR2_FALL}, 
