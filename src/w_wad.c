@@ -132,10 +132,10 @@ void W_UnloadFile(wadfile_t *wad)
 {
 	if (wad->handle)
 		fclose(wad->handle);
+	Z_Free(wad->filename);
 	if (wad->path)
 		Z_Free(wad->path);
 
-	Z_Free(wad->filename);
 
 	lumpinfo_t *lumpinfo = wad->lumpinfo;
 	lumpcache_t *lumpcache = wad->lumpcache;
@@ -933,10 +933,10 @@ UINT16 W_InitFile(const char *filename, boolean mainfile, boolean startup, boole
 
 	important = !important;
 	if (local)
-    {
+	{
 		important = 0;
-        lua_locallyloading++;
-    }
+		lua_locallyloading++;
+	}
 #ifndef NOMD5
 	//
 	// w-waiiiit!
@@ -1040,7 +1040,7 @@ UINT16 W_InitFile(const char *filename, boolean mainfile, boolean startup, boole
 	lua_lumploading++;
 	LUA_HookVoid(HOOK(AddonLoaded));
 	lua_lumploading--;
-    lua_locallyloading = 0;
+	lua_locallyloading = 0;
 
 	W_InvalidateLumpnumCache();
 
