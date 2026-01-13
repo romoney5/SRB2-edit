@@ -4501,7 +4501,7 @@ static void HWR_ProjectSprite(mobj_t *thing)
 			if (!md2->found || md2->scale < 0.0f)
 				return;
 		}
-		else if (!cv_glspritebillboarding.value)
+		else
 			return;
 	}
 
