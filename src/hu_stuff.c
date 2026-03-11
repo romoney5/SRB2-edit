@@ -1849,21 +1849,16 @@ void HU_Drawer(void)
 
 		V_DrawCenteredString(BASEVIDWIDTH/2, 180, V_YELLOWMAP | V_ALLOWLOWERCASE, resynch_text);
 
-		Net_GetNetStat();
-
 		fileneeded_t *file = &fileneeded[0];
 		const char *progress_str;
 		if (file->totalsize >= 1024*1024)
-			progress_str = va("%.2fMiB/%.2fMiB", (double)file->currentsize / (1024*1024), (double)file->totalsize / (1024*1024));
+			progress_str = va("%4uMB/%4uMB", (UINT32)file->currentsize / (1024*1024), (UINT32)file->totalsize / (1024*1024));
 		else if (file->totalsize < 1024)
 			progress_str = va("%4uB/%4uB", file->currentsize, file->totalsize);
 		else
-			progress_str = va("%.2fKiB/%.2fKiB", (double)file->currentsize / 1024, (double)file->totalsize / 1024);
+			progress_str = va("%4uKB/%4uKB", (UINT32)file->currentsize / 1024, (UINT32)file->totalsize / 1024);
 
-		V_DrawCenteredSmallString(BASEVIDWIDTH/2, 188, V_ALLOWLOWERCASE, va("%s (%3.1fK/s)",
-			progress_str, 
-			((double)getbps)/1024)
-		);
+		V_DrawCenteredSmallString(BASEVIDWIDTH/2, 188, V_ALLOWLOWERCASE, progress_str);
 	}
 
 	if (modeattacking && pausedelay > 0 && !(pausebreakkey || cv_instantretry.value))
