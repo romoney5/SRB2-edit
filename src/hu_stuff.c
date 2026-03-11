@@ -54,6 +54,8 @@
 #include "lua_hudlib_drawlist.h"
 #include "lua_hook.h"
 
+#include "netcode/d_netfil.h"
+
 // coords are scaled
 #define HU_INPUTX 0
 #define HU_INPUTY 0
@@ -1846,6 +1848,22 @@ void HU_Drawer(void)
 			strcat(resynch_text, ".");
 
 		V_DrawCenteredString(BASEVIDWIDTH/2, 180, V_YELLOWMAP | V_ALLOWLOWERCASE, resynch_text);
+
+		Net_GetNetStat();
+
+		fileneeded_t *file = &fileneeded[0];
+		const char *progress_str;
+		if (file->totalsize >= 1024*1024)
+			progress_str = va("%.2fMiB/%.2fMiB", (double)file->currentsize / (1024*1024), (double)file->totalsize / (1024*1024));
+		else if (file->totalsize < 1024)
+			progress_str = va("%4uB/%4uB", file->currentsize, file->totalsize);
+		else
+			progress_str = va("%.2fKiB/%.2fKiB", (double)file->currentsize / 1024, (double)file->totalsize / 1024);
+
+		V_DrawCenteredSmallString(BASEVIDWIDTH/2, 188, V_ALLOWLOWERCASE, va("%s (%3.1fK/s)",
+			progress_str, 
+			((double)getbps)/1024)
+		);
 	}
 
 	if (modeattacking && pausedelay > 0 && !(pausebreakkey || cv_instantretry.value))
