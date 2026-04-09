@@ -6189,19 +6189,20 @@ void HWR_DoPostProcessor(player_t *player)
 		INT32 WAVELENGTH;
 		INT32 AMPLITUDE;
 		INT32 FREQUENCY;
+		float SPEED = 0.9f;
 
 		// Modifies the wave.
 		if (*type == postimg_water)
 		{
 			WAVELENGTH = 5;
 			AMPLITUDE = 40;
-			FREQUENCY = 8;
+			FREQUENCY = 10;
 		}
 		else
 		{
 			WAVELENGTH = 10;
 			AMPLITUDE = 60;
-			FREQUENCY = 4;
+			FREQUENCY = 8;
 		}
 
 		for (x = 0; x < SCREENVERTS; x++)
@@ -6209,7 +6210,7 @@ void HWR_DoPostProcessor(player_t *player)
 			for (y = 0; y < SCREENVERTS; y++)
 			{
 				// Change X position based on its Y position.
-				v[x][y][0] = (x/((float)(SCREENVERTS-1.0f)/9.0f))-4.5f + (float)sin((disStart+(y*WAVELENGTH))/FREQUENCY)/AMPLITUDE;
+				v[x][y][0] = (x/((float)(SCREENVERTS-1.0f)/9.0f))-4.5f + (float)sin((disStart * SPEED + (y*WAVELENGTH))/FREQUENCY)/AMPLITUDE;
 				v[x][y][1] = (y/((float)(SCREENVERTS-1.0f)/9.0f))-4.5f;
 			}
 		}
