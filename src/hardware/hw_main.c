@@ -2899,7 +2899,7 @@ static void HWR_DrawDropShadow(mobj_t *thing, fixed_t scale)
 
 	floordiff = abs((flip < 0 ? interp.height : 0) + interp.z - groundz);
 
-	alpha = floordiff / (4*FRACUNIT) + 75;
+	alpha = floordiff / (4*FRACUNIT) + 100;
 	if (alpha >= 255) return;
 	alpha = 255 - alpha;
 
